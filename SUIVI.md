@@ -7,7 +7,7 @@ Il est mis à jour à chaque étape importante.
 
 - Étape 1 — Interview : **terminée** (récapitulatif validé par l'utilisateur le 20/11/2026)
 - Étape 2 — Cahier des charges : **validé** le 20/11/2026 (`docs/cahier-des-charges.md`, version 1.1)
-- **Étape en cours : 3 — Construction. Jalon J0 (deux directions visuelles)** : maquettes publiées (page privée claude.ai : https://claude.ai/artifact/LoCVjcaC6UEWoSnKY2CRgz ; sources copiées dans `docs/maquettes-J0/`). **En attente du choix de l'utilisateur.**
+- **Étape en cours : 3 — Construction. Jalon J0 (deux directions visuelles)** : maquettes publiées (page privée claude.ai : https://claude.ai/artifact/LoCVjcaC6UEWoSnKY2CRgz ; sources copiées dans `docs/maquettes-J0/`). **Choix fait : direction A, avec l'orange de B (#FF5A1F).** Maquettes A mises à jour.
   - Direction A « Anneaux » : noir pur, police Inter, cartes arrondies, anneaux de progression, accent vert citron #D4FF3A.
   - Direction B « Éditorial » : noir et blanc cassé, titres géants condensés en majuscules (Barlow Condensed), angles droits, filets fins, accent orange #FF5A1F.
 - Étape 3 — Construction par jalons : à faire, après accord écrit sur le cahier des charges
@@ -107,6 +107,7 @@ Il est mis à jour à chaque étape importante.
 - **D5 — Hébergement :** GitHub Pages ; le dépôt sera rendu public (le code seulement, jamais les données) au jalon J1.
 - **D6 — Idées :** acceptées I2 (adaptée : tour de taille facultatif, rappel toutes les 4 semaines au plus), I3, I4, I5, I7, I8, I9, I10 (si version native) ; refusées I1 (vérification avant séance) et I6 (calculateur de disques).
 - **D7 — Tour de taille :** mesure jugée contraignante → facultative, peu fréquente.
+- **D8 — Style visuel :** direction A « Anneaux » (noir pur, Inter, cartes arrondies, anneaux, gros chiffres) avec la couleur d'accent **orange #FF5A1F** (texte noir sur les boutons orange). Anneaux secondaires : blanc (protéines) et bleu clair #7CC4FF (séances).
 - **D3 — Données :** uniquement sur l'appareil ; passage vers le Mac par fichier de sauvegarde (AirDrop ou iCloud Drive).
 
 ## Questions ouvertes
