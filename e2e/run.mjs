@@ -232,6 +232,15 @@ try {
   verifier(await vu(page.getByText('Cette semaine')), 'onglet Programme : semaine en cours');
   verifier(await vu(page.getByText('Test léger de reprise')), 'test léger prévu en semaine 1');
   verifier(await vu(page.getByText(/Les objectifs seront proposés/)), 'objectifs annoncés après le premier test');
+  await page.getByRole('button', { name: 'Voir la séance : Haut du corps et boxe' }).click();
+  verifier(await vu(page.getByRole('dialog', { name: 'Haut du corps et boxe' }).getByText('Développé couché')), 'contenu d’une séance consultable');
+  await capture('15b-seance-detail');
+  await page.getByRole('dialog', { name: 'Haut du corps et boxe' }).getByRole('button', { name: 'Fermer' }).click();
+  await page.getByRole('button', { name: 'Semaine suivante' }).click();
+  verifier(await vu(page.getByRole('heading', { name: 'Semaine 2' })), 'navigation vers la semaine suivante');
+  verifier(await vu(page.getByText('Tests athlétiques')), 'semaine 2 : tests athlétiques prévus');
+  await page.getByRole('button', { name: 'Remettre le début au lundi 28 décembre' }).click();
+  verifier(await vu(page.getByText(/Commence le lundi 28 décembre/)), 'début remis au 28 décembre');
   await capture('15-programme');
   await page.getByRole('button', { name: "Aujourd'hui" }).click();
 
