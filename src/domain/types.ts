@@ -1,0 +1,77 @@
+// Types partagés par toute l'application.
+
+/** Façon de mesurer une série. */
+export type Mesure = 'charge_reps' | 'poids_du_corps_reps' | 'tenue';
+
+export interface ExercicePrevu {
+  /** Identifiant stable de l'exercice (sert à retrouver la dernière performance). */
+  exerciceId: string;
+  nom: string;
+  mesure: Mesure;
+  series: number;
+  /** Répétitions visées (séries avec répétitions). */
+  reps?: number;
+  /** Charge visée en kg (charge externe ou lest). */
+  chargeKg?: number;
+  /** Durée visée en secondes (exercices tenus). */
+  dureeSec?: number;
+  /** Repos après chaque série, en secondes. */
+  reposSec: number;
+  /** Pas d'ajustement de la charge en kg. */
+  pasKg?: number;
+}
+
+export interface SeancePrevue {
+  id: string;
+  nom: string;
+  exercices: ExercicePrevu[];
+}
+
+export type StatutSeance = 'en_cours' | 'terminee';
+
+/** Une séance réalisée (ou en cours), enregistrée dans l'appareil. */
+export interface Seance {
+  id: string;
+  planId: string;
+  nom: string;
+  plan: SeancePrevue;
+  statut: StatutSeance;
+  debut: number;
+  fin?: number;
+  /** Position actuelle dans la séance (index de l'exercice). */
+  exerciceIndex: number;
+  /** Fin du repos en cours (horodatage), pour reprendre après une interruption. */
+  reposFin?: number;
+  /** Durée totale du repos en cours, en secondes. */
+  reposTotalSec?: number;
+  /** Notes libres par exercice. */
+  notes: Record<string, string>;
+  /** Suppression douce : la séance va à la corbeille pendant 30 jours. */
+  supprimeeLe?: number;
+}
+
+/** Une série enregistrée. */
+export interface Serie {
+  id: string;
+  seanceId: string;
+  exerciceId: string;
+  /** Numéro de la série dans l'exercice, à partir de 0. */
+  numero: number;
+  chargeKg?: number;
+  reps?: number;
+  dureeSec?: number;
+  faiteLe: number;
+}
+
+export interface Reglage<T = unknown> {
+  cle: string;
+  valeur: T;
+}
+
+export interface Copie {
+  id: string;
+  creeeLe: number;
+  raison: 'quotidienne' | 'avant_import';
+  /** Contenu complet de la sauvegarde, au format d'export. */
+  contenu: string;
+}
