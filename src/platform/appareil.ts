@@ -22,9 +22,25 @@ export function preparerSon() {
   }
 }
 
+// Après un passage par une autre application (Raccourcis, musique…), iOS met le son
+// de la page en pause : on le relance au retour et au moindre toucher.
+document.addEventListener(
+  'pointerdown',
+  () => {
+    if (contexte) preparerSon();
+  },
+  { capture: true, passive: true }
+);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && contexte && contexte.state !== 'running') {
+    void contexte.resume().catch(() => undefined);
+  }
+});
+
 /** Trois bips courts. */
 export function bip(nombre = 3) {
   if (!contexte) return;
+  if (contexte.state !== 'running') void contexte.resume().catch(() => undefined);
   const t0 = contexte.currentTime + 0.02;
   for (let i = 0; i < nombre; i++) {
     const osc = contexte.createOscillator();

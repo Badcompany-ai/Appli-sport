@@ -11,7 +11,7 @@ import {
 import { lireSauvegarde, nomFichier, type ContenuSauvegarde, type ResumeSauvegarde } from '../../domain/sauvegarde';
 import { lienRaccourci } from '../../domain/repos';
 import { dateLongue, ilYA } from '../../domain/format';
-import { estInstallee, partagerFichier, stockagePersistant } from '../../platform/appareil';
+import { bip, estInstallee, partagerFichier, preparerSon, stockagePersistant } from '../../platform/appareil';
 import { afficherBandeau } from '../bandeau';
 import { useReglage } from '../reglages';
 import { Feuille } from './ModeSeance';
@@ -96,6 +96,8 @@ export function Profil({ majDisponible, installerMaj }: { majDisponible: boolean
             </span>
             <input type="checkbox" role="switch" className="interrupteur" checked={son} onChange={(e) => void setSon(e.target.checked)} />
           </label>
+          <button className="bouton plein" onClick={() => { preparerSon(); setTimeout(() => bip(3), 50); }}>Tester le son</button>
+          <span className="doux petit">Rien entendu ? Vérifiez que l'iPhone n'est pas en mode silencieux et que le volume est monté : iOS coupe ce type de son en mode silencieux, même si la musique continue.</span>
         </div>
       </section>
 

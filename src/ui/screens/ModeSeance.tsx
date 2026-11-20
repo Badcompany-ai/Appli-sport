@@ -215,15 +215,17 @@ function SaisieReps({
   const valeurCharge = charge ?? depart;
   const pas = ex.pasKg ?? 2.5;
   const vise = ex.reps ?? 8;
+  const [reps, setReps] = useState(vise);
   const choix = Array.from({ length: 5 }, (_, i) => Math.max(1, vise - 2) + i);
   const lest = ex.mesure === 'poids_du_corps_reps';
 
+  // Saisie en deux gestes au plus : choisir une valeur (si besoin), puis « Valider ».
   return (
     <div className="carte" style={{ gap: 16 }}>
       <div className="grille-2">
         <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
           <span className="etiquette">{lest ? 'Lest' : 'Charge'}</span>
-          <span className="valeur-geante" aria-live="polite">{lest && valeurCharge === 0 ? '0' : kg(valeurCharge)}</span>
+          <span className="valeur-geante" aria-live="polite">{kg(valeurCharge)}</span>
           <span className="doux petit gras">kg</span>
           <div className="ligne" style={{ gap: 8 }}>
             <button className="bouton" style={{ width: 52 }} aria-label={`Moins ${kg(pas)} kg`} onClick={() => setCharge(Math.max(0, valeurCharge - pas))}>−</button>
@@ -232,23 +234,34 @@ function SaisieReps({
         </div>
         <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
           <span className="etiquette">Répétitions</span>
-          <span className="valeur-geante">{vise}</span>
-          <span className="doux petit gras">objectif</span>
+          <span className="valeur-geante" aria-live="polite" style={{ color: reps !== vise ? 'var(--accent)' : undefined }}>{reps}</span>
+          <span className="doux petit gras">objectif {vise}</span>
+          <div className="ligne" style={{ gap: 8 }}>
+            <button className="bouton" style={{ width: 52 }} aria-label="Une répétition de moins" onClick={() => setReps(Math.max(0, reps - 1))}>−</button>
+            <button className="bouton" style={{ width: 52 }} aria-label="Une répétition de plus" onClick={() => setReps(reps + 1)}>+</button>
+          </div>
         </div>
       </div>
-      <button className="bouton principal geant" onClick={() => onValider({ chargeKg: valeurCharge, reps: vise })}>
-        {lest && valeurCharge === 0 ? `Valider ${vise} répétitions` : `Valider ${vise} × ${kg(valeurCharge)} kg`}
-      </button>
       <div className="pile" style={{ gap: 8 }}>
-        <span className="doux petit gras">Autre nombre ? Touchez-le pour valider :</span>
-        <div className="choix-reps">
+        <span className="doux petit gras">Répétitions faites</span>
+        <div className="choix-reps" role="radiogroup" aria-label="Répétitions faites">
           {choix.map((r) => (
-            <button key={r} className={`bouton ${r === vise ? 'vise' : ''}`} aria-label={`Valider ${r} répétitions`} onClick={() => onValider({ chargeKg: valeurCharge, reps: r })}>
+            <button
+              key={r}
+              role="radio"
+              aria-checked={r === reps}
+              aria-label={`${r} répétitions`}
+              className={`bouton ${r === reps ? 'choisi' : ''}`}
+              onClick={() => setReps(r)}
+            >
               {r}
             </button>
           ))}
         </div>
       </div>
+      <button className="bouton principal geant" onClick={() => onValider({ chargeKg: valeurCharge, reps })}>
+        {lest && valeurCharge === 0 ? `Valider ${reps} répétitions` : `Valider ${reps} × ${kg(valeurCharge)} kg`}
+      </button>
     </div>
   );
 }

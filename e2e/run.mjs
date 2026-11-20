@@ -88,8 +88,10 @@ try {
   await capture('03-repos');
   await page.getByRole('button', { name: 'Passer' }).click();
 
-  console.log('Saisie en un geste d’un autre nombre');
-  await page.getByRole('button', { name: 'Valider 4 répétitions' }).click();
+  console.log('Autre nombre de répétitions en deux gestes');
+  await page.getByRole('radio', { name: '4 répétitions' }).click();
+  verifier((await nbSeries()) === 1, 'choisir un nombre ne valide pas la série');
+  await page.getByRole('button', { name: /Valider 4 × 60 kg/ }).click();
   await page.getByRole('button', { name: 'Passer' }).click();
   verifier((await nbSeries()) === 2, 'deuxième série enregistrée');
 
