@@ -23,6 +23,7 @@ import { Fiche } from '../Fiche';
 import { candidats, convertir } from '../../domain/remplacement';
 import { NOMS_MOUVEMENTS } from '../../domain/exercices';
 import { PRESETS } from '../../domain/materiel';
+import { dureeNavette, epreuve, vo2DepuisPalier } from '../../domain/niveau';
 import { POIDS_PAR_DEFAUT, detailPrevu } from './Aujourdhui';
 
 export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer: () => void }) {
@@ -57,11 +58,34 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
     return <FinSeance seance={seance} series={series} onFermer={onFermer} />;
   }
 
+  if (plan.echauffement?.length && !seance.echauffementFait && idx === 0 && series.length === 0) {
+    return (
+      <div className="seance" role="dialog" aria-label="Échauffement">
+        <div className="ligne ecartee">
+          <button className="bouton rond" aria-label="Fermer (la séance reste en cours)" onClick={onFermer}><IconeFermer /></button>
+          <span className="doux petit gras">{plan.nom}</span>
+          <span style={{ width: 44 }} />
+        </div>
+        <h1 className="titre" style={{ fontSize: 30 }}>Échauffement</h1>
+        <span className="doux">Environ 8 à 10 minutes, de plus en plus intense.</span>
+        <div className="carte">
+          <ol className="liste-etapes" style={{ fontSize: 17, gap: 12 }}>
+            {plan.echauffement.map((e) => <li key={e}>{e}</li>)}
+          </ol>
+        </div>
+        <div style={{ flexGrow: 1 }} />
+        <button className="bouton principal geant" onClick={() => { preparerSon(); void modifierSeance(seance.id, { echauffementFait: true }); }}>
+          Échauffement fait
+        </button>
+      </div>
+    );
+  }
+
   const ex = plan.exercices[idx];
   const faites = series.filter((s) => s.exerciceId === ex.exerciceId);
   const numero = faites.length;
 
-  async function valider(valeurs: { chargeKg?: number; reps?: number; dureeSec?: number }) {
+  async function valider(valeurs: { chargeKg?: number; reps?: number; dureeSec?: number; valeur?: number }) {
     if (!seance) return;
     preparerSon();
     const maintenant = Date.now();
@@ -97,25 +121,37 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
 
       <div className="pile" style={{ gap: 8 }}>
         <h1 className="titre" style={{ fontSize: 30 }}>{ex.nom}</h1>
-        <div className="points" >
+        {ex.consigne && <span className="mention-orange gras petit">{ex.consigne}</span>}
+        {ex.raisonCharge && numero === 0 && <span className="doux petit">{ex.raisonCharge}</span>}
+        {ex.mesure !== 'test' && <div className="points" >
           <span className="doux gras petit" style={{ marginRight: 4 }}>{numero < ex.series ? `Série ${numero + 1} sur ${ex.series}` : 'Série supplémentaire'}</span>
           {Array.from({ length: ex.series }, (_, i) => (
             <span key={i} className={`point ${i < numero ? 'fait' : i === numero ? 'actuel' : ''}`} />
           ))}
-        </div>
+        </div>}
       </div>
 
-      {ex.mesure === 'tenue' ? (
+      {ex.mesure === 'test' ? (
+        ex.testId === 'test-navette' ? (
+          <Navette key={`${ex.exerciceId}-${numero}`} onValider={(palier) => valider({ valeur: palier })} />
+        ) : (
+          <SaisieTest key={`${ex.exerciceId}-${numero}`} ex={ex} onValider={(v) => valider({ valeur: v })} />
+        )
+      ) : ex.mesure === 'tenue' ? (
         <SaisieTenue key={`${ex.exerciceId}-${numero}`} ex={ex} son={son} onValider={(d) => valider({ dureeSec: d })} />
       ) : (
         <SaisieReps key={`${ex.exerciceId}-${numero}`} ex={ex} faites={faites} seanceId={seance.id} onValider={valider} />
       )}
 
-      <div className="grille-3">
-        <button className="bouton" onClick={() => setRemplacer(true)}>Remplacer</button>
-        <button className="bouton" onClick={() => setFiche(true)}>Fiche</button>
-        <button className="bouton" onClick={() => setNote(true)}>Note</button>
-      </div>
+      {ex.mesure === 'test' ? (
+        <button className="bouton plein" onClick={() => setNote(true)}>Note</button>
+      ) : (
+        <div className="grille-3">
+          <button className="bouton" onClick={() => setRemplacer(true)}>Remplacer</button>
+          <button className="bouton" onClick={() => setFiche(true)}>Fiche</button>
+          <button className="bouton" onClick={() => setNote(true)}>Note</button>
+        </div>
+      )}
 
       <DernierePerf ex={ex} seanceId={seance.id} />
 
@@ -239,6 +275,7 @@ function prochaineEtape(seance: Seance, series: Serie[]): string {
   const ex = seance.plan.exercices[idx];
   if (!ex) return 'Fin de la séance';
   const n = series.filter((s) => s.exerciceId === ex.exerciceId).length;
+  if (ex.mesure === 'test') return `${ex.nom} · épreuve`;
   const detail =
     ex.mesure === 'tenue'
       ? `${ex.dureeSec} s`
@@ -263,7 +300,7 @@ function SaisieReps({
 }) {
   const derniere = useLiveQuery(() => dernierePerformance(ex.exerciceId, seanceId), [ex.exerciceId, seanceId]);
   const precedenteIci = faites[faites.length - 1]?.chargeKg;
-  const depart = precedenteIci ?? derniere?.series[0]?.chargeKg ?? ex.chargeKg ?? 0;
+  const depart = precedenteIci ?? ex.chargeKg ?? derniere?.series[0]?.chargeKg ?? (ex.mesure === 'charge_reps' ? 20 : 0);
   const [charge, setCharge] = useState<number | undefined>(undefined);
   const valeurCharge = charge ?? depart;
   const pas = ex.pasKg ?? 2.5;
@@ -373,7 +410,10 @@ function DernierePerf({ ex, seanceId }: { ex: ExercicePrevu; seanceId: string })
     );
   }
   let texte: string;
-  if (ex.mesure === 'tenue') texte = d.series.map((s) => `${s.dureeSec ?? 0} s`).join(' · ');
+  if (ex.mesure === 'test') {
+    const e = epreuve(ex.exerciceId);
+    texte = d.series.map((s) => `${String(s.valeur ?? '').replace('.', ',')} ${e ? NOMS_UNITES[e.unite] : ''}`).join(' · ');
+  } else if (ex.mesure === 'tenue') texte = d.series.map((s) => `${s.dureeSec ?? 0} s`).join(' · ');
   else {
     const reps = d.series.map((s) => s.reps ?? 0).join(' · ');
     const c = d.series[0]?.chargeKg ?? 0;
@@ -484,6 +524,8 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
           const s = series.filter((x) => x.exerciceId === ex.exerciceId);
           const detail = s.length === 0
             ? 'non fait'
+            : ex.mesure === 'test'
+              ? s.map((x) => `${String(x.valeur ?? '').replace('.', ',')} ${NOMS_UNITES[epreuve(ex.exerciceId)?.unite ?? ''] ?? ''}`).join(' · ')
             : ex.mesure === 'tenue'
               ? s.map((x) => `${x.dureeSec} s`).join(' · ')
               : s.map((x) => `${x.reps}${x.chargeKg ? ` × ${kg(x.chargeKg)}` : ''}`).join(' · ');
@@ -517,3 +559,116 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
 }
 
 export { Feuille } from '../Feuille';
+
+// ---------- Épreuves de test ----------
+
+export const NOMS_UNITES: Record<string, string> = { cm: 'cm', s: 's', m: 'm', palier: 'paliers' };
+
+function SaisieTest({ ex, onValider }: { ex: ExercicePrevu; onValider: (v: number) => void }) {
+  const e = epreuve(ex.exerciceId);
+  const [texte, setTexte] = useState('');
+  const v = Number(texte.replace(',', '.'));
+  const ok = texte.trim() !== '' && Number.isFinite(v) && v > 0;
+  return (
+    <div className="carte" style={{ gap: 14 }}>
+      <span className="etiquette">Meilleur résultat{e && e.essais > 1 ? ` sur ${e.essais} essais` : ''}</span>
+      <label className="ligne" style={{ gap: 10, alignItems: 'baseline', justifyContent: 'center' }}>
+        <input
+          className="valeur-geante"
+          inputMode="decimal"
+          aria-label={`Résultat en ${e ? NOMS_UNITES[e.unite] : ''}`}
+          placeholder="0"
+          value={texte}
+          onChange={(x) => setTexte(x.target.value.replace(/[^0-9.,]/g, ''))}
+          style={{ width: 180, textAlign: 'center', background: 'var(--carte-2)', border: 'none', borderRadius: 16, color: 'var(--texte)', padding: '8px 0' }}
+        />
+        <span className="doux gras">{e ? NOMS_UNITES[e.unite] : ''}</span>
+      </label>
+      <button className="bouton principal geant" disabled={!ok} onClick={() => onValider(Math.round(v * 100) / 100)}>
+        Enregistrer le résultat
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Test navette de Léger : allers-retours de 20 m au rythme des bips.
+ * Palier 1 à 8,5 km/h, + 0,5 km/h chaque minute ; un bip à chaque aller, trois au changement de palier.
+ */
+function Navette({ onValider }: { onValider: (palier: number) => void }) {
+  const [debut, setDebut] = useState<number | undefined>();
+  const [maintenant, setMaintenant] = useState(Date.now());
+  const dernierAller = useRef(-1);
+  useEffect(() => {
+    if (debut === undefined) return;
+    const t = setInterval(() => setMaintenant(Date.now()), 100);
+    return () => clearInterval(t);
+  }, [debut]);
+
+  // Position dans le test : chaque palier dure environ 1 minute (nombre entier d'allers).
+  let palier = 1;
+  let allers = 0;
+  let allersDansPalier = 0;
+  let dansAller = 0;
+  if (debut !== undefined) {
+    let t = (maintenant - debut) / 1000;
+    for (;;) {
+      const d = dureeNavette(palier);
+      const n = Math.max(1, Math.round(60 / d));
+      if (t < n * d) {
+        allersDansPalier = Math.floor(t / d);
+        dansAller = 1 - (t - allersDansPalier * d) / d;
+        allers += allersDansPalier;
+        break;
+      }
+      t -= n * d;
+      allers += n;
+      palier++;
+    }
+  }
+  useEffect(() => {
+    if (debut === undefined) return;
+    if (allers !== dernierAller.current) {
+      const nouveauPalier = allersDansPalier === 0 && allers > 0;
+      if (dernierAller.current >= 0) bip(nouveauPalier ? 3 : 1);
+      dernierAller.current = allers;
+    }
+  }, [allers, allersDansPalier, debut]);
+
+  if (debut === undefined) {
+    return (
+      <div className="carte" style={{ gap: 14 }}>
+        <span className="doux">Deux lignes à 20 m. Gardez l’application ouverte, son activé (pas en mode silencieux) : chaque bip = vous devez être sur l’autre ligne.</span>
+        <button className="bouton principal geant" onClick={() => { preparerSon(); bip(1); dernierAller.current = 0; setDebut(Date.now()); setMaintenant(Date.now()); }}>
+          Démarrer le test
+        </button>
+        <SaisieManuellePalier onValider={onValider} />
+      </div>
+    );
+  }
+  return (
+    <div className="carte" style={{ alignItems: 'center', gap: 12 }}>
+      <span className="etiquette">Palier</span>
+      <span className="valeur-geante" style={{ fontSize: 96 }}>{palier}</span>
+      <span className="doux gras">{(8 + 0.5 * palier).toString().replace('.', ',')} km/h · aller {allers + 1}</span>
+      <div className="barre-progres" style={{ width: '100%', height: 10 }}><div style={{ width: `${Math.round(dansAller * 100)}%`, transition: 'none' }} /></div>
+      <button className="bouton principal geant" onClick={() => onValider(palier)}>J’arrête : palier {palier}</button>
+      <span className="doux petit">VO2 max estimée si vous arrêtez maintenant : {String(vo2DepuisPalier(palier)).replace('.', ',')} ml/kg/min</span>
+    </div>
+  );
+}
+
+function SaisieManuellePalier({ onValider }: { onValider: (palier: number) => void }) {
+  const [p, setP] = useState(6);
+  return (
+    <div className="ligne ecartee">
+      <span className="doux petit">Déjà fait ailleurs ? Palier atteint :</span>
+      <div className="ligne" style={{ gap: 6 }}>
+        <button className="bouton" style={{ width: 44 }} aria-label="Palier moins" onClick={() => setP(Math.max(1, p - 1))}>−</button>
+        <span className="gras" style={{ minWidth: 24, textAlign: 'center' }}>{p}</span>
+        <button className="bouton" style={{ width: 44 }} aria-label="Palier plus" onClick={() => setP(p + 1)}>+</button>
+        <button className="bouton" onClick={() => onValider(p)}>OK</button>
+      </div>
+    </div>
+  );
+}

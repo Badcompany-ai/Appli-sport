@@ -8,20 +8,10 @@ let contexte: AudioContext | undefined;
  * À appeler lors d'un toucher : iOS n'autorise le son qu'après une action de l'utilisateur.
  * Le type « ambient » mélange nos sons à la musique au lieu de la couper (Safari 17 et plus).
  */
-/**
- * « ambient » : se mélange à la musique, mais iOS le coupe en mode silencieux.
- * « transient » (essai) : son court prioritaire, qui baisse la musique un instant ;
- * à vérifier sur iPhone s'il passe en mode silencieux.
- */
-let typeSession: 'ambient' | 'transient' = 'ambient';
-export function choisirTypeSon(t: 'ambient' | 'transient') {
-  typeSession = t;
-}
-
 export function preparerSon() {
   try {
     const nav = navigator as Navigator & { audioSession?: { type: string } };
-    if (nav.audioSession) nav.audioSession.type = typeSession;
+    if (nav.audioSession) nav.audioSession.type = 'ambient';
     if (!contexte) {
       const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       contexte = new Ctor();

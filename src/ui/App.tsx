@@ -4,10 +4,10 @@ import { ModeSeance } from './screens/ModeSeance';
 import { Profil } from './screens/Profil';
 import { Bientot } from './screens/Bientot';
 import { Programme } from './screens/Programme';
+import { Depart } from './screens/Depart';
+import { useReglage } from './reglages';
 import { Bandeau } from './bandeau';
 import { IconeAujourdhui, IconeNutrition, IconeProfil, IconeProgramme, IconeProgres } from './icones';
-import { choisirTypeSon } from '../platform/appareil';
-import { useReglage } from './reglages';
 import { copieQuotidienneSiBesoin, seanceEnCours, viderCorbeilleAncienne } from '../data/operations';
 
 type Onglet = 'aujourdhui' | 'programme' | 'progres' | 'nutrition' | 'profil';
@@ -50,10 +50,9 @@ export function App({ majDisponible, installerMaj }: { majDisponible: boolean; i
     });
   }, []);
 
-  const [prioritaire] = useReglage('sonPrioritaire');
-  useEffect(() => choisirTypeSon(prioritaire ? 'transient' : 'ambient'), [prioritaire]);
-
   const fermerSeance = useCallback(() => setSeanceOuverte(null), []);
+  const [profil, setProfil, profilLu] = useReglage('profil');
+  const [modifierProfil, setModifierProfil] = useState(false);
 
   return (
     <>
@@ -61,7 +60,7 @@ export function App({ majDisponible, installerMaj }: { majDisponible: boolean; i
       {onglet === 'programme' && <Programme />}
       {onglet === 'progres' && <Bientot onglet="progres" />}
       {onglet === 'nutrition' && <Bientot onglet="nutrition" />}
-      {onglet === 'profil' && <Profil majDisponible={majDisponible && !seanceOuverte} installerMaj={installerMaj} />}
+      {onglet === 'profil' && <Profil majDisponible={majDisponible && !seanceOuverte} installerMaj={installerMaj} modifierProfil={() => setModifierProfil(true)} />}
 
       <nav className="onglets" aria-label="Navigation principale">
         {ONGLETS.map(({ id, nom, Icone }) => (
@@ -73,6 +72,17 @@ export function App({ majDisponible, installerMaj }: { majDisponible: boolean; i
       </nav>
 
       {seanceOuverte && <ModeSeance seanceId={seanceOuverte} onFermer={fermerSeance} />}
+      {profilLu && (!profil || modifierProfil) && (
+        <Depart
+          initial={profil}
+          onAnnuler={profil ? () => setModifierProfil(false) : undefined}
+          onTerminer={async (p) => {
+            await setProfil(p);
+            setModifierProfil(false);
+            setOnglet('aujourdhui');
+          }}
+        />
+      )}
       <Bandeau />
     </>
   );

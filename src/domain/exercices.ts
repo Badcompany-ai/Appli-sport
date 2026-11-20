@@ -825,6 +825,43 @@ export const EXERCICES: Exercice[] = [
     plusDifficile: 'pullover-poulie'
   },
 
+  // ---------------- Mobilité ----------------
+  {
+    id: 'mob-hanches-9090', nom: 'Mobilité des hanches 90/90', mouvement: 'mobilite', qualites: ['mobilite'],
+    primaires: ['fessiers'], secondaires: [], materiel: [],
+    difficulte: 1, charge: 'aucune', mesure: 'tenue',
+    consignes: ['Assis au sol, jambe avant pliée à 90° devant, jambe arrière pliée à 90° sur le côté.', 'Buste droit, pencher doucement vers l’avant au-dessus de la jambe avant.', 'Changer de côté en faisant pivoter les genoux.'],
+    erreurs: ['Arrondir le dos pour aller plus loin.']
+  },
+  {
+    id: 'mob-cheville-mur', nom: 'Mobilité de cheville genou au mur', mouvement: 'mobilite', qualites: ['mobilite'],
+    primaires: ['mollets'], secondaires: [], materiel: [],
+    difficulte: 1, charge: 'aucune', mesure: 'tenue',
+    consignes: ['Face à un mur, un pied à quelques centimètres du mur.', 'Avancer le genou pour toucher le mur, talon au sol.', 'Reculer le pied petit à petit ; alterner les côtés.'],
+    erreurs: ['Talon qui décolle.', 'Genou qui part vers l’intérieur.']
+  },
+  {
+    id: 'mob-thoracique', nom: 'Ouverture thoracique au sol', mouvement: 'mobilite', qualites: ['mobilite'],
+    primaires: ['dos'], secondaires: ['epaules'], materiel: [],
+    difficulte: 1, charge: 'aucune', mesure: 'tenue',
+    consignes: ['Allongé sur le côté, genoux pliés à 90°, bras tendus devant soi.', 'Ouvrir le bras du dessus vers l’arrière en suivant la main des yeux.', 'Garder les genoux collés au sol ; alterner les côtés.'],
+    erreurs: ['Genoux qui se soulèvent.']
+  },
+  {
+    id: 'mob-flechisseurs', nom: 'Étirement des fléchisseurs de hanche', mouvement: 'mobilite', qualites: ['mobilite'],
+    primaires: ['quadriceps'], secondaires: ['fessiers'], materiel: [],
+    difficulte: 1, charge: 'aucune', mesure: 'tenue',
+    consignes: ['Un genou au sol, l’autre pied devant.', 'Serrer le fessier de la jambe arrière et avancer légèrement le bassin.', 'Sentir l’étirement devant la hanche ; alterner les côtés.'],
+    erreurs: ['Cambrer le bas du dos au lieu de serrer le fessier.']
+  },
+  {
+    id: 'mob-epaules-serviette', nom: 'Passages d’épaules avec une serviette', mouvement: 'mobilite', qualites: ['mobilite'],
+    primaires: ['epaules'], secondaires: ['pectoraux'], materiel: [],
+    difficulte: 1, charge: 'aucune', mesure: 'tenue',
+    consignes: ['Tenir une serviette ou un bâton à deux mains, bras tendus, mains très écartées.', 'Passer lentement les bras au-dessus de la tête puis derrière le dos.', 'Rapprocher les mains au fil des séances.'],
+    erreurs: ['Plier les coudes.', 'Mains trop rapprochées au début.']
+  },
+
   // ---------------- Cardio par intervalles ----------------
   {
     id: 'velo-assault-intervalles', nom: 'Fractionné au vélo d’assaut', mouvement: 'cardio', qualites: ['endurance', 'puissance'],
