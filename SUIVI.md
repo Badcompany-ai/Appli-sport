@@ -107,9 +107,13 @@ Il est mis à jour à chaque étape importante.
 - **D5 — Hébergement :** GitHub Pages ; le dépôt sera rendu public (le code seulement, jamais les données) au jalon J1.
 - **D6 — Idées :** acceptées I2 (adaptée : tour de taille facultatif, rappel toutes les 4 semaines au plus), I3, I4, I5, I7, I8, I9, I10 (si version native) ; refusées I1 (vérification avant séance) et I6 (calculateur de disques).
 - **D7 — Tour de taille :** mesure jugée contraignante → facultative, peu fréquente.
+- **D4 bis — Fin de repos, révision (20/11) :** le minuteur de l'horloge risque de couper la musique, ce que l'utilisateur refuse. Nouvelle piste à tester sur son iPhone **avant** de construire : un raccourci qui **attend la durée du repos, puis fait vibrer le téléphone et affiche une notification** (le son de notification ne coupe pas la musique). Inconnue : iOS laisse-t-il le raccourci tourner en arrière-plan pendant l'attente ? Test manuel de 2 minutes demandé à l'utilisateur. Solution de repli : minuteur de l'horloge (et vérifier s'il coupe vraiment la musique).
 - **D8 — Style visuel :** direction A « Anneaux » (noir pur, Inter, cartes arrondies, anneaux, gros chiffres) avec la couleur d'accent **orange #FF5A1F** (texte noir sur les boutons orange). Anneaux secondaires : blanc (protéines) et bleu clair #7CC4FF (séances).
 - **D3 — Données :** uniquement sur l'appareil ; passage vers le Mac par fichier de sauvegarde (AirDrop ou iCloud Drive).
 
 ## Questions ouvertes
+
+- Résultat du test du raccourci « Test repos » (vibration, notification, musique non coupée, écran verrouillé).
+- Dépôt rendu public et GitHub Pages réglé sur « GitHub Actions » ?
 
 - J0 : choix entre les deux directions visuelles.
