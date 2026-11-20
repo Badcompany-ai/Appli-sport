@@ -79,16 +79,16 @@ const PRESCRIPTIONS: Record<CleePhase, Record<Role, Prescription>> = {
     isolation: P(3, [10, 15], 60), nordic: P(3, [4, 6], 120), gainage: P(3, 40, 45), boxe: P(4, 180, 60), cardio: P(4, 240, 120)
   },
   c2: {
-    plyo: P(4, [5, 5], 120), plyo2: P(4, [8, 8], 120), contraste: P(5, [3, 3], 0), sprint: P(6, [1, 1], 120), sprint_max: P(2, [1, 1], 240),
-    cod: P(4, [1, 1], 90), lancer: P(5, [3, 3], 0), lancer_rot: P(3, [5, 5], 60), olympique: P(4, [3, 3], 150),
-    force_principal: P(5, [4, 5], 180), force_secondaire: P(4, [5, 6], 150), hypertrophie: P(3, [6, 10], 120),
+    plyo: P(4, [5, 5], 120), plyo2: P(4, [8, 8], 120), contraste: P(4, [3, 3], 0), sprint: P(6, [1, 1], 120), sprint_max: P(2, [1, 1], 240),
+    cod: P(4, [1, 1], 90), lancer: P(4, [3, 3], 0), lancer_rot: P(3, [5, 5], 60), olympique: P(4, [3, 3], 150),
+    force_principal: P(4, [4, 5], 180), force_secondaire: P(3, [5, 6], 120), hypertrophie: P(3, [6, 10], 120),
     isolation: P(3, [10, 12], 60), nordic: P(3, [4, 6], 120), gainage: P(3, 45, 45), boxe: P(4, 180, 60), cardio: P(4, 240, 120)
   },
   c3: {
     plyo: P(5, [4, 4], 120), plyo2: P(5, [8, 8], 120), contraste: P(4, [3, 3], 0), sprint: P(6, [1, 1], 150), sprint_max: P(2, [1, 1], 240),
     cod: P(4, [1, 1], 90), lancer: P(4, [3, 3], 0), lancer_rot: P(4, [5, 5], 60), olympique: P(4, [2, 3], 150),
     force_principal: P(4, [3, 5], 180), force_secondaire: P(3, [5, 6], 120), hypertrophie: P(3, [8, 10], 90),
-    isolation: P(3, [10, 12], 60), nordic: P(3, [5, 6], 120), gainage: P(3, 45, 45), boxe: P(5, 180, 60), cardio: P(5, 180, 120)
+    isolation: P(3, [10, 12], 60), nordic: P(3, [5, 6], 120), gainage: P(3, 45, 45), boxe: P(4, 180, 60), cardio: P(5, 180, 120)
   },
   c4: {
     plyo: P(4, [5, 5], 120), plyo2: P(5, [10, 10], 120), contraste: P(3, [3, 3], 0), sprint: P(8, [1, 1], 120), sprint_max: P(3, [1, 1], 210),
