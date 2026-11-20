@@ -3,10 +3,13 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
 import { EXERCICES, NOMS_MOUVEMENTS, exercice, type Mouvement } from '../../domain/exercices';
 import { NOMS_PHASES, NB_SEMAINES, indexSemaine, infoSemaine, seancesDeLaSemaine, type CleePhase } from '../../domain/programme';
-import { NOMS_JOURS, depuisCle, joursDeSeance } from '../../domain/profil';
+import { NOMS_JOURS, PROFIL_INTERVIEW, depuisCle, joursDeSeance } from '../../domain/profil';
 import { EPREUVES, TESTS_FORCE, TESTS_REPETITIONS, avancement, epreuve, etapes, proposerObjectif, resultatsTests, vo2DepuisPalier, type Objectif } from '../../domain/niveau';
 import { dateLongue } from '../../domain/format';
-import { lettresFaites } from '../../data/programme';
+import { appliquerProgression, lettresFaites } from '../../data/programme';
+import { dureeEstimeeMin } from '../../domain/demo';
+import { detailPrevu } from './Aujourdhui';
+import type { SeancePrevue } from '../../domain/types';
 import { useReglage } from '../reglages';
 import { Fiche } from '../Fiche';
 import { Feuille } from '../Feuille';
@@ -36,7 +39,7 @@ function f(x: number): string {
 }
 
 export function Programme() {
-  const [profil] = useReglage('profil');
+  const [profil, setProfil] = useReglage('profil');
   const [objectifs, setObjectifs] = useReglage('objectifs');
   const [fiche, setFiche] = useState<string | null>(null);
   const [recherche, setRecherche] = useState('');
@@ -44,8 +47,13 @@ export function Programme() {
   const [valeurEdition, setValeurEdition] = useState('');
 
   const index = profil ? indexSemaine(depuisCle(profil.debut), new Date()) : -1;
-  const semaineAffichee = Math.max(0, index);
-  const info = infoSemaine(semaineAffichee);
+  const [semaineChoisie, setSemaineChoisie] = useState<number | null>(null);
+  const [seanceVue, setSeanceVue] = useState<SeancePrevue | null>(null);
+  const semaineCourante = Math.max(0, index);
+  const semaineAffichee = semaineChoisie ?? semaineCourante;
+  const info = infoSemaine(semaineCourante);
+  const infoVue = infoSemaine(semaineAffichee);
+  const avecCharges = useLiveQuery(async () => (seanceVue ? appliquerProgression(seanceVue) : undefined), [seanceVue?.id]);
   const semaine = useMemo(() => (profil ? seancesDeLaSemaine(profil, semaineAffichee) : []), [profil, semaineAffichee]);
   const faites = useLiveQuery(() => lettresFaites(semaineAffichee), [semaineAffichee]);
   const resultats = useLiveQuery(async () => resultatsTests(await db.seances.toArray(), await db.series.toArray()));
@@ -84,6 +92,19 @@ export function Programme() {
             {index < 0 ? `Commence le ${dateLongue(depuisCle(profil.debut).getTime()).toLowerCase()}` : info.apresProgramme ? 'Programme de 6 mois terminé : maintien en attendant le suivant' : `Semaine ${index + 1} sur ${NB_SEMAINES}`}
           </span>
           <span style={{ fontSize: 22, fontWeight: 700 }}>{NOMS_PHASES[info.phase]}{info.allegee ? ' · semaine allégée et tests' : ''}</span>
+          {profil.debut !== PROFIL_INTERVIEW.debut && (
+            <button
+              className="bouton plein"
+              onClick={async () => {
+                const avant = profil;
+                await setProfil({ ...profil, debut: PROFIL_INTERVIEW.debut, echeance: PROFIL_INTERVIEW.echeance });
+                setSemaineChoisie(null);
+                afficherBandeau('Début remis au 28 décembre', () => setProfil(avant));
+              }}
+            >
+              Remettre le début au lundi 28 décembre
+            </button>
+          )}
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 6fr 6fr 6fr 6fr', gap: 4 }} aria-hidden="true">
             {PHASES.map((p, i) => {
               const debutPhase = PHASES.slice(0, i).reduce((n, x) => n + x.semaines, 0);
@@ -104,26 +125,36 @@ export function Programme() {
       )}
 
       {profil && (
-        <section className="pile" aria-label="Cette semaine">
-          <h2 className="titre-2">{index < 0 ? 'Première semaine' : 'Cette semaine'}</h2>
+        <section className="pile" aria-label="Séances de la semaine">
+          <div className="ligne ecartee">
+            <button className="bouton rond" aria-label="Semaine précédente" disabled={semaineAffichee <= 0} onClick={() => setSemaineChoisie(semaineAffichee - 1)}>‹</button>
+            <div className="pile" style={{ gap: 0, alignItems: 'center' }}>
+              <h2 className="titre-2">{semaineAffichee === semaineCourante ? (index < 0 ? 'Première semaine' : 'Cette semaine') : `Semaine ${semaineAffichee + 1}`}</h2>
+              <span className="doux petit">{NOMS_PHASES[infoVue.phase]}{infoVue.allegee ? ' · allégée et tests' : ''}</span>
+            </div>
+            <button className="bouton rond" aria-label="Semaine suivante" disabled={semaineAffichee >= NB_SEMAINES - 1} onClick={() => setSemaineChoisie(semaineAffichee + 1)}>›</button>
+          </div>
+          {semaineAffichee !== semaineCourante && (
+            <button className="bouton discret" onClick={() => setSemaineChoisie(null)}>Revenir à la semaine en cours</button>
+          )}
           <div className="carte" style={{ gap: 0, paddingTop: 4, paddingBottom: 4 }}>
             {semaine.map((s, i) => {
               const fait = faites?.has(s.programme?.lettre ?? '');
               const prochaine = !fait && semaine.slice(0, i).every((x) => faites?.has(x.programme?.lettre ?? ''));
               return (
-                <div key={s.id} className="element-liste">
+                <button key={s.id} className="element-liste" style={{ background: 'none', border: 'none', borderBottom: '1px solid #222224', width: '100%', textAlign: 'left' }} onClick={() => setSeanceVue(s)} aria-label={`Voir la séance : ${s.nom}`}>
                   <div className="pile" style={{ gap: 2 }}>
                     <span className={`gras ${prochaine ? 'mention-orange' : ''}`}>{s.nom}</span>
                     <span className="doux petit">
                       {jours[i] !== undefined ? `${NOMS_JOURS[jours[i]]} (suggéré)` : ''} · {s.exercices.length} {s.programme?.type === 'test' ? 'épreuves ou exercices' : 'exercices'}
                     </span>
                   </div>
-                  <span className={`petit gras ${fait ? '' : 'doux'}`}>{fait ? 'Faite' : prochaine ? 'Prochaine' : 'À venir'}</span>
-                </div>
+                  <span className={`petit gras ${fait ? '' : 'doux'}`}>{fait ? 'Faite' : prochaine ? 'Prochaine' : 'À venir'} ›</span>
+                </button>
               );
             })}
           </div>
-          <span className="doux petit">Une séance manquée n’est pas perdue : elle reste la prochaine à faire.</span>
+          <span className="doux petit">Touchez une séance pour voir son contenu. Une séance manquée n’est pas perdue : elle reste la prochaine à faire.</span>
         </section>
       )}
 
@@ -230,6 +261,30 @@ export function Programme() {
         </section>
       ))}
 
+      {seanceVue && (
+        <Feuille titre={seanceVue.nom} onFermer={() => setSeanceVue(null)}>
+          <span className="doux petit">
+            Semaine {(seanceVue.programme?.semaine ?? 0) + 1} · {NOMS_PHASES[infoSemaine(seanceVue.programme?.semaine ?? 0).phase]} · environ {dureeEstimeeMin(seanceVue) + (seanceVue.echauffement?.length ? 10 : 0)} min
+          </span>
+          {seanceVue.echauffement && (
+            <div className="pile" style={{ gap: 6 }}>
+              <span className="etiquette">Échauffement</span>
+              <ul className="liste-etapes" style={{ fontSize: 14 }}>{seanceVue.echauffement.map((e) => <li key={e}>{e}</li>)}</ul>
+            </div>
+          )}
+          <span className="etiquette">Exercices</span>
+          <div className="carte" style={{ gap: 0, paddingTop: 0, paddingBottom: 0 }}>
+            {(avecCharges ?? seanceVue).exercices.map((e) => (
+              <button key={e.exerciceId} className="lien-liste" onClick={() => !e.testId && setFiche(e.exerciceId)} aria-label={e.testId ? e.nom : `Fiche : ${e.nom}`}>
+                <span className="gras">{e.nom}</span>
+                <span className="doux petit">{detailPrevu(e)} · repos {e.reposSec >= 60 ? `${Math.floor(e.reposSec / 60)} min${e.reposSec % 60 ? ` ${e.reposSec % 60} s` : ''}` : `${e.reposSec} s`}</span>
+                {e.consigne && <span className="mention-orange petit">{e.consigne}</span>}
+              </button>
+            ))}
+          </div>
+          <span className="doux petit">Prévu en salle : le lieu et le matériel du jour adaptent la séance au moment de la commencer. Les charges se précisent avec vos résultats.</span>
+        </Feuille>
+      )}
       {fiche && <Fiche id={fiche} onFermer={() => setFiche(null)} />}
       {edition && objectifs && (
         <Feuille titre={edition.nom} onFermer={() => setEdition(null)}>
