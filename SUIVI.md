@@ -100,6 +100,7 @@ Il est mis à jour à chaque étape importante.
 
 - **D1 — Technologie :** une application web installable sur l'écran d'accueil de l'iPhone, qui fonctionne sans connexion, avec le même code réutilisable dans une enveloppe native plus tard. Gratuit, testable visuellement dans la session cloud (navigateur Chromium au format iPhone).
 - **D2 — Aucun coût récurrent :** pas d'abonnement développeur Apple.
+- **D4 — Fin de repos hors de l'application :** l'utilisateur veut être prévenu même s'il a quitté l'application. Solution retenue (son idée) : au début du repos, l'application web lance le **minuteur intégré de l'iPhone** via un **raccourci de l'app Raccourcis d'Apple** (configuration unique d'environ 2 minutes, guidée). Le minuteur de l'iPhone sonne même écran verrouillé et sans réseau. Dans l'application, son « ambiant » qui se mélange à la musique + écran qui change. Points à vérifier sur son iPhone, car impossibles à tester dans le cloud : retour à l'application après le lancement du raccourci, et effet de la sonnerie du minuteur sur la musique. **Testé dès le premier jalon.** Application native : seulement plus tard, si l'application web parfaite ne suffit pas.
 - **D3 — Données :** uniquement sur l'appareil ; passage vers le Mac par fichier de sauvegarde (AirDrop ou iCloud Drive).
 
 ## Questions ouvertes
