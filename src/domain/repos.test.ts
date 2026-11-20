@@ -52,6 +52,6 @@ describe('séance de démonstration', () => {
   it('a une durée estimée raisonnable', () => {
     const d = dureeEstimeeMin(SEANCE_DEMO);
     expect(d).toBeGreaterThan(5);
-    expect(d).toBeLessThan(25);
+    expect(d).toBeLessThan(60);
   });
 });

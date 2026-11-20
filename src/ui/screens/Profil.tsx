@@ -14,7 +14,7 @@ import { dateLongue, ilYA } from '../../domain/format';
 import { bip, estInstallee, partagerFichier, preparerSon, stockagePersistant } from '../../platform/appareil';
 import { afficherBandeau } from '../bandeau';
 import { useReglage } from '../reglages';
-import { Feuille } from './ModeSeance';
+import { Feuille } from '../Feuille';
 
 const PHRASE_RACCOURCI =
   'Attends le nombre de secondes reçu en entrée, puis fais vibrer l’appareil, puis affiche une notification « Repos terminé ».';

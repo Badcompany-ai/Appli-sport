@@ -1,7 +1,7 @@
 // Types partagés par toute l'application.
 
 /** Façon de mesurer une série. */
-export type Mesure = 'charge_reps' | 'poids_du_corps_reps' | 'tenue';
+export type Mesure = 'charge_reps' | 'poids_du_corps_reps' | 'reps' | 'tenue';
 
 export interface ExercicePrevu {
   /** Identifiant stable de l'exercice (sert à retrouver la dernière performance). */
@@ -19,6 +19,12 @@ export interface ExercicePrevu {
   reposSec: number;
   /** Pas d'ajustement de la charge en kg. */
   pasKg?: number;
+  /** Exercice prévu à l'origine, si celui-ci le remplace. */
+  origineId?: string;
+  /** Descente lente (3 secondes) pour compenser une charge trop légère. */
+  tempoLent?: boolean;
+  /** Remplacement choisi par l'utilisateur (conservé lors des recalculs). */
+  choixManuel?: boolean;
 }
 
 export interface SeancePrevue {
@@ -46,6 +52,9 @@ export interface Seance {
   reposTotalSec?: number;
   /** Notes libres par exercice. */
   notes: Record<string, string>;
+  /** Lieu et matériel du jour (pour proposer des remplacements pendant la séance). */
+  lieu?: 'salle' | 'maison' | 'exterieur';
+  dispo?: { materiel: string[]; halteresMaxKg: number; kettlebellMaxKg: number };
   /** Suppression douce : la séance va à la corbeille pendant 30 jours. */
   supprimeeLe?: number;
 }

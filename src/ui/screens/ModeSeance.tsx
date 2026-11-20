@@ -18,6 +18,12 @@ import { bip, garderEcranAllume, preparerSon } from '../../platform/appareil';
 import { afficherBandeau } from '../bandeau';
 import { IconeFermer, IconeMinuteur, IconePlus } from '../icones';
 import { useReglage } from '../reglages';
+import { Feuille } from '../Feuille';
+import { Fiche } from '../Fiche';
+import { candidats, convertir } from '../../domain/remplacement';
+import { NOMS_MOUVEMENTS } from '../../domain/exercices';
+import { PRESETS } from '../../domain/materiel';
+import { POIDS_PAR_DEFAUT, detailPrevu } from './Aujourdhui';
 
 export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer: () => void }) {
   const seance = useLiveQuery(async () => (await db.seances.get(seanceId)) ?? null, [seanceId]);
@@ -26,6 +32,8 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
   const [son] = useReglage('sonApplication');
   const [menu, setMenu] = useState(false);
   const [note, setNote] = useState(false);
+  const [fiche, setFiche] = useState(false);
+  const [remplacer, setRemplacer] = useState(false);
 
   useEffect(() => {
     garderEcranAllume(true);
@@ -103,6 +111,12 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
         <SaisieReps key={`${ex.exerciceId}-${numero}`} ex={ex} faites={faites} seanceId={seance.id} onValider={valider} />
       )}
 
+      <div className="grille-3">
+        <button className="bouton" onClick={() => setRemplacer(true)}>Remplacer</button>
+        <button className="bouton" onClick={() => setFiche(true)}>Fiche</button>
+        <button className="bouton" onClick={() => setNote(true)}>Note</button>
+      </div>
+
       <DernierePerf ex={ex} seanceId={seance.id} />
 
       {seance.notes[ex.exerciceId] && (
@@ -164,6 +178,45 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
         </Feuille>
       )}
 
+      {fiche && <Fiche id={ex.exerciceId} onFermer={() => setFiche(false)} />}
+
+      {remplacer && (
+        <Feuille titre={`Remplacer : ${ex.nom}`} onFermer={() => setRemplacer(false)}>
+          <span className="doux petit">Équivalents disponibles avec le matériel du jour, du plus proche au moins proche.</span>
+          {(() => {
+            const ctx = { dispo: seance.dispo ?? PRESETS.salle, poidsCorpsKg: POIDS_PAR_DEFAUT };
+            const exclus = new Set(plan.exercices.map((e) => e.exerciceId));
+            const liste = candidats(ex, ctx, exclus).slice(0, 8);
+            if (!liste.length) return <span className="gras">Aucun équivalent disponible avec ce matériel.</span>;
+            return (
+              <div className="carte" style={{ gap: 0, paddingTop: 0, paddingBottom: 0 }}>
+                {liste.map(({ ex: c }) => {
+                  const { nouveau } = convertir(ex, c, ctx);
+                  return (
+                    <button
+                      key={c.id}
+                      className="lien-liste"
+                      onClick={async () => {
+                        setRemplacer(false);
+                        const avant = plan;
+                        const restantes = Math.max(1, ex.series - faites.length);
+                        const exercices = plan.exercices.map((e, i) => (i === idx ? { ...nouveau, series: restantes, choixManuel: true } : e));
+                        if (faites.length > 0) exercices.splice(idx, 0, { ...ex, series: faites.length });
+                        await modifierSeance(seance.id, { plan: { ...plan, exercices }, exerciceIndex: faites.length > 0 ? idx + 1 : idx });
+                        afficherBandeau(`${ex.nom} → ${c.nom}`, () => modifierSeance(seance.id, { plan: avant, exerciceIndex: idx }));
+                      }}
+                    >
+                      <span className="gras">{c.nom}</span>
+                      <span className="doux petit">{detailPrevu({ ...nouveau, series: Math.max(1, ex.series - faites.length) })} · {NOMS_MOUVEMENTS[c.mouvement]}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </Feuille>
+      )}
+
       {note && (
         <Feuille onFermer={() => setNote(false)} titre={`Note : ${ex.nom}`}>
           <textarea
@@ -206,7 +259,7 @@ function SaisieReps({
   ex: ExercicePrevu;
   faites: Serie[];
   seanceId: string;
-  onValider: (v: { chargeKg: number; reps: number }) => void;
+  onValider: (v: { chargeKg?: number; reps: number }) => void;
 }) {
   const derniere = useLiveQuery(() => dernierePerformance(ex.exerciceId, seanceId), [ex.exerciceId, seanceId]);
   const precedenteIci = faites[faites.length - 1]?.chargeKg;
@@ -218,12 +271,14 @@ function SaisieReps({
   const [reps, setReps] = useState(vise);
   const choix = Array.from({ length: 5 }, (_, i) => Math.max(1, vise - 2) + i);
   const lest = ex.mesure === 'poids_du_corps_reps';
+  const sansCharge = ex.mesure === 'reps';
 
   // Saisie en deux gestes au plus : choisir une valeur (si besoin), puis « Valider ».
   return (
     <div className="carte" style={{ gap: 16 }}>
-      <div className="grille-2">
-        <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
+      {ex.tempoLent && <span className="mention-orange gras petit" style={{ textAlign: 'center' }}>Descente lente : 3 secondes à chaque répétition</span>}
+      <div className={sansCharge ? '' : 'grille-2'}>
+        {!sansCharge && <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
           <span className="etiquette">{lest ? 'Lest' : 'Charge'}</span>
           <span className="valeur-geante" aria-live="polite">{kg(valeurCharge)}</span>
           <span className="doux petit gras">kg</span>
@@ -231,7 +286,7 @@ function SaisieReps({
             <button className="bouton" style={{ width: 52 }} aria-label={`Moins ${kg(pas)} kg`} onClick={() => setCharge(Math.max(0, valeurCharge - pas))}>−</button>
             <button className="bouton" style={{ width: 52 }} aria-label={`Plus ${kg(pas)} kg`} onClick={() => setCharge(valeurCharge + pas)}>+</button>
           </div>
-        </div>
+        </div>}
         <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
           <span className="etiquette">Répétitions</span>
           <span className="valeur-geante" aria-live="polite" style={{ color: reps !== vise ? 'var(--accent)' : undefined }}>{reps}</span>
@@ -259,8 +314,8 @@ function SaisieReps({
           ))}
         </div>
       </div>
-      <button className="bouton principal geant" onClick={() => onValider({ chargeKg: valeurCharge, reps })}>
-        {lest && valeurCharge === 0 ? `Valider ${reps} répétitions` : `Valider ${reps} × ${kg(valeurCharge)} kg`}
+      <button className="bouton principal geant" onClick={() => onValider({ chargeKg: sansCharge ? undefined : valeurCharge, reps })}>
+        {sansCharge || (lest && valeurCharge === 0) ? `Valider ${reps} répétitions` : `Valider ${reps} × ${kg(valeurCharge)} kg`}
       </button>
     </div>
   );
@@ -322,7 +377,7 @@ function DernierePerf({ ex, seanceId }: { ex: ExercicePrevu; seanceId: string })
   else {
     const reps = d.series.map((s) => s.reps ?? 0).join(' · ');
     const c = d.series[0]?.chargeKg ?? 0;
-    texte = ex.mesure === 'poids_du_corps_reps' && !c ? `${reps} répétitions` : `${kg(c)} kg × ${reps}`;
+    texte = ex.mesure === 'reps' || (ex.mesure === 'poids_du_corps_reps' && !c) ? `${reps} répétitions` : `${kg(c)} kg × ${reps}`;
   }
   return (
     <div className="carte compacte">
@@ -461,18 +516,4 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
   );
 }
 
-// ---------- Feuille du bas ----------
-
-export function Feuille({ titre, onFermer, children }: { titre: string; onFermer: () => void; children: React.ReactNode }) {
-  return (
-    <div className="voile" onClick={onFermer}>
-      <div className="feuille" role="dialog" aria-label={titre} onClick={(e) => e.stopPropagation()}>
-        <div className="ligne ecartee">
-          <h2 className="titre-2">{titre}</h2>
-          <button className="bouton rond" aria-label="Fermer" onClick={onFermer}><IconeFermer /></button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
+export { Feuille } from '../Feuille';
