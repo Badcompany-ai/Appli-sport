@@ -1,6 +1,6 @@
 # Cahier des charges — application d'entraînement personnelle
 
-**Version 1 — 20 novembre 2026 — à valider**
+**Version 1.1 — 20 novembre 2026 — validée par l'utilisateur** (hébergement GitHub Pages ; idées I2, I3, I4, I5, I7, I8, I9, I10 acceptées ; I1 et I6 refusées)
 
 Ce document décrit l'application avant toute ligne de code : ce qu'elle fait, ses écrans, ses règles de calcul et les choix techniques. Rien ne sera construit avant votre accord. La partie 11 rassemble mes propres idées, que vous acceptez ou refusez une par une.
 
@@ -38,7 +38,7 @@ Les règles marquées **[Source]** s'appuient sur un principe reconnu en entraî
 | Disponibilité | 4 séances d'environ 1 h ; lundi à jeudi et dimanche de préférence, samedi souvent possible ; lieu choisi le jour même |
 | Démarrage | Fin décembre 2026 ; 2 semaines de reprise, puis test complet |
 | Goûts | Tractions, dips, pompes, isolation, machines ; aucun refus ; veut apprendre l'épaulé |
-| Suivi | Charges et records, performances athlétiques, cardio ; tour de taille toutes les 2 semaines ; pesées 2 à 3 fois par semaine |
+| Suivi | Charges et records, performances athlétiques, cardio ; tour de taille facultatif et peu fréquent ; pesées 2 à 3 fois par semaine |
 | Nutrition | Sèche lente, suivi simplifié ; repas d'origines variées ; pas de fromages forts |
 | Style | Sombre, sobre et haut de gamme ; inspirations Apple Forme et Nike Training Club |
 | Appareils | iPhone pendant la séance ; Mac pour consulter (transfert manuel) ; aucun coût récurrent |
@@ -173,7 +173,6 @@ Un exercice à la fois. L'écran reste allumé.
 - **Après la dernière série d'un exercice :** **Ressenti** en trois gros boutons (Trop facile / Correct / Trop dur), puis passage à l'exercice suivant.
 - **Menu de l'exercice :** remplacer, fiche de l'exercice, note libre, signaler une douleur, retirer.
 - **Séries d'échauffement** proposées automatiquement avant une charge lourde (règle 5.7). Elles sont marquées « échauffement » et ne comptent pas dans les records.
-- **Calculateur de disques** (voir idée I6).
 - **Interruption** (appel, fermeture, batterie) : chaque série est enregistrée dès sa validation, et la séance reprend exactement au même endroit.
 - **Annuler** la dernière série saisie : bandeau « Annuler » pendant 10 secondes, puis modification toujours possible depuis l'historique.
 
@@ -384,7 +383,7 @@ Certains échauffements intègrent le bloc de mobilité que vous avez demandé.
 | Maximums de force | + 10 à 20 % |
 | Tractions | + 3 à 5 répétitions |
 | VO2 max | + 5 à 10 % |
-| Tour de taille | − 2 à 4 cm |
+| Tour de taille (si mesuré) | − 2 à 4 cm |
 
 - **Étapes intermédiaires :** une cible par fin de cycle, découpée de façon régulière.
 - **Barre de progression :** (valeur actuelle − valeur de départ) ÷ (objectif − départ).
@@ -555,7 +554,8 @@ Quand un exercice n'est plus possible avec le matériel coché :
 - **Rythme réel :** pente de la tendance sur les 14 à 21 derniers jours, en kg par semaine et en % du poids.
 - **Objectif de poids :** facultatif (pas d'objectif choisi pour l'instant). S'il est activé : rythme visé, rythme réel, date estimée.
 - **Tour de taille :**
-  - saisi toutes les 2 semaines, mesuré au niveau du nombril, debout et détendu, le matin ;
+  - **facultatif et peu fréquent** : rappel toutes les 4 semaines au plus, que l'on peut ignorer ou désactiver (l'utilisateur trouve la mesure contraignante) ;
+  - saisi mesuré au niveau du nombril, debout et détendu, le matin ;
   - graphique ;
   - c'est **l'indicateur principal de silhouette** dans les bilans.
 - **Autres mensurations et photos :** désactivées, activables plus tard. Les photos sont stockées uniquement sur l'appareil.
@@ -715,16 +715,16 @@ Ces fonctionnalités **ne seront construites que si vous les acceptez**. Répond
 
 | N° | Idée | Ce que ça apporte |
 |---|---|---|
-| **I1** | **Vérification express avant la séance** : 3 touches (sommeil, courbatures, énergie) | Avec un sommeil souvent court, cela permet d'alléger automatiquement les jours « sans », au lieu d'attendre l'échec en cours de séance |
-| **I2** | **Silhouette avant la balance** : si le tour de taille baisse et que les performances montent, l'ajustement des calories ne réduit pas davantage, même si le poids stagne | C'est le signe d'une recomposition (moins de gras, plus de muscle), exactement votre objectif ; inutile de manger moins |
-| **I3** | **Chronométrage du sprint par vidéo** : vous filmez au ralenti, vous touchez l'image du départ puis celle de l'arrivée, et l'application calcule le temps | Mesurer un sprint seul, précisément, sans chronométreur |
-| **I4** | **Suivi du sommeil simplifié** : heures dormies saisies en une touche le matin, croisées avec les performances dans le bilan | Voir concrètement l'effet du sommeil sur vos résultats |
-| **I5** | **Idées pour finir ses protéines** : « Il vous reste 40 g : par exemple 250 g de skyr, ou un shaker de protéine », pris dans vos favoris | Atteindre l'objectif sans réfléchir |
-| **I6** | **Calculateur de disques** : « 60 kg = barre de 20 kg + de chaque côté : 15 + 5 » | Gain de temps en salle |
-| **I7** | **Case « compléments pris »** : un geste par jour (créatine, etc.) | La créatine agit seulement si elle est prise chaque jour ; utile vu une prise irrégulière |
-| **I8** | **Célébration des records** : animation courte et sobre quand un record tombe | Motivation, dans le style Apple Forme |
-| **I9** | **Mode analyse sur Mac** : graphiques plus grands et tableaux comparatifs sur grand écran | Profiter du Mac pour analyser vos données |
-| **I10** | **Lecture de l'app Santé d'Apple** (seulement si on passe un jour à la version native) | Récupérer automatiquement poids, sommeil et VO2 max si vous achetez une Apple Watch ou une balance connectée |
+| **I1** ❌ refusée | **Vérification express avant la séance** : 3 touches (sommeil, courbatures, énergie) | Avec un sommeil souvent court, cela permet d'alléger automatiquement les jours « sans », au lieu d'attendre l'échec en cours de séance |
+| **I2** ✅ (adaptée) | **Silhouette avant la balance** : si une mesure récente du tour de taille montre une baisse et que les performances montent, l'ajustement des calories ne réduit pas davantage, même si le poids stagne. **Sans mesure récente, la règle ne s'applique pas** : rien n'oblige à mesurer. | C'est le signe d'une recomposition (moins de gras, plus de muscle), exactement votre objectif ; inutile de manger moins |
+| **I3** ✅ | **Chronométrage du sprint par vidéo** : vous filmez au ralenti, vous touchez l'image du départ puis celle de l'arrivée, et l'application calcule le temps | Mesurer un sprint seul, précisément, sans chronométreur |
+| **I4** ✅ | **Suivi du sommeil simplifié** : heures dormies saisies en une touche le matin, croisées avec les performances dans le bilan | Voir concrètement l'effet du sommeil sur vos résultats |
+| **I5** ✅ | **Idées pour finir ses protéines** : « Il vous reste 40 g : par exemple 250 g de skyr, ou un shaker de protéine », pris dans vos favoris | Atteindre l'objectif sans réfléchir |
+| **I6** ❌ refusée | **Calculateur de disques** : « 60 kg = barre de 20 kg + de chaque côté : 15 + 5 » | Gain de temps en salle |
+| **I7** ✅ | **Case « compléments pris »** : un geste par jour (créatine, etc.) | La créatine agit seulement si elle est prise chaque jour ; utile vu une prise irrégulière |
+| **I8** ✅ | **Célébration des records** : animation courte et sobre quand un record tombe | Motivation, dans le style Apple Forme |
+| **I9** ✅ | **Mode analyse sur Mac** : graphiques plus grands et tableaux comparatifs sur grand écran | Profiter du Mac pour analyser vos données |
+| **I10** ✅ (seulement si version native un jour) | **Lecture de l'app Santé d'Apple** (seulement si on passe un jour à la version native) | Récupérer automatiquement poids, sommeil et VO2 max si vous achetez une Apple Watch ou une balance connectée |
 
 ---
 
@@ -752,10 +752,12 @@ Ces fonctionnalités **ne seront construites que si vous les acceptez**. Répond
 
 ## 13. Points encore ouverts
 
+1. ~~Hébergement~~ → **décidé : GitHub Pages** (dépôt rendu public au jalon J1, guidage pas à pas).
+- *Ancien texte de la question :*
 1. **Hébergement de l'application (gratuit).**
    - Pour que l'iPhone l'installe, le code doit être en ligne. Vos données n'y sont jamais.
    - **Option A (recommandée) :** GitHub Pages. C'est le plus simple, mais il faut rendre le dépôt de code **public**, sauf si votre compte GitHub a une offre qui permet les pages privées. N'importe qui pourrait alors lire le code, mais pas vos données.
    - **Option B :** Cloudflare Pages, gratuit avec le dépôt privé. Il demande de créer un compte Cloudflare (5 minutes, je vous guide).
    - **Question :** préférez-vous A ou B ?
-2. **Validation des idées** I1 à I10.
-3. **Validation globale** de ce cahier des charges, ou liste de corrections.
+2. ~~Validation des idées~~ → faite (voir partie 11).
+3. ~~Validation globale~~ → faite le 20/11/2026.

@@ -6,7 +6,10 @@ Il est mis à jour à chaque étape importante.
 ## Où en est-on ?
 
 - Étape 1 — Interview : **terminée** (récapitulatif validé par l'utilisateur le 20/11/2026)
-- **Étape en cours : 2 — Cahier des charges** : version 1 rédigée dans `docs/cahier-des-charges.md`, **en attente de validation** (points ouverts : hébergement A/B, idées I1 à I10, validation globale)
+- Étape 2 — Cahier des charges : **validé** le 20/11/2026 (`docs/cahier-des-charges.md`, version 1.1)
+- **Étape en cours : 3 — Construction. Jalon J0 (deux directions visuelles)** : maquettes publiées (page privée claude.ai : https://claude.ai/artifact/LoCVjcaC6UEWoSnKY2CRgz ; sources copiées dans `docs/maquettes-J0/`). **En attente du choix de l'utilisateur.**
+  - Direction A « Anneaux » : noir pur, police Inter, cartes arrondies, anneaux de progression, accent vert citron #D4FF3A.
+  - Direction B « Éditorial » : noir et blanc cassé, titres géants condensés en majuscules (Barlow Condensed), angles droits, filets fins, accent orange #FF5A1F.
 - Étape 3 — Construction par jalons : à faire, après accord écrit sur le cahier des charges
 
 ## Consignes de départ (résumé)
@@ -101,11 +104,11 @@ Il est mis à jour à chaque étape importante.
 - **D1 — Technologie :** une application web installable sur l'écran d'accueil de l'iPhone, qui fonctionne sans connexion, avec le même code réutilisable dans une enveloppe native plus tard. Gratuit, testable visuellement dans la session cloud (navigateur Chromium au format iPhone).
 - **D2 — Aucun coût récurrent :** pas d'abonnement développeur Apple.
 - **D4 — Fin de repos hors de l'application :** l'utilisateur veut être prévenu même s'il a quitté l'application. Solution retenue (son idée) : au début du repos, l'application web lance le **minuteur intégré de l'iPhone** via un **raccourci de l'app Raccourcis d'Apple** (configuration unique d'environ 2 minutes, guidée). Le minuteur de l'iPhone sonne même écran verrouillé et sans réseau. Dans l'application, son « ambiant » qui se mélange à la musique + écran qui change. Points à vérifier sur son iPhone, car impossibles à tester dans le cloud : retour à l'application après le lancement du raccourci, et effet de la sonnerie du minuteur sur la musique. **Testé dès le premier jalon.** Application native : seulement plus tard, si l'application web parfaite ne suffit pas.
+- **D5 — Hébergement :** GitHub Pages ; le dépôt sera rendu public (le code seulement, jamais les données) au jalon J1.
+- **D6 — Idées :** acceptées I2 (adaptée : tour de taille facultatif, rappel toutes les 4 semaines au plus), I3, I4, I5, I7, I8, I9, I10 (si version native) ; refusées I1 (vérification avant séance) et I6 (calculateur de disques).
+- **D7 — Tour de taille :** mesure jugée contraignante → facultative, peu fréquente.
 - **D3 — Données :** uniquement sur l'appareil ; passage vers le Mac par fichier de sauvegarde (AirDrop ou iCloud Drive).
 
 ## Questions ouvertes
 
-- Hébergement : GitHub Pages (dépôt public) ou Cloudflare Pages (dépôt privé) ?
-- Idées I1 à I10 du cahier des charges : oui ou non pour chacune.
-- Validation globale du cahier des charges.
-- Ensuite : jalon J0 (deux directions visuelles).
+- J0 : choix entre les deux directions visuelles.

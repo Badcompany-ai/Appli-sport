@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>A — Repos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#D4FF3A}a:hover{color:#E6FF85}
+</style>
+</helmet>
+<div style="{{ fond }}">
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 4px">
+    <span style="{{ labelStyle }}">{{ titre }}</span>
+    <span style="{{ sousStyle }}">Démo accélérée : 20 secondes</span>
+  </div>
+
+  <div style="position: relative; width: 280px; height: 280px">
+    <svg width="280" height="280" role="img" aria-label="Temps de repos restant" style="transform: rotate(-90deg)">
+      <circle cx="140" cy="140" r="126" style="{{ pisteStyle }}"></circle>
+      <circle cx="140" cy="140" r="126" style="{{ ringStyle }}"></circle>
+    </svg>
+    <div style="position: absolute; left: 0; top: 0; width: 280px; height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center">
+      <span style="{{ chiffreStyle }}">{{ temps }}</span>
+    </div>
+  </div>
+
+  <div style="{{ badgeStyle }}">
+    <svg width="18" height="18" aria-hidden="true" style="fill: none; stroke: currentColor; stroke-width: 2px; stroke-linecap: round"><circle cx="9" cy="10" r="7"></circle><line x1="9" y1="10" x2="9" y2="6"></line><line x1="7" y1="1.5" x2="11" y2="1.5"></line></svg>
+    <span>Minuteur iPhone lancé</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%">
+    <button onClick="{{ plus30 }}" style="{{ btnStyle }}">+30 s</button>
+    <a href="A-Seance.dc.html" style="{{ passerStyle }}">{{ passerTexte }}</a>
+  </div>
+
+  <div style="{{ suivantStyle }}">
+    <span style="font-size: 13px; font-weight: 600; opacity: 0.7">ENSUITE</span>
+    <span style="font-size: 18px; font-weight: 700">Squat arrière · série 3 sur 4</span>
+    <span style="font-size: 15px; font-weight: 600; opacity: 0.7">80 kg × 5</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { restant: 20, total: 20 }; }
+  componentDidMount() {
+    var self = this;
+    this.timer = setInterval(function () {
+      if (self.state.restant > 0) { self.setState({ restant: self.state.restant - 1 }); }
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    var self = this;
+    var r = this.state.restant, tot = this.state.total;
+    var fini = r === 0;
+    var c = 2 * Math.PI * 126;
+    var pct = tot ? r / tot : 0;
+    var ink = fini ? '#000000' : '#F5F5F7';
+    var m = Math.floor(r / 60), s = r % 60;
+    return {
+      temps: fini ? 'Go' : m + ':' + (s < 10 ? '0' : '') + s,
+      titre: fini ? 'Repos terminé' : 'Repos',
+      fond: 'width: 390px; height: 844px; box-sizing: border-box; padding: 72px 20px 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; font-family: Inter, system-ui, sans-serif; transition: background 300ms ease; color: ' + ink + '; background: ' + (fini ? '#D4FF3A' : '#000000'),
+      labelStyle: 'font-size: 22px; font-weight: 800; letter-spacing: -0.01em',
+      sousStyle: 'font-size: 13px; font-weight: 600; opacity: 0.6',
+      pisteStyle: 'fill: none; stroke-width: 16px; stroke: ' + (fini ? 'rgba(0,0,0,0.15)' : '#1C1C1E'),
+      ringStyle: 'fill: none; stroke-width: 16px; stroke-linecap: round; transition: stroke-dashoffset 900ms linear; stroke: ' + (fini ? '#000000' : '#D4FF3A') + '; stroke-dasharray: ' + c.toFixed(1) + '; stroke-dashoffset: ' + (c * (1 - pct)).toFixed(1),
+      chiffreStyle: 'font-size: 84px; font-weight: 800; letter-spacing: -0.04em; font-variant-numeric: tabular-nums',
+      badgeStyle: 'display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 20px; background: ' + (fini ? 'rgba(0,0,0,0.1)' : '#1C1C1E'),
+      btnStyle: 'height: 56px; border-radius: 18px; border: none; font-family: Inter, system-ui, sans-serif; font-size: 18px; font-weight: 700; color: ' + ink + '; background: ' + (fini ? 'rgba(0,0,0,0.12)' : '#1C1C1E'),
+      passerStyle: 'display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 18px; font-size: 18px; font-weight: 800; text-decoration: none; ' + (fini ? 'background: #000000; color: #D4FF3A' : 'background: #D4FF3A; color: #000000'),
+      passerTexte: fini ? 'Série suivante' : 'Passer',
+      suivantStyle: 'width: 100%; box-sizing: border-box; border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; background: ' + (fini ? 'rgba(0,0,0,0.1)' : '#141416'),
+      plus30: function () { self.setState({ restant: self.state.restant + 30, total: Math.max(self.state.total, self.state.restant + 30) }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
