@@ -7,7 +7,17 @@ Il est mis à jour à chaque étape importante.
 
 - Étape 1 — Interview : **terminée** (récapitulatif validé par l'utilisateur le 20/11/2026)
 - Étape 2 — Cahier des charges : **validé** le 20/11/2026 (`docs/cahier-des-charges.md`, version 1.1)
-- Jalon J0 terminé.
+- Jalon J0 terminé (direction A, accent orange).
+- **Jalon J1 : validé par l'utilisateur le 20/11/2026** (« ça marche bien maintenant »).
+- **Jalon J2 : construit, testé et publié le 20/11/2026, en attente du retour de l'utilisateur.**
+  - Bibliothèque de 93 exercices (`src/domain/exercices.ts`) classés par mouvement de base, avec qualités, muscles, matériel, difficulté, facteur de charge, consignes, erreurs, variantes plus faciles et plus difficiles.
+  - Moteur de remplacement (`src/domain/remplacement.ts`) : même mouvement ou mouvement proche, note = mouvement identique + qualités + muscles + charge réalisable + difficulté + goûts ; charge trop légère → plus de répétitions (formule d'Epley, plafond 15) et descente lente ; aucun équivalent → retiré et séries reportées ; explication en une phrase. Les 10 exemples du cahier des charges (6.4) sont des tests automatiques.
+  - Matériel : catalogue et préréglages des 3 lieux (`src/domain/materiel.ts`) ; haltères de la salle supposés jusqu'à 40 kg, kettlebells 32 kg (à confirmer par l'utilisateur, modifiable dans l'application). Lieu choisi sur Aujourd'hui ; matériel modifiable « pour aujourd'hui » ou enregistré comme préréglage.
+  - Écrans : choix du lieu, feuille Matériel (recalcul immédiat), « Ce qui a changé », fiches d'exercice, bouton Remplacer en séance (remplacement annulable), bibliothèque avec recherche dans l'onglet Programme.
+  - Vidéos : 93 vidéos vérifiées le 20/11/2026 (trouvées par recherche YouTube, titres et chaînes relus, existence et intégration confirmées par le service oEmbed de YouTube) dans `src/domain/videos.ts`. Hôte www.youtube.com ajouté à l'environnement cloud pour cela.
+  - Poids du corps fixé à 82 kg (interview) en attendant les pesées (J6).
+  - Reste à faire plus tard : schéma du corps coloré dans les fiches (prévu en finitions J7) ; bibliothèque à compléter vers ~150 exercices selon les besoins du programme (J3).
+  - Tests : 45 tests unitaires + 40 vérifications de bout en bout, toutes réussies.
 - **Jalon J1 : publié le 20/11/2026 sur https://badcompany-ai.github.io/Appli-sport/ (pull request Badcompany-ai/Appli-sport#1 fusionnée, publication réussie). En attente du retour de l'utilisateur sur iPhone.**
   - Contenu : application web installable (React + TypeScript + Vite, fichiers gardés hors ligne par un « service worker »), base IndexedDB (Dexie), séance de démonstration (squat, pompes, gainage), saisie en 1 geste, rappel de la dernière performance, repos automatique (heure de fin stockée → survit à une fermeture), lancement du raccourci « Repos » avec la durée, son « ambiant », écran allumé, note par exercice, annulation 10 s, corbeille 30 jours, export/import avec aperçu et copie de sécurité, copie automatique quotidienne (7 gardées), onglets Programme/Progrès/Nutrition annoncés pour J3/J4/J6.
   - Tests : 19 tests unitaires (`npm test`) + 23 vérifications de bout en bout au format iPhone (`npm run build && npm run e2e`), toutes réussies.

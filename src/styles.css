@@ -165,3 +165,19 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 .citation { background: var(--carte-2); border-radius: 12px; padding: 12px; font-size: 15px; line-height: 1.4; -webkit-user-select: text; user-select: text; }
 .element-liste { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #222224; }
 .element-liste:last-child { border-bottom: none; }
+
+/* ---------- Fiche et matériel ---------- */
+.pastille-info { font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 12px; background: var(--carte-2); color: var(--doux); }
+.pastille-info.forte { color: var(--texte); background: #2c2c2e; }
+.case { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 0; border-bottom: 1px solid #222224; font-size: 16px; }
+.case:last-child { border-bottom: none; }
+.case input { width: 24px; height: 24px; accent-color: var(--accent); flex-shrink: 0; }
+.changement { display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: 1px solid #222224; }
+.changement:last-child { border-bottom: none; }
+.changement .titre-ch { font-weight: 700; }
+.changement .titre-ch b { color: var(--accent); }
+.lieux { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.lieux .bouton[aria-pressed='true'] { background: var(--accent); color: var(--accent-encre); }
+.champ-texte { width: 100%; min-height: 48px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 0 14px; font: inherit; font-size: 16px; }
+.lien-liste { background: none; border: none; text-align: left; width: 100%; padding: 12px 0; border-bottom: 1px solid #222224; display: flex; flex-direction: column; gap: 2px; }
+.mention-orange { color: var(--accent); }

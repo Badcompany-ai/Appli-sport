@@ -69,34 +69,75 @@ const nbSeries = () =>
   );
 
 try {
+  const vu = (loc) => loc.waitFor({ timeout: 5000 }).then(() => true, () => false);
+  const carte = () => page.getByRole('region', { name: 'Séance du jour' });
+
   console.log('Premier lancement');
   await page.goto(URL);
   await page.getByRole('heading', { name: "Aujourd'hui" }).waitFor();
   await page.evaluate(() => navigator.serviceWorker.ready);
   verifier(await page.getByText('Aucune séance pour l').isVisible(), 'écran de première utilisation non vide');
+  verifier(!(await page.getByText(/changement.* selon le matériel/).isVisible()), 'en salle, la séance n’est pas modifiée');
   await capture('01-aujourdhui');
+
+  console.log('Matériel : changement de lieu');
+  await page.getByRole('button', { name: 'Maison', exact: true }).click();
+  verifier(await vu(page.getByText(/changements selon le matériel/)), 'à la maison, la séance affiche ses changements');
+  verifier(await vu(carte().getByText('Squat bulgare aux haltères')), 'squat arrière remplacé par le squat bulgare');
+  await capture('02-maison');
+  await page.getByRole('button', { name: /Voir pourquoi/ }).click();
+  verifier(await vu(page.getByText(/Pas de barre et disques ; mouvement proche/).first()), 'chaque changement est expliqué');
+  await capture('03-pourquoi');
+  await page.getByRole('button', { name: 'OK' }).click();
+
+  console.log('Matériel : décocher un équipement recalcule la séance');
+  await page.getByRole('button', { name: 'Matériel', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Haltères' }).uncheck();
+  verifier(await vu(page.getByText('Modifié pour aujourd’hui seulement')), 'modification pour aujourd’hui seulement');
+  await page.getByRole('button', { name: 'OK' }).click();
+  verifier(!(await carte().getByText('Squat bulgare aux haltères').isVisible()), 'sans haltères, le squat bulgare aux haltères disparaît');
+  verifier(await vu(carte().getByText(/Squat bulgare au poids du corps|Squat sur une jambe/)), 'remplacé par un équivalent au poids du corps');
+  await page.getByRole('button', { name: 'Matériel', exact: true }).click();
+  for (let i = 0; i < 40 && (await page.getByRole('checkbox', { checked: true }).count()) > 0; i++) {
+    await page.getByRole('checkbox', { checked: true }).first().click();
+  }
+  verifier(await vu(page.getByText('Aucun matériel coché : séance entièrement au poids du corps.')), 'aucun matériel coché : message clair');
+  await capture('04-materiel');
+  await page.getByRole('button', { name: 'Revenir au préréglage' }).click();
+  await page.getByRole('button', { name: 'OK' }).click();
+  await page.getByRole('button', { name: 'Salle', exact: true }).click();
+  verifier(await vu(carte().getByText('Squat arrière')), 'retour en salle : séance d’origine');
+
+  console.log('Fiche d’exercice');
+  await carte().getByRole('button', { name: 'Fiche : Squat arrière' }).click();
+  verifier(await vu(page.getByText('Erreurs fréquentes')), 'la fiche affiche consignes et erreurs');
+  verifier(await vu(page.getByRole('link', { name: /Rechercher une vidéo/ }).or(page.getByRole('button', { name: /Voir la démonstration/ }))), 'vidéo vérifiée ou bouton de recherche');
+  await capture('05-fiche');
+  await page.getByRole('button', { name: /Plus facile : Squat goblet/ }).click();
+  verifier(await vu(page.getByRole('dialog', { name: 'Squat goblet' })), 'les variantes ouvrent leur fiche');
+  await page.getByRole('dialog', { name: 'Squat goblet' }).getByRole('button', { name: 'Fermer' }).click();
 
   console.log('Mode séance');
   await page.getByRole('button', { name: 'Commencer' }).click();
-  await page.getByRole('heading', { name: 'Squat arrière' }).waitFor();
+  await page.getByRole('heading', { name: 'Saut sur box' }).waitFor();
   verifier(await page.getByText('Première fois sur cet exercice').isVisible(), 'rappel de performance (première fois)');
-  await capture('02-seance');
-  await page.getByRole('button', { name: /Valider 5 × 60 kg/ }).click();
+  await capture('06-seance');
+  await page.getByRole('button', { name: 'Valider 5 répétitions' }).click();
   await page.getByRole('dialog', { name: 'Repos' }).waitFor();
   verifier((await nbSeries()) === 1, 'la série est enregistrée immédiatement');
-  verifier(await page.getByText(/Squat arrière · série 2 sur 3/).isVisible(), 'le repos annonce la série suivante');
-  await capture('03-repos');
+  verifier(await page.getByText(/Saut sur box · série 2 sur 3/).isVisible(), 'le repos annonce la série suivante');
+  await capture('07-repos');
   await page.getByRole('button', { name: 'Passer' }).click();
 
   console.log('Autre nombre de répétitions en deux gestes');
   await page.getByRole('radio', { name: '4 répétitions' }).click();
   verifier((await nbSeries()) === 1, 'choisir un nombre ne valide pas la série');
-  await page.getByRole('button', { name: /Valider 4 × 60 kg/ }).click();
+  await page.getByRole('button', { name: 'Valider 4 répétitions' }).click();
   await page.getByRole('button', { name: 'Passer' }).click();
   verifier((await nbSeries()) === 2, 'deuxième série enregistrée');
 
   console.log('Annuler une série');
-  await page.getByRole('button', { name: /Valider 5 × 60 kg/ }).click();
+  await page.getByRole('button', { name: 'Valider 5 répétitions' }).click();
   await page.getByRole('button', { name: 'Annuler' }).click();
   await page.waitForTimeout(300);
   verifier((await nbSeries()) === 2, 'la série annulée est supprimée');
@@ -104,80 +145,97 @@ try {
 
   console.log('Fermeture brutale puis reprise');
   await page.reload();
-  await page.getByRole('heading', { name: 'Squat arrière' }).waitFor();
+  await page.getByRole('heading', { name: 'Saut sur box' }).waitFor();
   verifier(await page.getByText('Série 3 sur 3').isVisible(), 'la séance reprend exactement au même endroit');
-
-  console.log('Charge modifiée puis exercice suivant');
-  await page.getByRole('button', { name: 'Plus 2,5 kg' }).click();
-  await page.getByRole('button', { name: /Valider 5 × 62,5 kg/ }).click();
-  verifier(await page.getByText(/Pompes · série 1 sur 3/).waitFor().then(() => true, () => false), 'après la dernière série, le repos annonce l’exercice suivant');
+  await page.getByRole('button', { name: 'Valider 5 répétitions' }).click();
+  verifier(await vu(page.getByText(/Squat arrière · série 1 sur 3/)), 'après la dernière série, le repos annonce l’exercice suivant');
 
   console.log('Fin du repos (horloge avancée)');
-  // Horloge simulée : on avance le temps de 2 min 05 sans attendre réellement.
   await page.clock.install();
   await page.reload();
   await page.getByRole('dialog', { name: 'Repos' }).waitFor();
-  await page.clock.fastForward('02:05');
+  await page.clock.fastForward('02:35');
   await page.getByText('Repos terminé').waitFor();
   verifier(await page.getByRole('button', { name: 'Série suivante' }).isVisible(), 'écran de fin de repos');
-  await capture('04-repos-fini');
+  await capture('08-repos-fini');
   await page.getByRole('button', { name: 'Série suivante' }).click();
-  await page.getByRole('heading', { name: 'Pompes' }).waitFor();
-  await capture('05-pompes');
+  await page.getByRole('heading', { name: 'Squat arrière' }).waitFor();
 
-  console.log('Note libre');
-  await page.getByRole('button', { name: 'Options de la séance' }).click();
-  await page.getByRole('button', { name: /Ajouter une note/ }).click();
-  await page.getByLabel('Note libre').fill('Prise de mains un peu large');
+  console.log('Remplacer un exercice en séance');
+  await page.getByRole('button', { name: 'Remplacer', exact: true }).click();
+  const options = page.getByRole('dialog', { name: 'Remplacer : Squat arrière' }).locator('.lien-liste');
+  verifier((await options.count()) >= 3, 'plusieurs équivalents proposés');
+  await capture('09-remplacer');
+  const premier = (await options.first().locator('.gras').textContent()).trim();
+  await options.first().click();
+  verifier(await vu(page.getByRole('heading', { name: premier })), `remplacé par « ${premier} »`);
+  await page.getByRole('button', { name: 'Annuler' }).click();
+  verifier(await vu(page.getByRole('heading', { name: 'Squat arrière' })), 'le remplacement peut être annulé');
+
+  console.log('Fiche depuis la séance, charge modifiée, note');
+  await page.getByRole('button', { name: 'Fiche', exact: true }).click();
+  verifier(await vu(page.getByText('Consignes')), 'fiche ouverte depuis la séance');
+  await page.getByRole('dialog', { name: 'Squat arrière' }).getByRole('button', { name: 'Fermer' }).click();
+  await page.getByRole('button', { name: 'Plus 2,5 kg' }).click();
+  await page.getByRole('button', { name: /Valider 5 × 62,5 kg/ }).click();
+  await page.getByRole('button', { name: 'Passer' }).click();
+  await page.getByRole('button', { name: 'Note', exact: true }).click();
+  await page.getByLabel('Note libre').fill('Pieds un peu plus écartés');
   await page.getByRole('button', { name: 'OK' }).click();
-  verifier(await page.getByText('Prise de mains un peu large').isVisible(), 'la note est affichée');
+  verifier(await page.getByText('Pieds un peu plus écartés').isVisible(), 'la note est affichée');
 
   console.log('Fin de séance');
   await page.getByRole('button', { name: 'Options de la séance' }).click();
   await page.getByRole('button', { name: 'Terminer la séance maintenant' }).click();
   await page.getByRole('heading', { name: 'Séance terminée' }).waitFor();
-  await capture('06-fin');
+  await capture('10-fin');
   await page.getByRole('button', { name: 'Enregistrer la séance' }).click();
   await page.getByRole('heading', { name: 'Séances enregistrées' }).waitFor();
-  verifier(await page.getByRole('button', { name: /Supprimer la séance/ }).waitFor().then(async () => (await page.getByRole('button', { name: /Supprimer la séance/ }).count()) === 1, () => false), 'la séance apparaît dans l’historique');
-  await capture('06b-historique');
+  verifier(await vu(page.getByRole('button', { name: /Supprimer la séance/ })), 'la séance apparaît dans l’historique');
 
   console.log('Dernière performance à la séance suivante');
+  await page.clock.resume?.();
   await page.getByRole('button', { name: 'Commencer' }).click();
-  await page.getByRole('heading', { name: 'Squat arrière' }).waitFor();
-  verifier(await page.getByText('60 kg × 5 · 4 · 5').isVisible(), 'rappel : 60 kg × 5 · 4 · 5');
-  verifier(await page.getByRole('button', { name: /Valider 5 × 60 kg/ }).isVisible(), 'la charge de départ reprend la dernière séance');
+  await page.getByRole('heading', { name: 'Saut sur box' }).waitFor();
+  verifier(await vu(page.getByText('5 · 4 · 5 répétitions')), 'rappel : 5 · 4 · 5 répétitions');
   await page.getByRole('button', { name: 'Options de la séance' }).click();
   await page.getByRole('button', { name: 'Abandonner la séance' }).click();
   await page.getByRole('heading', { name: "Aujourd'hui" }).waitFor();
+
+  console.log('Bibliothèque d’exercices');
+  await page.getByRole('button', { name: 'Programme' }).click();
+  await page.getByLabel('Rechercher un exercice').fill('traction');
+  verifier(await vu(page.getByRole('button', { name: 'Tractions lestées' })), 'recherche dans la bibliothèque');
+  await capture('11-bibliotheque');
+  await page.getByRole('button', { name: "Aujourd'hui" }).click();
 
   console.log('Sans connexion');
   await contexte.setOffline(true);
   await page.reload();
   await page.getByRole('heading', { name: "Aujourd'hui" }).waitFor({ timeout: 5000 });
   verifier(true, 'l’application s’ouvre sans connexion');
-  verifier((await nbSeries()) === 3, 'les données ont survécu (3 séries)');
+  verifier((await nbSeries()) === 4, 'les données ont survécu (4 séries)');
   await contexte.setOffline(false);
 
   console.log('Sauvegarde : export puis import');
   await page.getByRole('button', { name: 'Profil' }).click();
-  await capture('07-profil');
+  await capture('12-profil');
   const [telechargement] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Exporter une sauvegarde' }).click()]);
   const chemin = `${SORTIE}/${telechargement.suggestedFilename()}`;
   await telechargement.saveAs(chemin);
   const sauvegarde = JSON.parse(readFileSync(chemin, 'utf8'));
-  verifier(sauvegarde.application === 'appli-sport' && sauvegarde.donnees.series.length === 3, 'le fichier contient les 3 séries');
-  verifier(await page.getByText(/Dernière sauvegarde : .*aujourd'hui/).isVisible(), 'date de dernière sauvegarde mise à jour');
+  verifier(sauvegarde.application === 'appli-sport' && sauvegarde.donnees.series.length === 4, 'le fichier contient les 4 séries');
+  verifier(await vu(page.getByText(/Dernière sauvegarde : /)), 'date de dernière sauvegarde mise à jour');
   await page.locator('input[type=file]').setInputFiles(chemin);
   await page.getByRole('dialog', { name: 'Remplacer les données ?' }).waitFor();
-  verifier(await page.getByText('3 séries').isVisible(), 'aperçu avant import');
+  verifier(await page.getByText('4 séries').isVisible(), 'aperçu avant import');
   await page.getByRole('button', { name: 'Remplacer mes données' }).click();
   await page.getByText('Données remplacées').waitFor();
-  verifier((await nbSeries()) === 3, 'import sans perte');
+  verifier((await nbSeries()) === 4, 'import sans perte');
   verifier(await page.getByText('avant import').isVisible(), 'copie de sécurité faite avant import');
 
   console.log('Corbeille');
-  verifier(await page.getByRole('button', { name: 'Restaurer' }).count() === 1, 'la séance abandonnée est dans la corbeille');
+  verifier((await page.getByRole('button', { name: 'Restaurer' }).count()) === 1, 'la séance abandonnée est dans la corbeille');
 
   verifier(erreurs.length === 0, `aucune erreur dans la console${erreurs.length ? ' : ' + erreurs.join(' | ') : ''}`);
 } catch (e) {

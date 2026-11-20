@@ -3,6 +3,7 @@ import { Aujourdhui } from './screens/Aujourdhui';
 import { ModeSeance } from './screens/ModeSeance';
 import { Profil } from './screens/Profil';
 import { Bientot } from './screens/Bientot';
+import { Programme } from './screens/Programme';
 import { Bandeau } from './bandeau';
 import { IconeAujourdhui, IconeNutrition, IconeProfil, IconeProgramme, IconeProgres } from './icones';
 import { copieQuotidienneSiBesoin, seanceEnCours, viderCorbeilleAncienne } from '../data/operations';
@@ -52,7 +53,7 @@ export function App({ majDisponible, installerMaj }: { majDisponible: boolean; i
   return (
     <>
       {onglet === 'aujourdhui' && <Aujourdhui ouvrirSeance={setSeanceOuverte} allerA={setOnglet} />}
-      {onglet === 'programme' && <Bientot onglet="programme" />}
+      {onglet === 'programme' && <Programme />}
       {onglet === 'progres' && <Bientot onglet="progres" />}
       {onglet === 'nutrition' && <Bientot onglet="nutrition" />}
       {onglet === 'profil' && <Profil majDisponible={majDisponible && !seanceOuverte} installerMaj={installerMaj} />}

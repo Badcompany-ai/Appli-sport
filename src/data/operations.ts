@@ -13,7 +13,7 @@ export async function seanceEnCours(): Promise<Seance | undefined> {
   return liste.filter((s) => !s.supprimeeLe).sort((a, b) => b.debut - a.debut)[0];
 }
 
-export async function demarrerSeance(plan: SeancePrevue, maintenant = Date.now()): Promise<Seance> {
+export async function demarrerSeance(plan: SeancePrevue, maintenant = Date.now(), extra: Partial<Seance> = {}): Promise<Seance> {
   const existante = await seanceEnCours();
   if (existante) return existante;
   const seance: Seance = {
@@ -24,7 +24,8 @@ export async function demarrerSeance(plan: SeancePrevue, maintenant = Date.now()
     statut: 'en_cours',
     debut: maintenant,
     exerciceIndex: 0,
-    notes: {}
+    notes: {},
+    ...extra
   };
   await db.seances.add(seance);
   return seance;
