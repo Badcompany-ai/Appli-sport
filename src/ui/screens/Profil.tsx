@@ -11,7 +11,7 @@ import {
 import { lireSauvegarde, nomFichier, type ContenuSauvegarde, type ResumeSauvegarde } from '../../domain/sauvegarde';
 import { lienRaccourci } from '../../domain/repos';
 import { dateLongue, ilYA } from '../../domain/format';
-import { bip, estInstallee, partagerFichier, preparerSon, stockagePersistant } from '../../platform/appareil';
+import { bip, choisirTypeSon, estInstallee, partagerFichier, preparerSon, stockagePersistant } from '../../platform/appareil';
 import { afficherBandeau } from '../bandeau';
 import { useReglage } from '../reglages';
 import { Feuille } from '../Feuille';
@@ -22,6 +22,7 @@ const PHRASE_RACCOURCI =
 export function Profil({ majDisponible, installerMaj }: { majDisponible: boolean; installerMaj: () => void }) {
   const [raccourci, setRaccourci] = useReglage('raccourci');
   const [son, setSon] = useReglage('sonApplication');
+  const [prioritaire, setPrioritaire] = useReglage('sonPrioritaire');
   const [derniereSauvegarde] = useReglage('derniereSauvegarde');
   const copies = useLiveQuery(() => listeCopies());
   const poubelle = useLiveQuery(() => corbeille());
@@ -95,6 +96,13 @@ export function Profil({ majDisponible, installerMaj }: { majDisponible: boolean
               <span className="doux petit">Se mélange à votre musique sans la couper</span>
             </span>
             <input type="checkbox" role="switch" className="interrupteur" checked={son} onChange={(e) => void setSon(e.target.checked)} />
+          </label>
+          <label className="reglage">
+            <span className="pile" style={{ gap: 2 }}>
+              <span className="gras">Son prioritaire (essai)</span>
+              <span className="doux petit">Pour tenter de sonner en mode silencieux : la musique baisse un instant pendant le bip</span>
+            </span>
+            <input type="checkbox" role="switch" className="interrupteur" checked={prioritaire} onChange={(e) => { choisirTypeSon(e.target.checked ? 'transient' : 'ambient'); void setPrioritaire(e.target.checked); }} />
           </label>
           <button className="bouton plein" onClick={() => { preparerSon(); setTimeout(() => bip(3), 50); }}>Tester le son</button>
           <span className="doux petit">Rien entendu ? Vérifiez que l'iPhone n'est pas en mode silencieux et que le volume est monté : iOS coupe ce type de son en mode silencieux, même si la musique continue.</span>
