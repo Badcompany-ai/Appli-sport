@@ -5,8 +5,8 @@ Il est mis à jour à chaque étape importante.
 
 ## Où en est-on ?
 
-- **Étape en cours : 1 — Interview** (13 séries posées ; récapitulatif soumis pour validation ; aucun code écrit)
-- Étape 2 — Cahier des charges : à faire
+- Étape 1 — Interview : **terminée** (récapitulatif validé par l'utilisateur le 20/11/2026)
+- **Étape en cours : 2 — Cahier des charges** : version 1 rédigée dans `docs/cahier-des-charges.md`, **en attente de validation** (points ouverts : hébergement A/B, idées I1 à I10, validation globale)
 - Étape 3 — Construction par jalons : à faire, après accord écrit sur le cahier des charges
 
 ## Consignes de départ (résumé)
@@ -105,4 +105,7 @@ Il est mis à jour à chaque étape importante.
 
 ## Questions ouvertes
 
-_(aucune pour l'instant)_
+- Hébergement : GitHub Pages (dépôt public) ou Cloudflare Pages (dépôt privé) ?
+- Idées I1 à I10 du cahier des charges : oui ou non pour chacune.
+- Validation globale du cahier des charges.
+- Ensuite : jalon J0 (deux directions visuelles).
