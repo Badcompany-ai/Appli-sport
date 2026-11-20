@@ -115,6 +115,8 @@ export const VIDEOS: Record<string, Video> = {
   "mob-thoracique": { id: "TjAuwGwb7BU", titre: "Open Book Thoracic Rotation Exercise for Upper Back Mobility & Posture", chaine: "Moorooka Chiropractic Centre", verifieeLe: '2026-11-20' },
   "mob-flechisseurs": { id: "Bfb-9dIWEr4", titre: "How To: Half Kneeling Hip Flexor Stretch", chaine: "Live Lean TV Daily Exercises", verifieeLe: '2026-11-20' },
   "mob-epaules-serviette": { id: "Dn073pzTom8", titre: "Towel Dislocates", chaine: "Coach Andrew Burdick", verifieeLe: '2026-11-20', vertical: true },
+  "developpe-incline-halteres": { id: "5orOHJL2qS4", titre: "How to do a Dumbbell Incline Chest Press!", chaine: "Elite Performance", verifieeLe: '2026-11-20', vertical: true },
+  "sprint-lance": { id: "Q5L2ysfXZGc", titre: "Flying 20-Yard Sprint (10-Yard Build Up)", chaine: "The U of Strength", verifieeLe: '2026-11-20', vertical: true },
 };
 
 export function lienRecherche(nom: string): string {

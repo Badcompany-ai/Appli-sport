@@ -19,12 +19,18 @@ export const SEANCE_DEMO: SeancePrevue = {
   ]
 };
 
-/** Durée estimée d'une séance en minutes : effort + repos + 1 minute d'installation par exercice. */
+/** Durée estimée d'une séance en minutes : effort + repos + 1 minute d'installation par exercice.
+ * Dans un enchaînement de 2 exercices, le repos entre eux est court et le vrai repos vient après la paire. */
 export function dureeEstimeeMin(plan: SeancePrevue): number {
   let sec = 0;
-  for (const ex of plan.exercices) {
+  plan.exercices.forEach((ex, i) => {
     const effort = ex.mesure === 'tenue' ? ex.dureeSec ?? 30 : (ex.reps ?? 8) * 4;
-    sec += ex.series * effort + (ex.series - 1) * ex.reposSec + 60;
-  }
+    const suivant = plan.exercices[i + 1];
+    const dansPaire = !!ex.groupe && suivant?.groupe === ex.groupe;
+    const membres = plan.exercices.filter((x) => ex.groupe && x.groupe === ex.groupe);
+    const reposTour = membres.length ? Math.max(...membres.map((x) => x.reposSec)) : ex.reposSec;
+    const repos = dansPaire ? ex.series * (ex.reposIntra ?? 0) : (ex.series - 1) * reposTour;
+    sec += ex.series * effort + repos + (ex.groupe && plan.exercices[i - 1]?.groupe === ex.groupe ? 0 : 60);
+  });
   return Math.round(sec / 60);
 }

@@ -19,6 +19,7 @@ import { afficherBandeau } from '../bandeau';
 import { IconeFermer, IconeMinuteur, IconePlus } from '../icones';
 import { useReglage } from '../reglages';
 import { Feuille } from '../Feuille';
+import { apresSerie, membresDuGroupe, serieSuivante } from '../../domain/enchainement';
 import { Fiche } from '../Fiche';
 import { candidats, convertir } from '../../domain/remplacement';
 import { NOMS_MOUVEMENTS } from '../../domain/exercices';
@@ -81,20 +82,27 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
     );
   }
 
-  const ex = plan.exercices[idx];
+  // Exercices enchaînés : on alterne entre les membres du groupe, série par série.
+  const compte = (id: string) => series.filter((s) => s.exerciceId === id).length;
+  const membres = membresDuGroupe(plan, idx);
+  const dernierMembre = membres[membres.length - 1];
+  const suivante = serieSuivante(plan, idx, compte) ?? { membre: dernierMembre, numero: compte(plan.exercices[dernierMembre].exerciceId) };
+  const im = suivante.membre;
+  const ex = plan.exercices[im];
   const faites = series.filter((s) => s.exerciceId === ex.exerciceId);
-  const numero = faites.length;
+  const numero = suivante.numero;
+  const partenaires = membres.filter((m) => m !== im).map((m) => plan.exercices[m].nom);
 
   async function valider(valeurs: { chargeKg?: number; reps?: number; dureeSec?: number; valeur?: number }) {
     if (!seance) return;
     preparerSon();
     const maintenant = Date.now();
     const serie = await enregistrerSerie({ seanceId: seance.id, exerciceId: ex.exerciceId, numero, faiteLe: maintenant, ...valeurs });
-    const finExercice = numero + 1 >= ex.series;
-    const finSeance = finExercice && idx === plan.exercices.length - 1;
-    const repos = finSeance ? 0 : ex.reposSec;
+    const apres = apresSerie(plan, im, (id) => compte(id) + (id === ex.exerciceId ? 1 : 0));
+    const finSeance = apres.groupeFini && apres.prochainIndex >= plan.exercices.length;
+    const repos = finSeance ? 0 : apres.reposSec;
     await modifierSeance(seance.id, {
-      exerciceIndex: finExercice ? idx + 1 : idx,
+      exerciceIndex: apres.groupeFini ? apres.prochainIndex : idx,
       reposFin: repos ? maintenant + repos * 1000 : undefined,
       reposTotalSec: repos || undefined
     });
@@ -114,13 +122,14 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
     <div className="seance" role="dialog" aria-label={`Séance : ${plan.nom}`}>
       <div className="ligne ecartee">
         <button className="bouton rond" aria-label="Fermer (la séance reste en cours)" onClick={onFermer}><IconeFermer /></button>
-        <span className="doux petit gras">Exercice {idx + 1} sur {plan.exercices.length}</span>
+        <span className="doux petit gras">Exercice {im + 1} sur {plan.exercices.length}</span>
         <button className="bouton rond" aria-label="Options de la séance" onClick={() => setMenu(true)}><IconePlus /></button>
       </div>
       <div className="barre-progres" aria-hidden="true"><div style={{ width: `${Math.round(progression * 100)}%` }} /></div>
 
       <div className="pile" style={{ gap: 8 }}>
         <h1 className="titre" style={{ fontSize: 30 }}>{ex.nom}</h1>
+        {partenaires.length > 0 && <span className="petit gras">Enchaîné avec : {partenaires.join(', ')}</span>}
         {ex.consigne && <span className="mention-orange gras petit">{ex.consigne}</span>}
         {ex.raisonCharge && numero === 0 && <span className="doux petit">{ex.raisonCharge}</span>}
         {ex.mesure !== 'test' && <div className="points" >
@@ -186,7 +195,7 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
             className="bouton plein"
             onClick={async () => {
               setMenu(false);
-              await modifierSeance(seance.id, { exerciceIndex: idx + 1, reposFin: undefined, reposTotalSec: undefined });
+              await modifierSeance(seance.id, { exerciceIndex: dernierMembre + 1, reposFin: undefined, reposTotalSec: undefined });
               afficherBandeau(`${ex.nom} passé`, () => modifierSeance(seance.id, { exerciceIndex: idx }));
             }}
           >
@@ -236,9 +245,10 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
                         setRemplacer(false);
                         const avant = plan;
                         const restantes = Math.max(1, ex.series - faites.length);
-                        const exercices = plan.exercices.map((e, i) => (i === idx ? { ...nouveau, series: restantes, choixManuel: true } : e));
-                        if (faites.length > 0) exercices.splice(idx, 0, { ...ex, series: faites.length });
-                        await modifierSeance(seance.id, { plan: { ...plan, exercices }, exerciceIndex: faites.length > 0 ? idx + 1 : idx });
+                        const exercices = plan.exercices.map((e, i) => (i === im ? { ...nouveau, series: restantes, choixManuel: true } : e));
+                        // Séries déjà faites : on garde l'exercice d'origine (hors paire) pour l'historique.
+                        if (faites.length > 0) exercices.splice(im, 0, { ...ex, series: faites.length, groupe: undefined });
+                        await modifierSeance(seance.id, { plan: { ...plan, exercices }, exerciceIndex: faites.length > 0 && membres.length === 1 ? idx + 1 : idx });
                         afficherBandeau(`${ex.nom} → ${c.nom}`, () => modifierSeance(seance.id, { plan: avant, exerciceIndex: idx }));
                       }}
                     >
@@ -271,10 +281,10 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
 }
 
 function prochaineEtape(seance: Seance, series: Serie[]): string {
-  const idx = seance.exerciceIndex;
-  const ex = seance.plan.exercices[idx];
+  const sv = serieSuivante(seance.plan, seance.exerciceIndex, (id) => series.filter((s) => s.exerciceId === id).length);
+  const ex = sv ? seance.plan.exercices[sv.membre] : undefined;
   if (!ex) return 'Fin de la séance';
-  const n = series.filter((s) => s.exerciceId === ex.exerciceId).length;
+  const n = sv!.numero;
   if (ex.mesure === 'test') return `${ex.nom} · épreuve`;
   const detail =
     ex.mesure === 'tenue'
@@ -309,6 +319,16 @@ function SaisieReps({
   const choix = Array.from({ length: 5 }, (_, i) => Math.max(1, vise - 2) + i);
   const lest = ex.mesure === 'poids_du_corps_reps';
   const sansCharge = ex.mesure === 'reps';
+
+  if (ex.distanceM) {
+    return (
+      <div className="carte" style={{ alignItems: 'center', gap: 14 }}>
+        <span className="etiquette">Distance</span>
+        <span className="valeur-geante">{ex.distanceM} m</span>
+        <button className="bouton principal geant" onClick={() => onValider({ reps: 1 })}>Sprint fait</button>
+      </div>
+    );
+  }
 
   // Saisie en deux gestes au plus : choisir une valeur (si besoin), puis « Valider ».
   return (

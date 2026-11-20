@@ -35,6 +35,12 @@ export interface ExercicePrevu {
   raisonCharge?: string;
   /** Épreuve de test de niveau mesurée par une valeur (cm, s, m, palier). */
   testId?: string;
+  /** Exercices enchaînés (paire) : même identifiant de groupe, faits en alternance. */
+  groupe?: string;
+  /** Repos entre deux exercices d'un même groupe, en secondes (0 = enchaîné). */
+  reposIntra?: number;
+  /** Distance d'un sprint, en mètres. */
+  distanceM?: number;
 }
 
 export interface SeancePrevue {

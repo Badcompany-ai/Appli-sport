@@ -167,7 +167,12 @@ export function convertir(prevu: ExercicePrevu, cand: Exercice, ctx: Contexte): 
     series: prevu.series,
     reposSec: prevu.reposSec,
     origineId: prevu.origineId ?? prevu.exerciceId,
-    pasKg: pasDe(cand)
+    pasKg: pasDe(cand),
+    priorite: prevu.priorite,
+    groupe: prevu.groupe,
+    reposIntra: prevu.reposIntra,
+    consigne: prevu.consigne,
+    distanceM: cand.mouvement === 'sprint' ? prevu.distanceM : undefined
   };
   // Mesure : on garde les répétitions ou la durée selon le type du remplaçant.
   if (cand.mesure === 'tenue') nouveau.dureeSec = prevu.dureeSec ?? 30;

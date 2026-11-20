@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
 import { demarrerSeance, mettreALaCorbeille, restaurerSeance, seanceEnCours, seancesTerminees } from '../../data/operations';
 import { SEANCE_DEMO, dureeEstimeeMin } from '../../domain/demo';
-import { NOMS_PHASES, indexSemaine, infoSemaine, prochaineSeance, seanceMobilite, seancesDeLaSemaine } from '../../domain/programme';
+import { NOMS_PHASES, contactsAuSol, indexSemaine, infoSemaine, prochaineSeance, seanceMobilite, seancesDeLaSemaine } from '../../domain/programme';
 import { depuisCle, joursEntre, lundiDe, versCle } from '../../domain/profil';
 import { appliquerProgression, lettresFaites } from '../../data/programme';
 import type { SeancePrevue } from '../../domain/types';
@@ -23,6 +23,7 @@ export const POIDS_PAR_DEFAUT = 82; // interview, série 3 (à remplacer par la 
 
 export function detailPrevu(e: ExercicePrevu): string {
   if (e.mesure === 'test') return 'épreuve mesurée';
+  if (e.distanceM) return `${e.series} × ${e.distanceM} m`;
   const reps = e.repsMin && e.repsMin !== e.reps ? `${e.repsMin}–${e.reps}` : `${e.reps}`;
   const base =
     e.mesure === 'tenue'
@@ -32,7 +33,8 @@ export function detailPrevu(e: ExercicePrevu): string {
         : e.mesure === 'poids_du_corps_reps' && e.chargeKg
           ? `${e.series} × ${reps} · lest ${kg(e.chargeKg)} kg`
           : `${e.series} × ${reps}`;
-  return e.tempoLent ? `${base} · descente lente` : base;
+  const enchaine = e.groupe ? ' · enchaîné' : '';
+  return (e.tempoLent ? `${base} · descente lente` : base) + enchaine;
 }
 
 export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string) => void; allerA: (onglet: 'profil') => void }) {
@@ -134,6 +136,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
             <div className="ligne" style={{ gap: 18, alignItems: 'baseline' }}>
               <span className="grand-chiffre">{dureeEstimeeMin(plan) + (plan.echauffement?.length ? 10 : 0)}<small> min</small></span>
               <span className="grand-chiffre">{plan.exercices.length}<small> exercices</small></span>
+              {contactsAuSol(plan) > 0 && <span className="grand-chiffre">{contactsAuSol(plan)}<small> sauts</small></span>}
             </div>
             {journee.dispo.materiel.length === 0 && <span className="mention-orange gras petit">Aucun matériel coché : séance au poids du corps.</span>}
             {changements.length > 0 && (
