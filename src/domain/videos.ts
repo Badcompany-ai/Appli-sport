@@ -14,7 +14,8 @@ export interface Video {
 
 // Sélection du 20/11/2026 (2e version, à la demande de l'utilisateur) : démonstrations COURTES (60 s au plus,
 // le plus souvent 5 à 30 s), récentes autant que possible, qui montrent le mouvement sans longues explications.
-// Sources privilégiées : MuscleWiki (boucles sans parole), PureGym, NASM, OPEX, Runna, The Active Life.
+// Source principale : PureGym (choix de l'utilisateur, 20/11/2026). Plus aucune vidéo MuscleWiki (refusées par l'utilisateur).
+// Les exercices absents chez PureGym (sprints, boxe, mobilité…) gardent la meilleure démonstration courte vérifiée.
 // Chaque vidéo : titre et chaîne relus, existence et intégration confirmées par le service oEmbed de YouTube.
 export const VIDEOS: Record<string, Video> = {
   "squat-arriere": { id: "rrJIyZGlK8c", titre: "How To Do A Barbell Back Squat", chaine: "PureGym", verifieeLe: '2026-11-20' },
@@ -87,7 +88,7 @@ export const VIDEOS: Record<string, Video> = {
   "mollets-machine": { id: "dhRz1Ns60Zg", titre: "How To Do Calf Raises On The Leg Press", chaine: "PureGym", verifieeLe: '2026-11-20' },
   "curl-halteres": { id: "MtXdEcW3Eog", titre: "How To Double Arm Curl (Dumbbell Bicep Curl)", chaine: "PureGym", verifieeLe: '2026-11-20' },
   "curl-poulie": { id: "GNlopToAZyg", titre: "How To Do A Cable Curl", chaine: "PureGym", verifieeLe: '2026-11-20' },
-  "tractions-supination": { id: "v7BuGTumRUg", titre: "bodyweight male chinup side", chaine: "MuscleWiki", verifieeLe: '2026-11-20' },
+  "tractions-supination": { id: "PHdHnZcbsB8", titre: "How To Do Pull Ups", chaine: "PureGym", verifieeLe: '2026-11-20' },
   "extension-triceps-poulie": { id: "LXkCrxn3caQ", titre: "How To Do A Tricep Pushdown", chaine: "PureGym", verifieeLe: '2026-11-20' },
   "extension-triceps-haltere": { id: "9wxRhONFsRA", titre: "How To Do An Overhead Tricep Extension", chaine: "PureGym", verifieeLe: '2026-11-20' },
   "pompes-diamant": { id: "K8bKxVcwjrk", titre: "How To Do A Diamond Push up", chaine: "PureGym", verifieeLe: '2026-11-20' },
