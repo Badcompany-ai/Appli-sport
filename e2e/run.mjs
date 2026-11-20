@@ -224,7 +224,7 @@ try {
   await capture('14-echauffement');
   await page.getByRole('button', { name: 'Échauffement fait' }).click();
   verifier(await vu(page.getByRole('heading', { name: 'Squat jump' })), 'premier exercice après l’échauffement');
-  verifier(await vu(page.getByText('Série 1 sur 3')), 'reprise : 3 séries de sauts');
+  verifier(await vu(page.getByText('Série 1 sur 4')), 'reprise : 4 séries de sauts');
   await page.getByRole('button', { name: 'Options de la séance' }).click();
   await page.getByRole('button', { name: 'Abandonner la séance' }).click();
   await page.getByRole('heading', { name: "Aujourd'hui" }).waitFor();

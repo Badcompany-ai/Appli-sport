@@ -279,6 +279,14 @@ export const EXERCICES: Exercice[] = [
     plusFacile: 'pompes', plusDifficile: 'developpe-couche'
   },
   {
+    id: 'developpe-incline-halteres', nom: 'Développé incliné aux haltères', mouvement: 'poussee_h', qualites: ['hypertrophie', 'force'],
+    primaires: ['pectoraux', 'epaules'], secondaires: ['triceps'], materiel: M(['halteres'], ['banc']),
+    difficulte: 2, charge: 'halteres', facteur: 0.35, mesure: 'charge_reps',
+    consignes: ['Banc incliné à 30-45°, un haltère dans chaque main.', 'Descendre les haltères sur les côtés du haut de la poitrine.', 'Pousser vers le haut en rapprochant légèrement les haltères.'],
+    erreurs: ['Banc trop incliné : ce sont surtout les épaules qui travaillent.', 'Cambrer fortement le dos.'],
+    plusFacile: 'pompes', plusDifficile: 'developpe-couche'
+  },
+  {
     id: 'developpe-sol-halteres', nom: 'Développé au sol aux haltères', mouvement: 'poussee_h', qualites: ['hypertrophie', 'force'],
     primaires: ['pectoraux', 'triceps'], secondaires: ['epaules'], materiel: un('halteres'),
     difficulte: 2, charge: 'halteres', facteur: 0.38, mesure: 'charge_reps',
@@ -519,6 +527,14 @@ export const EXERCICES: Exercice[] = [
     consignes: ['Départ debout, un pied devant.', 'Accélérer au maximum en poussant fort dans le sol, buste penché au départ.', 'Récupération complète entre les sprints (environ 1 minute par tranche de 10 m).'],
     erreurs: ['Sprinter fatigué : on travaille l’endurance, plus la vitesse.', 'Se redresser trop tôt.'],
     plusFacile: 'departs-position-basse', plusDifficile: 'traineau-poussee'
+  },
+  {
+    id: 'sprint-lance', nom: 'Sprint lancé (vitesse maximale)', mouvement: 'sprint', qualites: ['vitesse'],
+    primaires: ['ischios', 'fessiers', 'quadriceps'], secondaires: ['mollets'], materiel: un('espace_course'),
+    difficulte: 3, charge: 'aucune', mesure: 'reps',
+    consignes: ['Prendre 20 à 30 m d’élan progressif.', 'Courir les 20 m suivants à vitesse maximale, buste droit, genoux hauts, pieds actifs sous le bassin.', 'Décélérer progressivement ; récupération complète (3 minutes au moins).'],
+    erreurs: ['Accélérer brutalement sans élan.', 'Courir en se crispant (épaules hautes, mâchoire serrée).'],
+    plusFacile: 'sprint-court'
   },
   {
     id: 'departs-position-basse', nom: 'Départs en position basse', mouvement: 'sprint', qualites: ['puissance', 'vitesse'],

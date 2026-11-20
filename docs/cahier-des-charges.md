@@ -250,6 +250,8 @@ Disponible à l'ouverture de l'application une fois la semaine terminée (de lun
 
 ## 5. Règles d'entraînement
 
+> **Mise à jour du 20/11/2026 :** les règles ci-dessous sont complétées par l'audit validé (`docs/audit-programme.md`, propositions P1 à P9) : contraste, paires d'exercices, sprints en mètres et vitesse maximale, intervalles longs, contacts au sol, volume du haut du corps.
+
 ### 5.1 Structure sur 6 mois
 
 | Période | Durée | Contenu principal |

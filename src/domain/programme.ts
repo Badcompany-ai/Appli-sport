@@ -50,8 +50,8 @@ export function infoSemaine(index: number): InfoSemaine {
 // ---------- Prescriptions par rôle et par phase (règle 5.4) ----------
 
 type Role =
-  | 'plyo' | 'plyo2' | 'sprint' | 'cod' | 'lancer' | 'olympique' | 'force_principal' | 'force_secondaire'
-  | 'hypertrophie' | 'isolation' | 'gainage' | 'boxe' | 'cardio';
+  | 'plyo' | 'plyo2' | 'contraste' | 'sprint' | 'sprint_max' | 'cod' | 'lancer' | 'lancer_rot' | 'olympique'
+  | 'force_principal' | 'force_secondaire' | 'hypertrophie' | 'isolation' | 'nordic' | 'gainage' | 'boxe' | 'cardio';
 
 interface Prescription {
   series: number;
@@ -63,40 +63,50 @@ interface Prescription {
 const P = (series: number, reps: [number, number] | number, reposSec: number): Prescription =>
   typeof reps === 'number' ? { series, dureeSec: reps, reposSec } : { series, reps, reposSec };
 
+// Audit du 20/11/2026 : sauts dosés en contacts au sol (P7), contraste à partir du cycle 2 (P4),
+// sprints en mètres et vitesse maximale (P5), intervalles longs pour la VO2 max (P6), rotation à chaque cycle (P3).
 const PRESCRIPTIONS: Record<CleePhase, Record<Role, Prescription>> = {
   reprise: {
-    plyo: P(3, [5, 5], 90), plyo2: P(3, [3, 3], 90), sprint: P(6, [1, 1], 90), cod: P(4, 20, 60), lancer: P(3, [6, 6], 60),
-    olympique: P(4, [8, 8], 90), force_principal: P(4, [8, 10], 120), force_secondaire: P(3, [10, 12], 90),
-    hypertrophie: P(3, [10, 12], 90), isolation: P(3, [12, 15], 60), gainage: P(3, 40, 45), boxe: P(4, 120, 60), cardio: P(8, 20, 40)
+    plyo: P(4, [5, 5], 90), plyo2: P(4, [5, 5], 90), contraste: P(0, [3, 3], 0), sprint: P(6, [1, 1], 90), sprint_max: P(0, [1, 1], 0),
+    cod: P(4, 20, 60), lancer: P(3, [6, 6], 60), lancer_rot: P(3, [5, 5], 60), olympique: P(4, [8, 8], 90),
+    force_principal: P(4, [8, 10], 120), force_secondaire: P(3, [10, 12], 90), hypertrophie: P(3, [10, 12], 90),
+    isolation: P(3, [12, 15], 60), nordic: P(2, [4, 4], 90), gainage: P(3, 40, 45), boxe: P(4, 120, 60), cardio: P(8, 20, 40)
   },
   c1: {
-    plyo: P(3, [5, 5], 90), plyo2: P(3, [4, 4], 90), sprint: P(5, [1, 1], 90), cod: P(4, [1, 1], 90), lancer: P(3, [5, 5], 60),
-    olympique: P(4, [3, 3], 120), force_principal: P(4, [6, 8], 150), force_secondaire: P(3, [8, 10], 120),
-    hypertrophie: P(3, [8, 12], 90), isolation: P(3, [10, 15], 60), gainage: P(3, 40, 45), boxe: P(4, 180, 60), cardio: P(8, 30, 30)
+    plyo: P(5, [5, 5], 90), plyo2: P(4, [8, 8], 90), contraste: P(0, [3, 3], 0), sprint: P(6, [1, 1], 90), sprint_max: P(0, [1, 1], 0),
+    cod: P(4, [1, 1], 90), lancer: P(3, [5, 5], 60), lancer_rot: P(3, [5, 5], 60), olympique: P(4, [3, 3], 120),
+    force_principal: P(4, [6, 8], 150), force_secondaire: P(3, [8, 10], 120), hypertrophie: P(3, [8, 12], 90),
+    isolation: P(3, [10, 15], 60), nordic: P(3, [4, 6], 120), gainage: P(3, 40, 45), boxe: P(4, 180, 60), cardio: P(4, 240, 120)
   },
   c2: {
-    plyo: P(4, [4, 4], 120), plyo2: P(3, [4, 4], 120), sprint: P(6, [1, 1], 120), cod: P(5, [1, 1], 90), lancer: P(4, [4, 4], 90),
-    olympique: P(5, [3, 3], 150), force_principal: P(5, [4, 5], 180), force_secondaire: P(4, [5, 6], 150),
-    hypertrophie: P(3, [6, 10], 120), isolation: P(3, [10, 12], 60), gainage: P(3, 45, 45), boxe: P(4, 180, 60), cardio: P(4, 240, 180)
+    plyo: P(4, [5, 5], 120), plyo2: P(4, [8, 8], 120), contraste: P(5, [3, 3], 0), sprint: P(6, [1, 1], 120), sprint_max: P(2, [1, 1], 240),
+    cod: P(4, [1, 1], 90), lancer: P(5, [3, 3], 0), lancer_rot: P(3, [5, 5], 60), olympique: P(4, [3, 3], 150),
+    force_principal: P(5, [4, 5], 180), force_secondaire: P(4, [5, 6], 150), hypertrophie: P(3, [6, 10], 120),
+    isolation: P(3, [10, 12], 60), nordic: P(3, [4, 6], 120), gainage: P(3, 45, 45), boxe: P(4, 180, 60), cardio: P(4, 240, 120)
   },
   c3: {
-    plyo: P(5, [3, 3], 120), plyo2: P(4, [3, 3], 120), sprint: P(6, [1, 1], 150), cod: P(5, [1, 1], 90), lancer: P(5, [4, 4], 90),
-    olympique: P(5, [2, 3], 150), force_principal: P(4, [3, 5], 180), force_secondaire: P(3, [5, 6], 120),
-    hypertrophie: P(3, [8, 10], 90), isolation: P(2, [10, 12], 60), gainage: P(3, 45, 45), boxe: P(5, 180, 60), cardio: P(10, 30, 30)
+    plyo: P(5, [4, 4], 120), plyo2: P(5, [8, 8], 120), contraste: P(4, [3, 3], 0), sprint: P(6, [1, 1], 150), sprint_max: P(2, [1, 1], 240),
+    cod: P(4, [1, 1], 90), lancer: P(4, [3, 3], 0), lancer_rot: P(4, [5, 5], 60), olympique: P(4, [2, 3], 150),
+    force_principal: P(4, [3, 5], 180), force_secondaire: P(3, [5, 6], 120), hypertrophie: P(3, [8, 10], 90),
+    isolation: P(3, [10, 12], 60), nordic: P(3, [5, 6], 120), gainage: P(3, 45, 45), boxe: P(5, 180, 60), cardio: P(5, 180, 120)
   },
   c4: {
-    plyo: P(4, [4, 4], 120), plyo2: P(4, [3, 3], 120), sprint: P(8, [1, 1], 150), cod: P(6, [1, 1], 90), lancer: P(4, [4, 4], 90),
-    olympique: P(4, [2, 2], 150), force_principal: P(3, [3, 3], 180), force_secondaire: P(3, [5, 5], 120),
-    hypertrophie: P(2, [8, 10], 90), isolation: P(2, [10, 12], 60), gainage: P(3, 45, 45), boxe: P(5, 180, 60), cardio: P(6, 30, 30)
+    plyo: P(4, [5, 5], 120), plyo2: P(5, [10, 10], 120), contraste: P(3, [3, 3], 0), sprint: P(8, [1, 1], 120), sprint_max: P(3, [1, 1], 210),
+    cod: P(5, [1, 1], 90), lancer: P(3, [3, 3], 0), lancer_rot: P(4, [5, 5], 60), olympique: P(4, [2, 2], 150),
+    force_principal: P(3, [3, 3], 180), force_secondaire: P(3, [5, 5], 120), hypertrophie: P(3, [8, 10], 90),
+    isolation: P(3, [10, 12], 60), nordic: P(2, [5, 6], 120), gainage: P(3, 45, 45), boxe: P(5, 180, 60), cardio: P(10, 30, 30)
   }
 };
 
+/** Distance des sprints par phase (audit P5 : 100 à 150 m par séance en cycle 1, jusqu'à 250-300 m en cycle 4). */
+const DISTANCE_SPRINT: Record<CleePhase, number> = { reprise: 20, c1: 20, c2: 25, c3: 30, c4: 30 };
+
 const CONSIGNES_SPRINT: Record<CleePhase, string> = {
-  reprise: 'Accélérations progressives sur 20 m, à environ 70 % de votre vitesse : pas de sprint au maximum pendant la reprise.',
-  c1: 'Sprints de 10 à 20 m à fond, récupération complète entre chaque.',
-  c2: 'Sprints de 20 à 30 m à fond, récupération complète entre chaque.',
-  c3: 'Sprints de 30 à 40 m à fond, récupération complète entre chaque.',
-  c4: 'Sprints de 10 à 40 m à fond, en variant les départs (debout, à genoux, allongé).'
+  reprise: 'Accélérations progressives à environ 70 % de votre vitesse : pas de sprint au maximum pendant la reprise.',
+  c1: 'À fond depuis un départ debout, récupération complète entre chaque (environ 2 minutes).',
+  c2: 'À fond, en variant les départs (debout, à genoux), récupération complète.',
+  c3: 'À fond, récupération complète (2 à 3 minutes).',
+  c4: 'À fond, en variant les départs (debout, à genoux, allongé), récupération complète.'
 };
 
 // ---------- Modèles de séances (règle 5.2) ----------
@@ -108,8 +118,10 @@ interface Element {
   priorite: 1 | 2 | 3;
   /** Phases où l'élément est présent (toutes par défaut). */
   phases?: CleePhase[];
-  /** Répétitions imposées pour cet exercice (ex. nordic curl, toujours peu de répétitions). */
+  /** Répétitions imposées pour cet exercice. */
   reps?: [number, number];
+  /** Exercices enchaînés : même identifiant, dans les phases indiquées. */
+  groupe?: { id: string; phases?: CleePhase[]; reposIntra: number };
 }
 
 interface Modele {
@@ -146,12 +158,15 @@ const ECH_TEST = [
   'Bien récupérer (2 à 3 minutes) avant chaque épreuve'
 ];
 
+const CONTRASTE: CleePhase[] = ['c2', 'c3', 'c4'];
+
 const A: Modele = {
   lettre: 'A', nom: 'Explosivité et force du bas du corps', echauffement: ECH_BAS,
   elements: [
     { role: 'plyo', ex: { reprise: 'squat-jump', c3: 'saut-profondeur', defaut: 'saut-box' }, priorite: 1 },
-    { role: 'plyo2', ex: { reprise: 'saut-longueur', c2: 'saut-longueur', defaut: 'bonds-enchaines' }, priorite: 2, phases: ['reprise', 'c1', 'c2', 'c3', 'c4'] },
-    { role: 'force_principal', ex: 'squat-arriere', priorite: 1 },
+    { role: 'plyo2', ex: { reprise: 'saut-longueur', defaut: 'bonds-enchaines' }, priorite: 2 },
+    { role: 'force_principal', ex: 'squat-arriere', priorite: 1, groupe: { id: 'contraste-bas', phases: CONTRASTE, reposIntra: 60 } },
+    { role: 'contraste', ex: 'squat-jump', priorite: 2, phases: CONTRASTE, groupe: { id: 'contraste-bas', reposIntra: 0 } },
     { role: 'force_secondaire', ex: 'squat-bulgare-halteres', priorite: 2 },
     { role: 'isolation', ex: { reprise: 'mollets-debout', defaut: 'mollets-machine' }, priorite: 3 },
     { role: 'gainage', ex: { reprise: 'planche', defaut: 'roue-abdo' }, priorite: 3 }
@@ -160,11 +175,15 @@ const A: Modele = {
 const B: Modele = {
   lettre: 'B', nom: 'Haut du corps et boxe', echauffement: ECH_HAUT,
   elements: [
-    { role: 'lancer', ex: { c3: 'lancer-mb-rotation', defaut: 'lancer-mb-poitrine' }, priorite: 1 },
-    { role: 'force_principal', ex: 'developpe-couche', priorite: 1 },
-    { role: 'force_secondaire', ex: 'tractions', priorite: 1 },
-    { role: 'hypertrophie', ex: 'dips', priorite: 2 },
-    { role: 'isolation', ex: 'elevations-laterales', priorite: 3 },
+    { role: 'lancer_rot', ex: 'lancer-mb-rotation', priorite: 1 },
+    { role: 'lancer', ex: 'lancer-mb-poitrine', priorite: 2, phases: ['reprise', 'c1'] },
+    { role: 'force_principal', ex: 'developpe-couche', priorite: 1, groupe: { id: 'contraste-haut', phases: CONTRASTE, reposIntra: 60 } },
+    { role: 'lancer', ex: 'lancer-mb-poitrine', priorite: 2, phases: CONTRASTE, groupe: { id: 'contraste-haut', reposIntra: 0 } },
+    { role: 'force_secondaire', ex: 'tractions', priorite: 1, groupe: { id: 'tirer-pousser', reposIntra: 60 } },
+    { role: 'hypertrophie', ex: 'dips', priorite: 2, groupe: { id: 'tirer-pousser', reposIntra: 60 } },
+    { role: 'isolation', ex: 'elevations-laterales', priorite: 3, groupe: { id: 'bras-b', reposIntra: 0 } },
+    { role: 'isolation', ex: 'curl-poulie', priorite: 3, groupe: { id: 'bras-b', reposIntra: 0 } },
+    { role: 'isolation', ex: 'extension-triceps-haltere', priorite: 3, groupe: { id: 'bras-b', reposIntra: 0 } },
     { role: 'boxe', ex: 'rounds-sac', priorite: 2 }
   ]
 };
@@ -172,21 +191,23 @@ const C: Modele = {
   lettre: 'C', nom: 'Vitesse, appuis et chaîne arrière', echauffement: ECH_VITESSE,
   elements: [
     { role: 'sprint', ex: 'sprint-court', priorite: 1 },
+    { role: 'sprint_max', ex: 'sprint-lance', priorite: 1, phases: ['c2', 'c3', 'c4'] },
     { role: 'cod', ex: { reprise: 'pas-chasses', defaut: 'navettes-cod' }, priorite: 2 },
     { role: 'olympique', ex: { reprise: 'swing-kettlebell', defaut: 'epaule-suspension' }, priorite: 1 },
     { role: 'force_principal', ex: 'souleve-terre-roumain', priorite: 1 },
-    { role: 'isolation', ex: { reprise: 'leg-curl', defaut: 'nordic-curl' }, priorite: 2, reps: [4, 6] },
-    { role: 'gainage', ex: 'pallof', priorite: 3 }
+    { role: 'nordic', ex: 'nordic-curl', priorite: 2, groupe: { id: 'nordic-gainage', reposIntra: 30 } },
+    { role: 'gainage', ex: 'pallof', priorite: 3, groupe: { id: 'nordic-gainage', reposIntra: 30 } }
   ]
 };
 const D: Modele = {
   lettre: 'D', nom: 'Physique et cardio', echauffement: ECH_HAUT,
   elements: [
     { role: 'force_secondaire', ex: 'developpe-militaire', priorite: 1 },
-    { role: 'hypertrophie', ex: 'rowing-barre', priorite: 1 },
-    { role: 'isolation', ex: 'curl-halteres', priorite: 3 },
-    { role: 'isolation', ex: 'extension-triceps-poulie', priorite: 3 },
-    { role: 'isolation', ex: 'face-pull', priorite: 3 },
+    { role: 'hypertrophie', ex: 'rowing-barre', priorite: 1, groupe: { id: 'tirer-pousser-d', reposIntra: 60 } },
+    { role: 'hypertrophie', ex: 'developpe-incline-halteres', priorite: 2, groupe: { id: 'tirer-pousser-d', reposIntra: 60 } },
+    { role: 'isolation', ex: 'curl-halteres', priorite: 3, groupe: { id: 'bras-d', reposIntra: 0 } },
+    { role: 'isolation', ex: 'extension-triceps-poulie', priorite: 3, groupe: { id: 'bras-d', reposIntra: 0 } },
+    { role: 'isolation', ex: 'face-pull', priorite: 3, groupe: { id: 'bras-d', reposIntra: 0 } },
     { role: 'cardio', ex: 'velo-assault-intervalles', priorite: 2 }
   ]
 };
@@ -195,9 +216,10 @@ const E: Modele = {
   elements: [
     { role: 'hypertrophie', ex: 'developpe-halteres', priorite: 1 },
     { role: 'hypertrophie', ex: 'tirage-vertical-poulie', priorite: 1 },
-    { role: 'isolation', ex: 'elevations-laterales-poulie', priorite: 3 },
-    { role: 'isolation', ex: 'curl-poulie', priorite: 3 },
-    { role: 'isolation', ex: 'extension-triceps-haltere', priorite: 3 },
+    { role: 'isolation', ex: 'elevations-laterales-poulie', priorite: 3, groupe: { id: 'iso-e', reposIntra: 0 } },
+    { role: 'isolation', ex: 'face-pull', priorite: 3, groupe: { id: 'iso-e', reposIntra: 0 } },
+    { role: 'isolation', ex: 'curl-poulie', priorite: 3, groupe: { id: 'bras-e', reposIntra: 0 } },
+    { role: 'isolation', ex: 'extension-triceps-haltere', priorite: 3, groupe: { id: 'bras-e', reposIntra: 0 } },
     { role: 'cardio', ex: 'corde-intervalles', priorite: 2 }
   ]
 };
@@ -218,11 +240,13 @@ function choisir(ex: ChoixExercice, phase: CleePhase, profil: Profil): string | 
 
 function construire(modele: Modele, info: InfoSemaine, profil: Profil): SeancePrevue {
   const exercices: ExercicePrevu[] = [];
+  const reprise = info.phase === 'reprise';
   for (const el of modele.elements) {
     if (el.phases && !el.phases.includes(info.phase)) continue;
     const id = choisir(el.ex, info.phase, profil);
     if (!id || !exercice(id)) continue;
     const pr = PRESCRIPTIONS[info.phase][el.role];
+    if (pr.series === 0) continue;
     const series = info.allegee ? Math.max(1, Math.ceil(pr.series / 2)) : pr.series;
     const ex = exercice(id)!;
     const reps = el.reps ?? pr.reps;
@@ -231,11 +255,25 @@ function construire(modele: Modele, info: InfoSemaine, profil: Profil): SeancePr
     else prevu = prevoir(id, series, { reps: reps?.[1] ?? 8, reposSec: pr.reposSec });
     prevu.priorite = el.priorite;
     if (reps && ex.mesure !== 'tenue') prevu.repsMin = reps[0];
-    if (el.role === 'sprint') prevu.consigne = info.allegee ? 'Semaine allégée : sprints à environ 80 %, sans aller au maximum.' : CONSIGNES_SPRINT[info.phase];
-    if (el.role === 'olympique' && id === 'epaule-suspension' && info.phase === 'c1') prevu.consigne = 'Apprentissage : barre légère, la technique d’abord. Cochez « Mouvement propre » dans votre note quand c’est le cas.';
-    if (info.phase === 'reprise' && (el.role === 'force_principal' || el.role === 'force_secondaire' || el.role === 'hypertrophie')) {
+    const groupeActif = el.groupe && (!el.groupe.phases || el.groupe.phases.includes(info.phase));
+    if (groupeActif) {
+      prevu.groupe = el.groupe!.id;
+      prevu.reposIntra = el.groupe!.reposIntra;
+    }
+    if (el.role === 'sprint' || el.role === 'sprint_max') {
+      prevu.distanceM = el.role === 'sprint_max' ? 20 : DISTANCE_SPRINT[info.phase];
+      prevu.consigne = info.allegee ? 'Semaine allégée : environ 80 % de votre vitesse.' : el.role === 'sprint_max' ? 'Vitesse maximale : 20 à 30 m d’élan progressif, puis 20 m à fond. Récupération complète (3 minutes au moins).' : CONSIGNES_SPRINT[info.phase];
+    }
+    if (el.role === 'contraste') prevu.consigne = 'Environ 1 minute après la série lourde : 3 sauts le plus haut possible, chaque saut à fond.';
+    if (el.role === 'lancer' && groupeActif) prevu.consigne = 'Environ 1 minute après la série lourde : 3 lancers depuis la poitrine, le plus fort possible.';
+    if (el.role === 'lancer_rot') prevu.consigne = 'Répétitions pour chaque côté. La force part du pied arrière et des hanches, comme un crochet.';
+    if (el.role === 'nordic' && reprise) prevu.consigne = 'Version douce : descendez lentement sur la moitié du trajet seulement, puis repoussez-vous avec les mains.';
+    if (el.role === 'olympique' && id === 'epaule-suspension' && info.phase === 'c1') prevu.consigne = 'Apprentissage : barre légère, la technique d’abord. Notez « Mouvement propre » quand c’est le cas.';
+    if (el.role === 'cardio' && pr.dureeSec && pr.dureeSec >= 120) prevu.consigne = 'Intervalles longs : effort soutenu (difficile à parler), récupération en pédalant tranquillement.';
+    if (reprise && (el.role === 'force_principal' || el.role === 'force_secondaire' || el.role === 'hypertrophie')) {
       prevu.consigne = 'Reprise : charge confortable, il doit vous rester 3 à 4 répétitions en réserve.';
     }
+    if (!reprise && el.role === 'isolation' && !prevu.consigne) prevu.consigne = 'Dernière série : allez jusqu’à 0 ou 1 répétition de l’échec.';
     if (info.allegee && !prevu.consigne) prevu.consigne = 'Semaine allégée : moitié moins de séries, mêmes charges.';
     exercices.push(prevu);
   }
@@ -246,6 +284,18 @@ function construire(modele: Modele, info: InfoSemaine, profil: Profil): SeancePr
     echauffement: modele.echauffement,
     programme: { semaine: info.index, lettre: modele.lettre, type: 'entrainement' }
   };
+}
+
+/** Contacts au sol des sauts d'une séance (audit P7). */
+export function contactsAuSol(plan: SeancePrevue): number {
+  let n = 0;
+  for (const e of plan.exercices) {
+    const ex = exercice(e.exerciceId);
+    if (!ex || !['saut_v', 'saut_h', 'bonds'].includes(ex.mouvement)) continue;
+    const parJambe = e.exerciceId === 'bonds-une-jambe' ? 2 : 1;
+    n += e.series * (e.reps ?? 0) * parJambe;
+  }
+  return n;
 }
 
 // ---------- Séances de test ----------

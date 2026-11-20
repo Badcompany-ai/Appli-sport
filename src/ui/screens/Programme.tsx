@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
 import { EXERCICES, NOMS_MOUVEMENTS, exercice, type Mouvement } from '../../domain/exercices';
-import { NOMS_PHASES, NB_SEMAINES, indexSemaine, infoSemaine, seancesDeLaSemaine, type CleePhase } from '../../domain/programme';
+import { NOMS_PHASES, NB_SEMAINES, contactsAuSol, indexSemaine, infoSemaine, seancesDeLaSemaine, type CleePhase } from '../../domain/programme';
 import { NOMS_JOURS, PROFIL_INTERVIEW, depuisCle, joursDeSeance } from '../../domain/profil';
 import { EPREUVES, TESTS_FORCE, TESTS_REPETITIONS, avancement, epreuve, etapes, proposerObjectif, resultatsTests, vo2DepuisPalier, type Objectif } from '../../domain/niveau';
 import { dateLongue } from '../../domain/format';
@@ -264,7 +264,7 @@ export function Programme() {
       {seanceVue && (
         <Feuille titre={seanceVue.nom} onFermer={() => setSeanceVue(null)}>
           <span className="doux petit">
-            Semaine {(seanceVue.programme?.semaine ?? 0) + 1} · {NOMS_PHASES[infoSemaine(seanceVue.programme?.semaine ?? 0).phase]} · environ {dureeEstimeeMin(seanceVue) + (seanceVue.echauffement?.length ? 10 : 0)} min
+            Semaine {(seanceVue.programme?.semaine ?? 0) + 1} · {NOMS_PHASES[infoSemaine(seanceVue.programme?.semaine ?? 0).phase]} · environ {dureeEstimeeMin(seanceVue) + (seanceVue.echauffement?.length ? 10 : 0)} min{contactsAuSol(seanceVue) ? ` · ${contactsAuSol(seanceVue)} contacts au sol` : ''}
           </span>
           {seanceVue.echauffement && (
             <div className="pile" style={{ gap: 6 }}>
