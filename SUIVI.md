@@ -47,7 +47,7 @@ Il est mis à jour à chaque étape importante.
 - Français, centimètres, kilos, kilocalories.
 - Trois lieux : salle, extérieur, maison.
 - Données uniquement sur l'appareil, sauf décision contraire.
-- Interdit : skills et outils Bright Data.
+- Interdit : outils Bright Data. (Skills : interdiction levée par l'utilisateur le 20/11/2026, à utiliser si utile.)
 - Ne rien ajouter hors du cahier des charges validé sans le proposer d'abord.
 - La consigne complète d'origine est reproduite dans `docs/consigne-initiale.md`.
 
@@ -137,6 +137,9 @@ Il est mis à jour à chaque étape importante.
 - **D4 bis — Fin de repos, révision (20/11) :** le minuteur de l'horloge risque de couper la musique, ce que l'utilisateur refuse. Nouvelle piste à tester sur son iPhone **avant** de construire : un raccourci qui **attend la durée du repos, puis fait vibrer le téléphone et affiche une notification** (le son de notification ne coupe pas la musique). Inconnue : iOS laisse-t-il le raccourci tourner en arrière-plan pendant l'attente ? Test manuel de 2 minutes demandé à l'utilisateur. Solution de repli : minuteur de l'horloge (et vérifier s'il coupe vraiment la musique).
 - **D4 ter — Fin de repos, DÉCISION FINALE (20/11) :** test réussi sur l'iPhone de l'utilisateur (iOS 27) : un raccourci « Attendre N secondes → Faire vibrer → Afficher la notification » fonctionne hors de l'application et écran verrouillé, **sans couper la musique**. Les vibrations sont désactivées sur son téléphone, la notification lui suffit. → L'application lancera un raccourci « Repos » en lui passant la durée. iOS 27 : l'app Raccourcis ouvre par défaut l'écran « Décrire un raccourci » (Apple Intelligence) ; l'éditeur classique reste accessible.
 - **D8 — Style visuel :** direction A « Anneaux » (noir pur, Inter, cartes arrondies, anneaux, gros chiffres) avec la couleur d'accent **orange #FF5A1F** (texte noir sur les boutons orange). Anneaux secondaires : blanc (protéines) et bleu clair #7CC4FF (séances).
+- **D9 — Skills autorisées (20/11) :** l'interdiction initiale des skills est levée (« n'hésite pas à les utiliser si nécessaire »). Bright Data reste interdit.
+- **D10 — Vidéos (20/11) :** l'utilisateur veut des vidéos **courtes, récentes, qui montrent le mouvement** sans longues explications (animations ou vidéos courtes YouTube acceptées). Exemple jugé mauvais : squat sauté (vidéo trop ancienne). → Reprise complète de la sélection avant J4.
+- **D11 — Audit du programme avant J4 (20/11) :** l'utilisateur veut un programme « à la pointe ». Audit fondé sur la littérature, chaque modification proposée avec sa source, à valider point par point.
 - **D3 — Données :** uniquement sur l'appareil ; passage vers le Mac par fichier de sauvegarde (AirDrop ou iCloud Drive).
 
 ## Questions ouvertes
