@@ -6,6 +6,8 @@ import { Bientot } from './screens/Bientot';
 import { Programme } from './screens/Programme';
 import { Bandeau } from './bandeau';
 import { IconeAujourdhui, IconeNutrition, IconeProfil, IconeProgramme, IconeProgres } from './icones';
+import { choisirTypeSon } from '../platform/appareil';
+import { useReglage } from './reglages';
 import { copieQuotidienneSiBesoin, seanceEnCours, viderCorbeilleAncienne } from '../data/operations';
 
 type Onglet = 'aujourdhui' | 'programme' | 'progres' | 'nutrition' | 'profil';
@@ -47,6 +49,9 @@ export function App({ majDisponible, installerMaj }: { majDisponible: boolean; i
       if (s && Date.now() - s.debut < TROIS_HEURES) setSeanceOuverte(s.id);
     });
   }, []);
+
+  const [prioritaire] = useReglage('sonPrioritaire');
+  useEffect(() => choisirTypeSon(prioritaire ? 'transient' : 'ambient'), [prioritaire]);
 
   const fermerSeance = useCallback(() => setSeanceOuverte(null), []);
 

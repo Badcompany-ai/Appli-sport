@@ -10,6 +10,7 @@ export interface ReglageRaccourci {
 export const DEFAUTS = {
   raccourci: { actif: false, nom: 'Repos' } as ReglageRaccourci,
   sonApplication: true,
+  sonPrioritaire: false,
   derniereSauvegarde: 0
 };
 
