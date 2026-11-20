@@ -65,9 +65,9 @@ const P = (series: number, reps: [number, number] | number, reposSec: number): P
 
 const PRESCRIPTIONS: Record<CleePhase, Record<Role, Prescription>> = {
   reprise: {
-    plyo: P(3, [3, 3], 90), plyo2: P(2, [3, 3], 90), sprint: P(4, [1, 1], 90), cod: P(3, 20, 60), lancer: P(3, [5, 5], 60),
-    olympique: P(3, [8, 8], 90), force_principal: P(3, [8, 10], 120), force_secondaire: P(2, [10, 12], 90),
-    hypertrophie: P(2, [10, 12], 90), isolation: P(2, [12, 15], 60), gainage: P(2, 30, 45), boxe: P(3, 120, 60), cardio: P(6, 20, 40)
+    plyo: P(3, [5, 5], 90), plyo2: P(3, [3, 3], 90), sprint: P(6, [1, 1], 90), cod: P(4, 20, 60), lancer: P(3, [6, 6], 60),
+    olympique: P(4, [8, 8], 90), force_principal: P(4, [8, 10], 120), force_secondaire: P(3, [10, 12], 90),
+    hypertrophie: P(3, [10, 12], 90), isolation: P(3, [12, 15], 60), gainage: P(3, 40, 45), boxe: P(4, 120, 60), cardio: P(8, 20, 40)
   },
   c1: {
     plyo: P(3, [5, 5], 90), plyo2: P(3, [4, 4], 90), sprint: P(5, [1, 1], 90), cod: P(4, [1, 1], 90), lancer: P(3, [5, 5], 60),
@@ -150,7 +150,7 @@ const A: Modele = {
   lettre: 'A', nom: 'Explosivité et force du bas du corps', echauffement: ECH_BAS,
   elements: [
     { role: 'plyo', ex: { reprise: 'squat-jump', c3: 'saut-profondeur', defaut: 'saut-box' }, priorite: 1 },
-    { role: 'plyo2', ex: { c2: 'saut-longueur', defaut: 'bonds-enchaines' }, priorite: 2, phases: ['c2', 'c3', 'c4'] },
+    { role: 'plyo2', ex: { reprise: 'saut-longueur', c2: 'saut-longueur', defaut: 'bonds-enchaines' }, priorite: 2, phases: ['reprise', 'c1', 'c2', 'c3', 'c4'] },
     { role: 'force_principal', ex: 'squat-arriere', priorite: 1 },
     { role: 'force_secondaire', ex: 'squat-bulgare-halteres', priorite: 2 },
     { role: 'isolation', ex: { reprise: 'mollets-debout', defaut: 'mollets-machine' }, priorite: 3 },
@@ -252,7 +252,7 @@ function construire(modele: Modele, info: InfoSemaine, profil: Profil): SeancePr
 
 function seanceTestLeger(info: InfoSemaine): SeancePrevue {
   const max = 'Maximum de répétitions propres, en vous arrêtant 1 à 2 répétitions avant l’échec.';
-  const ex = [
+  const ex: ExercicePrevu[] = [
     { ...prevoir('pompes', 1, { reps: 15, reposSec: 120 }), consigne: max },
     { ...prevoir('tractions', 1, { reps: 8, reposSec: 150 }), consigne: max },
     { ...prevoir('dips', 1, { reps: 10, reposSec: 150 }), consigne: max },
@@ -260,6 +260,15 @@ function seanceTestLeger(info: InfoSemaine): SeancePrevue {
     { ...prevoir('squat-goblet', 1, { reps: 10, reposSec: 90 }), consigne: 'Une série de 10 avec une charge confortable : elle sert à régler vos premières charges.' }
   ];
   for (const e of ex) e.priorite = 1;
+  // Après les tests : un vrai bloc de travail pour que la séance ne soit pas « pour rien ».
+  const reprise = 'Reprise : charge confortable, il doit vous rester 3 à 4 répétitions en réserve.';
+  const suite = [
+    { ...prevoir('developpe-militaire', 3, { reps: 12, reposSec: 90 }), repsMin: 10, consigne: reprise, priorite: 2 as const },
+    { ...prevoir('rowing-barre', 3, { reps: 12, reposSec: 90 }), repsMin: 10, consigne: reprise, priorite: 2 as const },
+    { ...prevoir('face-pull', 3, { reps: 15, reposSec: 60 }), repsMin: 12, priorite: 3 as const },
+    { ...prevoir('velo-assault-intervalles', 8, { dureeSec: 20, reposSec: 40 }), priorite: 3 as const }
+  ];
+  ex.push(...suite);
   return {
     id: `S${info.index + 1}-L`,
     nom: 'Test léger de reprise',
