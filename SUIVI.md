@@ -140,6 +140,8 @@ Il est mis à jour à chaque étape importante.
 - **D9 — Skills autorisées (20/11) :** l'interdiction initiale des skills est levée (« n'hésite pas à les utiliser si nécessaire »). Bright Data reste interdit.
 - **D10 — Vidéos (20/11) :** l'utilisateur veut des vidéos **courtes, récentes, qui montrent le mouvement** sans longues explications (animations ou vidéos courtes YouTube acceptées). Exemple jugé mauvais : squat sauté (vidéo trop ancienne). → Reprise complète de la sélection avant J4.
 - **D11 — Audit du programme avant J4 (20/11) :** l'utilisateur veut un programme « à la pointe ». Audit fondé sur la littérature, chaque modification proposée avec sa source, à valider point par point.
+- **D12 — Vidéos v2 (20/11) :** 98 démonstrations courtes (5 à 60 s), sources MuscleWiki / PureGym / NASM / OPEX / Runna en priorité, vérifiées par oEmbed ; lecture en boucle et sans le son (ne coupe pas la musique) ; vidéos verticales au format du téléphone. Scripts de recherche dans le dossier de travail (non conservés) ; la liste fait foi dans `src/domain/videos.ts`.
+- **Audit du programme :** `docs/audit-programme.md` (propositions P1 à P9 avec sources), **en attente de la validation point par point de l'utilisateur**, puis mise en œuvre avant le jalon J4.
 - **D3 — Données :** uniquement sur l'appareil ; passage vers le Mac par fichier de sauvegarde (AirDrop ou iCloud Drive).
 
 ## Questions ouvertes

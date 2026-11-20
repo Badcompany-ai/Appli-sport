@@ -20,10 +20,10 @@ export function Fiche({ id, onFermer }: { id: string; onFermer: () => void }) {
       {v ? (
         enLigne ? (
           video ? (
-            <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', borderRadius: 16, overflow: 'hidden', background: '#000' }}>
+            <div style={{ position: 'relative', width: v.vertical ? 'min(100%, 42dvh)' : '100%', alignSelf: 'center', aspectRatio: v.vertical ? '9 / 16' : '16 / 9', borderRadius: 16, overflow: 'hidden', background: '#000' }}>
               <iframe
                 title={`Démonstration : ${ex.nom}`}
-                src={`https://www.youtube-nocookie.com/embed/${v.id}?playsinline=1&rel=0&autoplay=1`}
+                src={`https://www.youtube-nocookie.com/embed/${v.id}?playsinline=1&rel=0&autoplay=1&loop=1&playlist=${v.id}&mute=1`}
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}
@@ -31,7 +31,7 @@ export function Fiche({ id, onFermer }: { id: string; onFermer: () => void }) {
             </div>
           ) : (
             <button className="bouton plein" style={{ minHeight: 56 }} onClick={() => setVideo(true)}>
-              Voir la démonstration · {v.chaine}
+              Voir la démonstration
             </button>
           )
         ) : (
