@@ -5,6 +5,7 @@ import { EXERCICES, MOUVEMENTS_PROCHES, NOMS_MOUVEMENTS, PREFERES, exercice, typ
 import { nomEquipement, type Dispo } from './materiel';
 import { kg } from './format';
 import type { ExercicePrevu, SeancePrevue } from './types';
+import { epreuve, epreuveDisponible } from './niveau';
 
 export interface Contexte {
   dispo: Dispo;
@@ -218,6 +219,14 @@ export function adapterSeance(plan: SeancePrevue, ctx: Contexte): { plan: Seance
   const utilises = new Set(plan.exercices.map((e) => e.exerciceId));
 
   for (const prevu of plan.exercices) {
+    if (prevu.testId) {
+      const e = epreuve(prevu.testId);
+      if (e && !epreuveDisponible(e, ctx.dispo)) {
+        const manque = e.materiel.find((g) => !g.some((id) => ctx.dispo.materiel.includes(id)))?.map(nomEquipement).join(' ou ');
+        changements.push({ type: 'retire', avant: prevu.nom, raison: `Épreuve impossible ici (il faut : ${manque}). À faire un autre jour.` });
+      } else resultat.push(prevu);
+      continue;
+    }
     const ex = exercice(prevu.exerciceId);
     if (!ex) {
       resultat.push(prevu);
@@ -278,7 +287,7 @@ export function prevoir(id: string, series: number, opts: { reps?: number; duree
     series,
     reps: ex.mesure === 'tenue' ? undefined : opts.reps,
     dureeSec: ex.mesure === 'tenue' ? opts.dureeSec : undefined,
-    chargeKg: ex.mesure === 'charge_reps' || ex.mesure === 'poids_du_corps_reps' ? opts.chargeKg ?? 0 : undefined,
+    chargeKg: ex.mesure === 'charge_reps' ? opts.chargeKg : ex.mesure === 'poids_du_corps_reps' ? opts.chargeKg ?? 0 : undefined,
     reposSec: opts.reposSec,
     pasKg: pasDe(ex)
   };

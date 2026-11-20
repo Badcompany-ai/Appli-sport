@@ -1,7 +1,7 @@
 // Types partagés par toute l'application.
 
 /** Façon de mesurer une série. */
-export type Mesure = 'charge_reps' | 'poids_du_corps_reps' | 'reps' | 'tenue';
+export type Mesure = 'charge_reps' | 'poids_du_corps_reps' | 'reps' | 'tenue' | 'test';
 
 export interface ExercicePrevu {
   /** Identifiant stable de l'exercice (sert à retrouver la dernière performance). */
@@ -25,12 +25,26 @@ export interface ExercicePrevu {
   tempoLent?: boolean;
   /** Remplacement choisi par l'utilisateur (conservé lors des recalculs). */
   choixManuel?: boolean;
+  /** Bas de la fourchette de répétitions (le haut est « reps »). */
+  repsMin?: number;
+  /** 1 = travail principal, 2 = soutien, 3 = complément (pour raccourcir une séance). */
+  priorite?: 1 | 2 | 3;
+  /** Consigne du jour en une phrase (intensité, distance…). */
+  consigne?: string;
+  /** Explication de la charge proposée. */
+  raisonCharge?: string;
+  /** Épreuve de test de niveau mesurée par une valeur (cm, s, m, palier). */
+  testId?: string;
 }
 
 export interface SeancePrevue {
   id: string;
   nom: string;
   exercices: ExercicePrevu[];
+  /** Étapes de l'échauffement (méthode RAMP). */
+  echauffement?: string[];
+  /** Place dans le programme. */
+  programme?: { semaine: number; lettre: string; type: 'entrainement' | 'test' | 'test_leger' | 'mobilite' };
 }
 
 export type StatutSeance = 'en_cours' | 'terminee';
@@ -55,6 +69,8 @@ export interface Seance {
   /** Lieu et matériel du jour (pour proposer des remplacements pendant la séance). */
   lieu?: 'salle' | 'maison' | 'exterieur';
   dispo?: { materiel: string[]; halteresMaxKg: number; kettlebellMaxKg: number };
+  /** L'échauffement a été validé. */
+  echauffementFait?: boolean;
   /** Suppression douce : la séance va à la corbeille pendant 30 jours. */
   supprimeeLe?: number;
 }
@@ -69,6 +85,8 @@ export interface Serie {
   chargeKg?: number;
   reps?: number;
   dureeSec?: number;
+  /** Résultat d'une épreuve de test (cm, s, m, palier). */
+  valeur?: number;
   faiteLe: number;
 }
 

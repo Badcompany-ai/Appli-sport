@@ -106,6 +106,11 @@ export const VIDEOS: Record<string, Video> = {
   "corde-intervalles": { id: "IFgQfVQT_68", titre: "How To Jump Rope Beginner Basics: STARTING YOUR ROPE", chaine: "Kyle Easter", verifieeLe: '2026-11-20' },
   "navettes-intervalles": { id: "wMvghxHo3pE", titre: "4x10m shuttle run", chaine: "Coach George (cher George)", verifieeLe: '2026-11-20' },
   "burpees-intervalles": { id: "NCqbpkoiyXE", titre: "How To Burpee | Nuffield Health", chaine: "Nuffield Health", verifieeLe: '2026-11-20' },
+  "mob-hanches-9090": { id: "VYvMMw8z3rE", titre: "How to do a 90/90 Hip Stretch properly - CORRECT FORM IS ESSENTIAL", chaine: "Jack Hanrahan Fitness ", verifieeLe: '2026-11-20' },
+  "mob-cheville-mur": { id: "ElrpduJn92Y", titre: "Knee To Wall Exercise for Ankle Mobility", chaine: "Dr. Jess Harvey, Osteopath & Health Coach", verifieeLe: '2026-11-20' },
+  "mob-thoracique": { id: "rDviWORCWEw", titre: "Open Books (Sidelying Thoracic Rotation)", chaine: "Revival Performance Physical Therapy", verifieeLe: '2026-11-20' },
+  "mob-flechisseurs": { id: "gqoPYLUgP48", titre: "Bulletproof Step-by-step Guide to the Half Kneeling Hip Flexor Stretch\" [stretching advice]", chaine: "[P]rehab", verifieeLe: '2026-11-20' },
+  "mob-epaules-serviette": { id: "vP8YmmRMz6I", titre: "Shoulder Dislocates for Shoulder Flexibility", chaine: "GMB Fitness (Praxis)", verifieeLe: '2026-11-20' },
 };
 
 export function lienRecherche(nom: string): string {

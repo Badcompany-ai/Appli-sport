@@ -76,7 +76,18 @@ try {
   await page.goto(URL);
   await page.getByRole('heading', { name: "Aujourd'hui" }).waitFor();
   await page.evaluate(() => navigator.serviceWorker.ready);
+
+  console.log('Parcours de départ (prérempli)');
+  await page.getByRole('dialog', { name: 'Parcours de départ' }).waitFor();
+  await capture('00-depart');
+  await page.getByRole('button', { name: 'Commencer' }).click();
+  verifier(await vu(page.getByText('188')), 'profil prérempli avec l’interview (188 cm)');
+  for (let i = 0; i < 5; i++) await page.getByRole('button', { name: 'Continuer' }).click();
+  await capture('00b-pret');
+  await page.getByRole('button', { name: 'C’est parti' }).click();
+  verifier(await vu(page.getByText(/Commence le lundi 28 décembre/)), 'avant le début : date de début affichée');
   verifier(await page.getByText('Aucune séance pour l').isVisible(), 'écran de première utilisation non vide');
+  await page.getByRole('button', { name: 'Séance d’essai' }).click();
   verifier(!(await page.getByText(/changement.* selon le matériel/).isVisible()), 'en salle, la séance n’est pas modifiée');
   await capture('01-aujourdhui');
 
@@ -195,12 +206,34 @@ try {
 
   console.log('Dernière performance à la séance suivante');
   await page.clock.resume?.();
+  await page.getByRole('button', { name: 'Séance d’essai' }).click();
   await page.getByRole('button', { name: 'Commencer' }).click();
   await page.getByRole('heading', { name: 'Saut sur box' }).waitFor();
   verifier(await vu(page.getByText('5 · 4 · 5 répétitions')), 'rappel : 5 · 4 · 5 répétitions');
   await page.getByRole('button', { name: 'Options de la séance' }).click();
   await page.getByRole('button', { name: 'Abandonner la séance' }).click();
   await page.getByRole('heading', { name: "Aujourd'hui" }).waitFor();
+
+  console.log('Programme : commencer cette semaine');
+  await page.getByRole('button', { name: 'Commencer cette semaine' }).click();
+  verifier(await vu(page.getByText(/Semaine 1 · Reprise · séance A/)), 'séance A de la semaine 1 proposée');
+  verifier(await vu(carte().getByText('Squat jump')), 'reprise : squat jump (pas de box)');
+  await capture('13-programme-jour');
+  await page.getByRole('button', { name: 'Commencer' }).click();
+  verifier(await vu(page.getByRole('heading', { name: 'Échauffement' })), 'échauffement guidé avant la séance');
+  await capture('14-echauffement');
+  await page.getByRole('button', { name: 'Échauffement fait' }).click();
+  verifier(await vu(page.getByRole('heading', { name: 'Squat jump' })), 'premier exercice après l’échauffement');
+  verifier(await vu(page.getByText('Série 1 sur 3')), 'reprise : 3 séries de sauts');
+  await page.getByRole('button', { name: 'Options de la séance' }).click();
+  await page.getByRole('button', { name: 'Abandonner la séance' }).click();
+  await page.getByRole('heading', { name: "Aujourd'hui" }).waitFor();
+  await page.getByRole('button', { name: 'Programme' }).click();
+  verifier(await vu(page.getByText('Cette semaine')), 'onglet Programme : semaine en cours');
+  verifier(await vu(page.getByText('Test léger de reprise')), 'test léger prévu en semaine 1');
+  verifier(await vu(page.getByText(/Les objectifs seront proposés/)), 'objectifs annoncés après le premier test');
+  await capture('15-programme');
+  await page.getByRole('button', { name: "Aujourd'hui" }).click();
 
   console.log('Bibliothèque d’exercices');
   await page.getByRole('button', { name: 'Programme' }).click();
@@ -235,7 +268,7 @@ try {
   verifier(await page.getByText('avant import').isVisible(), 'copie de sécurité faite avant import');
 
   console.log('Corbeille');
-  verifier((await page.getByRole('button', { name: 'Restaurer' }).count()) === 1, 'la séance abandonnée est dans la corbeille');
+  verifier((await page.getByRole('button', { name: 'Restaurer' }).count()) === 2, 'les 2 séances abandonnées sont dans la corbeille');
 
   verifier(erreurs.length === 0, `aucune erreur dans la console${erreurs.length ? ' : ' + erreurs.join(' | ') : ''}`);
 } catch (e) {
