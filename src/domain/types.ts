@@ -53,6 +53,8 @@ export interface SeancePrevue {
   programme?: { semaine: number; lettre: string; type: 'entrainement' | 'test' | 'test_leger' | 'mobilite' };
 }
 
+export type Ressenti = 'facile' | 'correct' | 'dur';
+
 export type StatutSeance = 'en_cours' | 'terminee';
 
 /** Une séance réalisée (ou en cours), enregistrée dans l'appareil. */
@@ -75,6 +77,10 @@ export interface Seance {
   /** Lieu et matériel du jour (pour proposer des remplacements pendant la séance). */
   lieu?: 'salle' | 'maison' | 'exterieur';
   dispo?: { materiel: string[]; halteresMaxKg: number; kettlebellMaxKg: number };
+  /** Ressenti après chaque exercice : utilisé pour ajuster la séance suivante (règle 7.2). */
+  ressentis?: Record<string, Ressenti>;
+  /** Exercices qui viennent d'être terminés (pour demander le ressenti pendant le repos). */
+  dernierFini?: string[];
   /** L'échauffement a été validé. */
   echauffementFait?: boolean;
   /** Suppression douce : la séance va à la corbeille pendant 30 jours. */

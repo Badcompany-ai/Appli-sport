@@ -160,6 +160,9 @@ try {
   verifier(await page.getByText('Série 3 sur 3').isVisible(), 'la séance reprend exactement au même endroit');
   await page.getByRole('button', { name: 'Valider 5 répétitions' }).click();
   verifier(await vu(page.getByText(/Squat arrière · série 1 sur 3/)), 'après la dernière série, le repos annonce l’exercice suivant');
+  verifier(await vu(page.getByText(/Comment c’était : Saut sur box/)), 'ressenti demandé pendant le repos');
+  await page.getByRole('radio', { name: 'Trop facile' }).click();
+  verifier(await vu(page.getByRole('radio', { name: 'Trop facile', checked: true })), 'ressenti enregistré');
 
   console.log('Fin du repos (horloge avancée)');
   await page.clock.install();
@@ -172,6 +175,8 @@ try {
   await page.getByRole('button', { name: 'Série suivante' }).click();
   await page.getByRole('heading', { name: 'Squat arrière' }).waitFor();
 
+  verifier(await vu(page.getByRole('button', { name: '20 × 8' })), 'séries d’échauffement proposées avant la charge lourde');
+  await capture('08b-echauffement');
   console.log('Remplacer un exercice en séance');
   await page.getByRole('button', { name: 'Remplacer', exact: true }).click();
   const options = page.getByRole('dialog', { name: 'Remplacer : Squat arrière' }).locator('.lien-liste');
@@ -203,6 +208,24 @@ try {
   await page.getByRole('button', { name: 'Enregistrer la séance' }).click();
   await page.getByRole('heading', { name: 'Séances enregistrées' }).waitFor();
   verifier(await vu(page.getByRole('button', { name: /Supprimer la séance/ })), 'la séance apparaît dans l’historique');
+
+  console.log('Onglet Progrès : graphiques et historique modifiable');
+  await page.getByRole('button', { name: 'Progrès' }).click();
+  verifier(await vu(page.getByRole('button', { name: /Squat arrière/ }).first()), 'exercice listé dans Progrès');
+  await page.getByRole('button', { name: /Squat arrière/ }).first().click();
+  verifier(await vu(page.getByText('Maximum estimé (1 répétition)')), 'graphique du maximum estimé');
+  verifier(await vu(page.getByText(/Force relative/).first()), 'force relative affichée');
+  await capture('10b-progres-exercice');
+  await page.getByRole('dialog', { name: 'Squat arrière' }).getByRole('button', { name: 'Fermer' }).click();
+  await page.getByRole('button', { name: /Séance du .* : Séance de démonstration/ }).first().click();
+  const reps = page.getByRole('dialog', { name: 'Séance de démonstration' }).getByRole('button', { name: 'Répétitions : plus' }).first();
+  await reps.click();
+  await page.waitForTimeout(300);
+  verifier((await page.getByRole('dialog', { name: 'Séance de démonstration' }).getByText('6', { exact: true }).count()) >= 1, 'historique modifiable : répétitions corrigées');
+  await capture('10c-historique');
+  await page.getByRole('dialog', { name: 'Séance de démonstration' }).getByRole('button', { name: 'Répétitions : moins' }).first().click();
+  await page.getByRole('dialog', { name: 'Séance de démonstration' }).getByRole('button', { name: 'Fermer' }).click();
+  await page.getByRole('button', { name: "Aujourd'hui" }).click();
 
   console.log('Dernière performance à la séance suivante');
   await page.clock.resume?.();

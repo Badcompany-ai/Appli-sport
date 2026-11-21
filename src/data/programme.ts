@@ -38,8 +38,10 @@ export async function appliquerProgression(plan: SeancePrevue): Promise<SeancePr
       const derniere = await dernierePerformance(e.exerciceId);
       const max = e.mesure === 'charge_reps' ? await meilleurMax(e.exerciceId) : undefined;
       const reprise = plan.programme?.semaine !== undefined && plan.programme.semaine < 2;
-      const r = prochaineCharge(derniere?.series, e.reps ?? 8, e.pasKg ?? 2.5, max, e.repsMin ?? e.reps ?? 8, reprise ? 3 : 2);
+      const ressenti = derniere?.seance.ressentis?.[e.exerciceId];
+      const r = prochaineCharge(derniere?.series, e.reps ?? 8, e.pasKg ?? 2.5, max, e.repsMin ?? e.reps ?? 8, reprise ? 3 : 2, ressenti);
       if (e.mesure === 'poids_du_corps_reps' && !derniere) return { ...e, chargeKg: 0 };
+      if (r.chargeKg === undefined && e.chargeKg !== undefined) return e;
       return { ...e, chargeKg: r.chargeKg ?? e.chargeKg, raisonCharge: r.raison };
     })
   );
