@@ -31,6 +31,7 @@ export const EQUIPEMENTS: Equipement[] = [
   { id: 'roue_abdo', nom: 'Roue abdominale', famille: 'Poids du corps' },
   { id: 'tapis', nom: 'Tapis', famille: 'Poids du corps' },
   { id: 'pince', nom: 'Accessoires d’avant-bras', famille: 'Poids du corps' },
+  { id: 'ceinture_lest', nom: 'Ceinture de lest', famille: 'Poids du corps' },
   { id: 'velo_assault', nom: 'Vélo d’assaut', famille: 'Cardio' },
   { id: 'rameur', nom: 'Rameur', famille: 'Cardio' },
   { id: 'skierg', nom: 'Ski-erg', famille: 'Cardio' },
@@ -58,7 +59,7 @@ export const PRESETS: Record<Lieu, Dispo> = {
   salle: {
     materiel: [
       'barre', 'rack', 'banc', 'halteres', 'kettlebell', 'presse', 'poulie', 'machines', 'barre_traction',
-      'barres_paralleles', 'tapis', 'velo_assault', 'rameur', 'skierg', 'box', 'medecine_ball', 'traineau',
+      'barres_paralleles', 'ceinture_lest', 'tapis', 'velo_assault', 'rameur', 'skierg', 'box', 'medecine_ball', 'traineau',
       'espace_course', 'sac_frappe'
     ],
     halteresMaxKg: 40,

@@ -330,7 +330,7 @@ export const EXERCICES: Exercice[] = [
     id: 'dips', nom: 'Dips', mouvement: 'poussee_h', qualites: ['force', 'hypertrophie'],
     primaires: ['pectoraux', 'triceps'], secondaires: ['epaules'], materiel: un('barres_paralleles'),
     difficulte: 3, charge: 'corps', facteur: 1.2, partPoidsDuCorps: 1, lestable: true, mesure: 'poids_du_corps_reps',
-    consignes: ['En appui sur les barres, bras tendus.', 'Descendre jusqu’à ce que les épaules passent légèrement sous les coudes.', 'Remonter sans hausser les épaules.', 'Ajouter du lest quand les répétitions sont faciles.'],
+    consignes: ['En appui sur les barres, bras tendus.', 'Descendre jusqu’à ce que les épaules passent légèrement sous les coudes.', 'Remonter sans hausser les épaules.', 'Ajouter du lest (ceinture de lest) quand le haut de la fourchette de répétitions est atteint.'],
     erreurs: ['Descendre trop bas en forçant sur les épaules.', 'Balancer les jambes.'],
     plusFacile: 'pompes', plusDifficile: 'developpe-couche'
   },
@@ -388,9 +388,9 @@ export const EXERCICES: Exercice[] = [
   },
   {
     id: 'tractions-lestees', nom: 'Tractions lestées', mouvement: 'tirage_v', qualites: ['force'],
-    primaires: ['dos', 'biceps'], secondaires: ['avant_bras'], materiel: M(['barre_traction'], ['halteres', 'kettlebell']),
+    primaires: ['dos', 'biceps'], secondaires: ['avant_bras'], materiel: M(['barre_traction'], ['ceinture_lest', 'halteres', 'kettlebell']),
     difficulte: 4, charge: 'corps', facteur: 1, partPoidsDuCorps: 1, lestable: true, mesure: 'poids_du_corps_reps',
-    consignes: ['Haltère tenu entre les pieds ou ceinture de lest.', 'Même technique que les tractions.'],
+    consignes: ['Ceinture de lest (ou haltère tenu entre les pieds).', 'Même technique que les tractions.'],
     erreurs: ['Perdre l’amplitude complète à cause du lest.'],
     plusFacile: 'tractions'
   },
@@ -466,7 +466,7 @@ export const EXERCICES: Exercice[] = [
     id: 'squat-jump', nom: 'Squat jump', mouvement: 'saut_v', qualites: ['puissance'],
     primaires: ['quadriceps', 'fessiers', 'mollets'], secondaires: [], materiel: [],
     difficulte: 2, charge: 'aucune', mesure: 'reps',
-    consignes: ['Descendre en quart de squat.', 'Sauter le plus haut possible avec l’élan des bras.', 'Réception souple, se remettre en place entre chaque saut.'],
+    consignes: ['Descendre en quart de squat.', 'Sauter le plus haut possible avec l’élan des bras.', 'Réception souple, se remettre en place entre chaque saut.', 'Pour corser : un haltère léger dans chaque main (à noter dans « Lest »), sans perdre la vitesse du saut.'],
     erreurs: ['Réception jambes tendues.', 'Enchaîner trop vite : la hauteur baisse.'],
     plusDifficile: 'saut-box'
   },
