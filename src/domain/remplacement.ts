@@ -53,7 +53,7 @@ export function capaciteKg(ex: Exercice, ctx: Contexte): number {
     case 'corps': {
       // Lest possible avec un haltère ou une kettlebell (tenu entre les pieds), seulement si l'exercice s'y prête.
       if (!ex.lestable) return chargeCorps(ex, ctx);
-      const lest = Math.max(m.includes('halteres') ? ctx.dispo.halteresMaxKg : 0, m.includes('kettlebell') ? ctx.dispo.kettlebellMaxKg : 0);
+      const lest = Math.max(m.includes('ceinture_lest') ? 60 : 0, m.includes('halteres') ? ctx.dispo.halteresMaxKg : 0, m.includes('kettlebell') ? ctx.dispo.kettlebellMaxKg : 0);
       return chargeCorps(ex, ctx) + lest;
     }
     default:

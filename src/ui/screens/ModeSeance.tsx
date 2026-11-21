@@ -95,21 +95,22 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
   const numero = suivante.numero;
   const partenaires = membres.filter((m) => m !== im).map((m) => plan.exercices[m].nom);
 
-  async function valider(valeurs: { chargeKg?: number; reps?: number; dureeSec?: number; valeur?: number }) {
+  async function valider(valeurs: { chargeKg?: number; reps?: number; dureeSec?: number; valeur?: number }, options: { sansRepos?: boolean } = {}) {
     if (!seance) return;
     preparerSon();
     const maintenant = Date.now();
     const serie = await enregistrerSerie({ seanceId: seance.id, exerciceId: ex.exerciceId, numero, faiteLe: maintenant, ...valeurs });
     const apres = apresSerie(plan, im, (id) => compte(id) + (id === ex.exerciceId ? 1 : 0));
     const finSeance = apres.groupeFini && apres.prochainIndex >= plan.exercices.length;
-    const repos = finSeance ? 0 : apres.reposSec;
+    // Fractionné guidé : la récupération entre les rounds est gérée par l'écran des intervalles.
+    const repos = finSeance || (options.sansRepos && !apres.groupeFini) ? 0 : apres.reposSec;
     await modifierSeance(seance.id, {
       exerciceIndex: apres.groupeFini ? apres.prochainIndex : idx,
       reposFin: repos ? maintenant + repos * 1000 : undefined,
       reposTotalSec: repos || undefined,
       dernierFini: apres.groupeFini ? membres.map((m) => plan.exercices[m].exerciceId) : seance.dernierFini
     });
-    afficherBandeau('Série enregistrée', async () => {
+    if (!options.sansRepos || apres.groupeFini) afficherBandeau('Série enregistrée', async () => {
       await supprimerSerie(serie.id);
       await modifierSeance(seance.id, { exerciceIndex: idx, reposFin: undefined, reposTotalSec: undefined });
     });
@@ -149,6 +150,8 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
         ) : (
           <SaisieTest key={`${ex.exerciceId}-${numero}`} ex={ex} onValider={(v) => valider({ valeur: v })} />
         )
+      ) : estGuide(ex) ? (
+        <Intervalles key={ex.exerciceId} ex={ex} faites={faites.length} son={son} onRound={(d) => valider({ dureeSec: d }, { sansRepos: true })} />
       ) : ex.mesure === 'tenue' ? (
         <SaisieTenue key={`${ex.exerciceId}-${numero}`} ex={ex} son={son} onValider={(d) => valider({ dureeSec: d })} />
       ) : (
@@ -326,8 +329,10 @@ function SaisieReps({
   const [reps, setReps] = useState(vise);
   const choix = Array.from({ length: 5 }, (_, i) => Math.max(1, vise - 2) + i);
   const lest = ex.mesure === 'poids_du_corps_reps';
-  const sansCharge = ex.mesure === 'reps';
   const lib = exercice(ex.exerciceId);
+  // Sauts : lest facultatif (haltères dans chaque main), noté s'il est utilisé.
+  const lestOptionnel = ex.mesure === 'reps' && !!lib && ['saut_v', 'saut_h', 'bonds'].includes(lib.mouvement);
+  const sansCharge = ex.mesure === 'reps' && !lestOptionnel;
   const echauffement =
     faites.length === 0 && ex.mesure === 'charge_reps'
       ? seriesEchauffement(valeurCharge, { pas: ex.pasKg ?? 2.5, barre: lib?.charge === 'barre' ? 20 : 0 })
@@ -368,7 +373,7 @@ function SaisieReps({
       )}
       <div className={sansCharge ? '' : 'grille-2'}>
         {!sansCharge && <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
-          <span className="etiquette">{lest ? 'Lest' : 'Charge'}</span>
+          <span className="etiquette">{lestOptionnel ? 'Lest (haltères)' : lest ? 'Lest' : 'Charge'}</span>
           <span className="valeur-geante" aria-live="polite">{kg(valeurCharge)}</span>
           <span className="doux petit gras">kg</span>
           <div className="ligne" style={{ gap: 8 }}>
@@ -403,8 +408,8 @@ function SaisieReps({
           ))}
         </div>
       </div>
-      <button className="bouton principal geant" onClick={() => onValider({ chargeKg: sansCharge ? undefined : valeurCharge, reps })}>
-        {sansCharge || (lest && valeurCharge === 0) ? `Valider ${reps} répétitions` : `Valider ${reps} × ${kg(valeurCharge)} kg`}
+      <button className="bouton principal geant" onClick={() => onValider({ chargeKg: sansCharge || (lestOptionnel && valeurCharge === 0) ? undefined : valeurCharge, reps })}>
+        {sansCharge || ((lest || lestOptionnel) && valeurCharge === 0) ? `Valider ${reps} répétitions` : `Valider ${reps} × ${kg(valeurCharge)} kg`}
       </button>
     </div>
   );
@@ -469,7 +474,11 @@ function DernierePerf({ ex, seanceId }: { ex: ExercicePrevu; seanceId: string })
   else {
     const reps = d.series.map((s) => s.reps ?? 0).join(' · ');
     const c = d.series[0]?.chargeKg ?? 0;
-    texte = ex.mesure === 'reps' || (ex.mesure === 'poids_du_corps_reps' && !c) ? `${reps} répétitions` : `${kg(c)} kg × ${reps}`;
+    texte = ex.mesure === 'reps' || (ex.mesure === 'poids_du_corps_reps' && !c)
+      ? `${reps} répétitions${c ? ` · lest ${kg(c)} kg` : ''}`
+      : ex.mesure === 'poids_du_corps_reps'
+        ? `lest ${kg(c)} kg × ${reps}`
+        : `${kg(c)} kg × ${reps}`;
   }
   return (
     <div className="carte compacte">
@@ -791,4 +800,128 @@ function texteRecord(r: { indicateur: string; valeur: number; ancien?: number })
   const f = (x: number) => String(Math.round(x * 10) / 10).replace('.', ',');
   const u = r.indicateur === 'max' ? ' kg (max. estimé)' : r.indicateur === 'duree' ? ' s' : r.indicateur === 'reps' ? ' rép.' : '';
   return `${f(r.valeur)}${u}${r.ancien ? ` · avant ${f(r.ancien)}` : ''}`;
+}
+
+// ---------- Fractionné et rounds guidés ----------
+
+/** Exercices tenus de cardio ou de frappe : l'application dicte effort et récupération. */
+function estGuide(ex: ExercicePrevu): boolean {
+  const m = exercice(ex.exerciceId)?.mouvement;
+  return ex.mesure === 'tenue' && (m === 'cardio' || m === 'frappe');
+}
+
+function Intervalles({ ex, faites, son, onRound }: { ex: ExercicePrevu; faites: number; son: boolean; onRound: (dureeSec: number) => void }) {
+  const effort = ex.dureeSec ?? 30;
+  const recup = ex.reposSec;
+  const frappe = exercice(ex.exerciceId)?.mouvement === 'frappe';
+  const [phase, setPhase] = useState<'attente' | 'effort' | 'recup'>('attente');
+  const [debut, setDebut] = useState(0);
+  const [pauseA, setPauseA] = useState<number | null>(null);
+  const [maintenant, setMaintenant] = useState(Date.now());
+  const bips = useRef(new Set<string>());
+  const enregistres = useRef(new Set<number>());
+
+  useEffect(() => {
+    if (phase === 'attente') return;
+    const t = setInterval(() => setMaintenant(Date.now()), 100);
+    return () => clearInterval(t);
+  }, [phase]);
+
+  const duree = phase === 'effort' ? effort : recup;
+  const ecoule = phase === 'attente' ? 0 : ((pauseA ?? maintenant) - debut) / 1000;
+  const reste = Math.max(0, Math.ceil(duree - ecoule));
+  const round = Math.min(faites + 1, ex.series);
+  const fort = effort <= 60;
+
+  useEffect(() => {
+    if (phase === 'attente' || pauseA !== null) return;
+    // Bips d'annonce 3, 2, 1 avant la fin de chaque phase.
+    const cle = `${phase}-${round}-${reste}`;
+    if (reste <= 3 && reste >= 1 && !bips.current.has(cle)) {
+      bips.current.add(cle);
+      if (son) bip(1);
+    }
+    if (ecoule >= duree) {
+      if (phase === 'effort') {
+        if (enregistres.current.has(round)) return;
+        enregistres.current.add(round);
+        if (son) bip(3);
+        onRound(effort);
+        if (round < ex.series) {
+          setPhase('recup');
+          setDebut(Date.now());
+        }
+      } else {
+        if (son) bip(2);
+        setPhase('effort');
+        setDebut(Date.now());
+      }
+    }
+  }, [ecoule, duree, phase, reste, round, pauseA, son, effort, ex.series, onRound]);
+
+  if (phase === 'attente') {
+    return (
+      <div className="carte" style={{ gap: 14, alignItems: 'center' }}>
+        <span className="etiquette">{ex.series} rounds</span>
+        <span className="valeur-geante" style={{ fontSize: 44, textAlign: 'center' }}>
+          {Math.round(effort) >= 60 ? `${effort / 60} min` : `${effort} s`} {frappe ? 'de round' : fort ? 'à fond' : 'd’effort soutenu'}
+        </span>
+        <span className="doux gras">puis {recup >= 60 ? `${recup / 60} min` : `${recup} s`} de récupération</span>
+        <span className="doux petit" style={{ textAlign: 'center' }}>
+          L’application dicte le rythme : restez sur cet écran (son activé). Chaque round est enregistré tout seul.
+        </span>
+        <button className="bouton principal geant" onClick={() => { preparerSon(); bip(2); setPhase('effort'); setDebut(Date.now()); setMaintenant(Date.now()); }}>
+          {faites > 0 ? `Reprendre au round ${round}` : 'Démarrer'}
+        </button>
+      </div>
+    );
+  }
+
+  const enEffort = phase === 'effort';
+  return (
+    <div
+      className="carte"
+      style={{ gap: 10, alignItems: 'center', background: enEffort ? 'var(--accent)' : 'var(--carte)', color: enEffort ? '#000' : 'var(--texte)', transition: 'background 250ms ease' }}
+      aria-live="polite"
+    >
+      <span className="etiquette" style={{ color: 'inherit', opacity: 0.75 }}>{enEffort ? `Round ${round} sur ${ex.series}` : `Avant le round ${round} sur ${ex.series}`}</span>
+      <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-0.02em' }}>
+        {enEffort ? (frappe ? 'ROUND : FRAPPEZ' : fort ? 'À FOND' : 'EFFORT SOUTENU') : 'RÉCUPÉRATION'}
+      </span>
+      <span className="valeur-geante" style={{ fontSize: 96 }}>{minSec(reste)}</span>
+      <span className="petit gras" style={{ opacity: 0.8, textAlign: 'center' }}>
+        {enEffort
+          ? frappe
+            ? 'Enchaînements rapides, garde haute, bougez sans arrêt.'
+            : fort
+              ? 'Le maximum de puissance, sans vous retenir.'
+              : 'Difficile de parler, mais tenable jusqu’au bout.'
+          : 'Tranquille, respirez.'}
+      </span>
+      <div className="grille-2" style={{ width: '100%' }}>
+        <button
+          className="bouton"
+          style={{ background: enEffort ? 'rgba(0,0,0,0.15)' : undefined, color: 'inherit' }}
+          onClick={() => {
+            if (pauseA === null) setPauseA(Date.now());
+            else {
+              setDebut(debut + (Date.now() - pauseA));
+              setPauseA(null);
+            }
+          }}
+        >
+          {pauseA === null ? 'Pause' : 'Reprendre'}
+        </button>
+        {enEffort ? (
+          <button className="bouton" style={{ background: 'rgba(0,0,0,0.15)', color: 'inherit' }} onClick={() => setDebut(Date.now() - effort * 1000)}>
+            Terminer le round
+          </button>
+        ) : (
+          <button className="bouton" onClick={() => { setPhase('effort'); setDebut(Date.now()); }}>
+            Passer la récup.
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
