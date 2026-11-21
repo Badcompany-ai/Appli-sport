@@ -181,3 +181,9 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 .champ-texte { width: 100%; min-height: 48px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 0 14px; font: inherit; font-size: 16px; }
 .lien-liste { background: none; border: none; text-align: left; width: 100%; padding: 12px 0; border-bottom: 1px solid #222224; display: flex; flex-direction: column; gap: 2px; }
 .mention-orange { color: var(--accent); }
+
+/* ---------- Ressenti et records ---------- */
+.bouton.choisi-ressenti { background: var(--texte); color: #000; }
+.repos.fini .bouton.choisi-ressenti { background: #000; color: var(--accent); }
+.record-celebration { animation: record 700ms cubic-bezier(.2,1.4,.4,1); border: 1px solid var(--accent); }
+@keyframes record { 0% { transform: scale(.9); opacity: 0; } 60% { transform: scale(1.03); opacity: 1; } 100% { transform: none; } }

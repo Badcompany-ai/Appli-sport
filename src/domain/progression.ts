@@ -30,7 +30,8 @@ export function prochaineCharge(
   pasKg: number,
   maxConnu?: number,
   repsMin = repsMax,
-  reserve = 2
+  reserve = 2,
+  ressenti?: 'facile' | 'correct' | 'dur'
 ): { chargeKg?: number; raison: string } {
   const avecCharge = derniere?.filter((s) => s.reps !== undefined) ?? [];
   // La dernière fois, une autre fourchette de répétitions (ex. 5 au lieu de 8 à 10) : on repart du maximum estimé.
@@ -40,6 +41,14 @@ export function prochaineCharge(
   if (avecCharge.length && !autreFourchette) {
     const charge = avecCharge[0].chargeKg ?? 0;
     const toutesAuMax = avecCharge.every((s) => (s.reps ?? 0) >= repsMax);
+    const toutesAuMin = avecCharge.every((s) => (s.reps ?? 0) >= repsMin);
+    // Ressenti (règle 7.2) : « trop facile » accélère, « trop dur » freine.
+    if (ressenti === 'facile') return { chargeKg: charge + pasKg * (toutesAuMax ? 2 : 1), raison: `Jugé trop facile la dernière fois : + ${String(pasKg * (toutesAuMax ? 2 : 1)).replace('.', ',')} kg.` };
+    if (ressenti === 'dur' && !toutesAuMin) {
+      const baisse = Math.max(pasKg, Math.round((charge * 0.05) / pasKg) * pasKg);
+      return { chargeKg: Math.max(0, charge - baisse), raison: `Jugé trop dur et répétitions manquées : − ${String(baisse).replace('.', ',')} kg.` };
+    }
+    if (ressenti === 'dur') return { chargeKg: charge, raison: 'Jugé trop dur la dernière fois : même charge.' };
     if (toutesAuMax) return { chargeKg: charge + pasKg, raison: `Toutes les séries à ${repsMax} répétitions la dernière fois : + ${String(pasKg).replace('.', ',')} kg.` };
     return { chargeKg: charge, raison: 'Même charge : viser plus de répétitions que la dernière fois.' };
   }

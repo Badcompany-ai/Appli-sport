@@ -4,6 +4,7 @@ import { ModeSeance } from './screens/ModeSeance';
 import { Profil } from './screens/Profil';
 import { Bientot } from './screens/Bientot';
 import { Programme } from './screens/Programme';
+import { Progres } from './screens/Progres';
 import { Depart } from './screens/Depart';
 import { useReglage } from './reglages';
 import { Bandeau } from './bandeau';
@@ -58,7 +59,7 @@ export function App({ majDisponible, installerMaj }: { majDisponible: boolean; i
     <>
       {onglet === 'aujourdhui' && <Aujourdhui ouvrirSeance={setSeanceOuverte} allerA={setOnglet} />}
       {onglet === 'programme' && <Programme />}
-      {onglet === 'progres' && <Bientot onglet="progres" />}
+      {onglet === 'progres' && <Progres />}
       {onglet === 'nutrition' && <Bientot onglet="nutrition" />}
       {onglet === 'profil' && <Profil majDisponible={majDisponible && !seanceOuverte} installerMaj={installerMaj} modifierProfil={() => setModifierProfil(true)} />}
 

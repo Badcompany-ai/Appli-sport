@@ -11,7 +11,7 @@ import {
   supprimerSerie,
   terminerSeance
 } from '../../data/operations';
-import type { ExercicePrevu, Seance, Serie } from '../../domain/types';
+import type { ExercicePrevu, Ressenti, Seance, Serie } from '../../domain/types';
 import { etatRepos, lienRaccourci, prolonger } from '../../domain/repos';
 import { ilYA, kg, minSec } from '../../domain/format';
 import { bip, garderEcranAllume, preparerSon } from '../../platform/appareil';
@@ -22,7 +22,9 @@ import { Feuille } from '../Feuille';
 import { apresSerie, membresDuGroupe, serieSuivante } from '../../domain/enchainement';
 import { Fiche } from '../Fiche';
 import { candidats, convertir } from '../../domain/remplacement';
-import { NOMS_MOUVEMENTS } from '../../domain/exercices';
+import { NOMS_MOUVEMENTS, exercice } from '../../domain/exercices';
+import { seriesEchauffement } from '../../domain/echauffement';
+import { recordsBattus } from '../../domain/records';
 import { PRESETS } from '../../domain/materiel';
 import { dureeNavette, epreuve, vo2DepuisPalier } from '../../domain/niveau';
 import { POIDS_PAR_DEFAUT, detailPrevu } from './Aujourdhui';
@@ -104,7 +106,8 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
     await modifierSeance(seance.id, {
       exerciceIndex: apres.groupeFini ? apres.prochainIndex : idx,
       reposFin: repos ? maintenant + repos * 1000 : undefined,
-      reposTotalSec: repos || undefined
+      reposTotalSec: repos || undefined,
+      dernierFini: apres.groupeFini ? membres.map((m) => plan.exercices[m].exerciceId) : seance.dernierFini
     });
     afficherBandeau('Série enregistrée', async () => {
       await supprimerSerie(serie.id);
@@ -183,6 +186,11 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
             void modifierSeance(seance.id, { reposFin: p.fin, reposTotalSec: p.totalSec });
           }}
           onFin={() => void modifierSeance(seance.id, { reposFin: undefined, reposTotalSec: undefined })}
+          ressentis={(seance.dernierFini ?? [])
+            .map((id) => plan.exercices.find((e) => e.exerciceId === id))
+            .filter((e): e is ExercicePrevu => !!e && e.mesure !== 'test')
+            .map((e) => ({ id: e.exerciceId, nom: e.nom, valeur: seance.ressentis?.[e.exerciceId] }))}
+          onRessenti={(id, r) => void modifierSeance(seance.id, { ressentis: { ...(seance.ressentis ?? {}), [id]: r } })}
         />
       )}
 
@@ -319,6 +327,12 @@ function SaisieReps({
   const choix = Array.from({ length: 5 }, (_, i) => Math.max(1, vise - 2) + i);
   const lest = ex.mesure === 'poids_du_corps_reps';
   const sansCharge = ex.mesure === 'reps';
+  const lib = exercice(ex.exerciceId);
+  const echauffement =
+    faites.length === 0 && ex.mesure === 'charge_reps'
+      ? seriesEchauffement(valeurCharge, { pas: ex.pasKg ?? 2.5, barre: lib?.charge === 'barre' ? 20 : 0 })
+      : [];
+  const [faitsEch, setFaitsEch] = useState<Set<number>>(new Set());
 
   if (ex.distanceM) {
     return (
@@ -334,6 +348,24 @@ function SaisieReps({
   return (
     <div className="carte" style={{ gap: 16 }}>
       {ex.tempoLent && <span className="mention-orange gras petit" style={{ textAlign: 'center' }}>Descente lente : 3 secondes à chaque répétition</span>}
+      {echauffement.length > 0 && (
+        <div className="pile" style={{ gap: 6 }}>
+          <span className="etiquette">Échauffement proposé (ne compte pas dans les records)</span>
+          <div className="ligne" style={{ flexWrap: 'wrap', gap: 6 }}>
+            {echauffement.map((e, i) => (
+              <button
+                key={i}
+                className={`bouton ${faitsEch.has(i) ? 'choisi-ressenti' : ''}`}
+                style={{ minHeight: 40, fontSize: 14, padding: '0 12px' }}
+                aria-pressed={faitsEch.has(i)}
+                onClick={() => setFaitsEch(new Set(faitsEch.has(i) ? [...faitsEch].filter((x) => x !== i) : [...faitsEch, i]))}
+              >
+                {kg(e.chargeKg)} × {e.reps}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className={sansCharge ? '' : 'grille-2'}>
         {!sansCharge && <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
           <span className="etiquette">{lest ? 'Lest' : 'Charge'}</span>
@@ -457,6 +489,8 @@ function Repos(props: {
   son: boolean;
   onPlus30: () => void;
   onFin: () => void;
+  ressentis: { id: string; nom: string; valeur?: Ressenti }[];
+  onRessenti: (id: string, r: Ressenti) => void;
 }) {
   const [maintenant, setMaintenant] = useState(Date.now());
   const sonne = useRef(false);
@@ -512,6 +546,12 @@ function Repos(props: {
         <div className="pastille"><span>Son dans l'application seulement</span></div>
       )}
       <div className="pile" style={{ width: '100%', maxWidth: 520 }}>
+        {props.ressentis.map((r) => (
+          <div key={r.id} className="carte compacte">
+            <span className="etiquette" style={{ color: 'inherit', opacity: 0.7 }}>Comment c’était : {r.nom} ?</span>
+            <BoutonsRessenti valeur={r.valeur} onChoisir={(v) => props.onRessenti(r.id, v)} />
+          </div>
+        ))}
         <div className="carte compacte">
           <span className="etiquette" style={{ color: 'inherit', opacity: 0.7 }}>Ensuite</span>
           <span className="gras" style={{ fontSize: 17 }}>{props.prochain}</span>
@@ -530,6 +570,13 @@ function Repos(props: {
 function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie[]; onFermer: () => void }) {
   const dureeMin = Math.max(1, Math.round((Date.now() - seance.debut) / 60000));
   const volume = series.reduce((t, s) => t + (s.chargeKg ?? 0) * (s.reps ?? 0), 0);
+  const [profil] = useReglage('profil');
+  const poids = profil?.poidsKg ?? 82;
+  const records = useLiveQuery(async () => {
+    const toutes = await db.seances.toArray();
+    const ss = await db.series.toArray();
+    return recordsBattus(seance.id, toutes.map((x) => (x.id === seance.id ? { ...x, statut: 'terminee' as const } : x)), ss, poids);
+  }, [seance.id, series.length, poids]);
   return (
     <div className="seance" role="dialog" aria-label="Fin de séance">
       <span className="surtitre">Bravo</span>
@@ -539,6 +586,17 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
         <div className="carte compacte"><span className="grand-chiffre">{series.length}</span><span className="doux petit gras">séries</span></div>
         <div className="carte compacte"><span className="grand-chiffre">{kg(Math.round(volume))}</span><span className="doux petit gras">kg soulevés</span></div>
       </div>
+      {records && records.length > 0 && (
+        <div className="carte record-celebration" role="status">
+          <span className="etiquette" style={{ color: 'var(--accent)' }}>{records.length > 1 ? `${records.length} records battus` : 'Record battu'}</span>
+          {records.map((r) => (
+            <div key={r.exerciceId} className="element-liste">
+              <span className="gras">{r.nom}</span>
+              <span className="gras mention-orange">{texteRecord(r)}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="carte">
         {seance.plan.exercices.map((ex) => {
           const s = series.filter((x) => x.exerciceId === ex.exerciceId);
@@ -550,9 +608,18 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
               ? s.map((x) => `${x.dureeSec} s`).join(' · ')
               : s.map((x) => `${x.reps}${x.chargeKg ? ` × ${kg(x.chargeKg)}` : ''}`).join(' · ');
           return (
-            <div key={ex.exerciceId} className="element-liste">
-              <span className="gras">{ex.nom}</span>
-              <span className="doux">{detail}</span>
+            <div key={ex.exerciceId} className="pile" style={{ gap: 6, padding: '10px 0', borderBottom: '1px solid #222224' }}>
+              <div className="ligne ecartee">
+                <span className="gras">{ex.nom}</span>
+                <span className="doux">{detail}</span>
+              </div>
+              {s.length > 0 && ex.mesure !== 'test' && (
+                <BoutonsRessenti
+                  petit
+                  valeur={seance.ressentis?.[ex.exerciceId]}
+                  onChoisir={(v) => void modifierSeance(seance.id, { ressentis: { ...(seance.ressentis ?? {}), [ex.exerciceId]: v } })}
+                />
+              )}
             </div>
           );
         })}
@@ -691,4 +758,37 @@ function SaisieManuellePalier({ onValider }: { onValider: (palier: number) => vo
       </div>
     </div>
   );
+}
+
+// ---------- Ressenti (règle 7.2) ----------
+
+const RESSENTIS: { v: Ressenti; nom: string }[] = [
+  { v: 'facile', nom: 'Trop facile' },
+  { v: 'correct', nom: 'Correct' },
+  { v: 'dur', nom: 'Trop dur' }
+];
+
+function BoutonsRessenti({ valeur, onChoisir, petit }: { valeur?: Ressenti; onChoisir: (r: Ressenti) => void; petit?: boolean }) {
+  return (
+    <div className="grille-3" role="radiogroup" aria-label="Ressenti">
+      {RESSENTIS.map((r) => (
+        <button
+          key={r.v}
+          role="radio"
+          aria-checked={valeur === r.v}
+          className={`bouton ${valeur === r.v ? 'choisi-ressenti' : ''}`}
+          style={{ minHeight: petit ? 40 : 48, fontSize: petit ? 13 : 15, padding: 0 }}
+          onClick={() => onChoisir(r.v)}
+        >
+          {r.nom}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function texteRecord(r: { indicateur: string; valeur: number; ancien?: number }): string {
+  const f = (x: number) => String(Math.round(x * 10) / 10).replace('.', ',');
+  const u = r.indicateur === 'max' ? ' kg (max. estimé)' : r.indicateur === 'duree' ? ' s' : r.indicateur === 'reps' ? ' rép.' : '';
+  return `${f(r.valeur)}${u}${r.ancien ? ` · avant ${f(r.ancien)}` : ''}`;
 }

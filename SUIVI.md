@@ -10,7 +10,14 @@ Il est mis à jour à chaque étape importante.
 - Jalon J0 terminé (direction A, accent orange).
 - **Jalon J1 : validé par l'utilisateur le 20/11/2026** (« ça marche bien maintenant »).
 - **Jalon J2 : validé par l'utilisateur le 20/11/2026** (vidéos, fiches, notes : « tout fonctionne bien »). Son en mode silencieux : impossible (essai « son prioritaire » échoué puis retiré) ; l'utilisateur remet les vibrations, la notification du raccourci suffit.
-- **Jalon J3 : construit, testé et publié le 20/11/2026, en attente du retour de l'utilisateur.**
+- **Jalon J3 : validé** (retours intégrés : reprise renforcée, consultation des séances, audit P1-P9, vidéos PureGym).
+- **Jalon J4 : construit, testé et publié le 21/11/2026, en attente du retour de l'utilisateur.**
+  - Séries d'échauffement automatiques (`src/domain/echauffement.ts`) : charge ≥ 40 kg (ou ≥ 60 % du max estimé) → barre à vide ou 30 % × 8, 50 % × 5, 70 % × 3, 85 % × 1, paliers trop proches retirés ; pastilles à cocher, non comptées dans les records.
+  - Ressenti après chaque exercice (pendant le repos suivant, ou en fin de séance) ; utilisé pour la charge suivante (trop facile → + 1 ou 2 paliers ; trop dur et répétitions manquées → − 5 % ; trop dur sinon → même charge).
+  - Records (`src/domain/records.ts`) : maximum estimé sur la charge totale (poids du corps + lest pour tractions, dips…), meilleure durée, meilleures répétitions ; records battus affichés en fin de séance avec animation (idée I8).
+  - Onglet Progrès : régularité (6 semaines), exercices (dernière valeur, tendance, record, force relative), graphique par exercice (`src/ui/Courbe.tsx`, une courbe, point touché = valeur et date), historique modifiable (date, charges, répétitions, durées, résultats, suppression de série ou de séance, avec annulation).
+  - Tests : 82 tests unitaires + 61 vérifications de bout en bout.
+- Historique J3 :
   - Parcours de départ prérempli avec l'interview (`src/ui/screens/Depart.tsx`, profil dans `src/domain/profil.ts`), modifiable depuis Profil.
   - Programme (`src/domain/programme.ts`) : semaines 1-2 reprise (test léger en semaine 1 à la place de la 4e séance, tests complets T1 athlétiques + T2 force à la place des 2 dernières séances de la semaine 2), puis 4 cycles de 6 semaines (Bases, Force, Puissance, Vitesse), semaine 6 allégée (séries ÷ 2) avec tests. Séances A (explosivité + bas du corps), B (haut du corps + boxe), C (vitesse, appuis, chaîne arrière, épaulé), D (physique + cardio) ; E si 5 séances ; version 3 séances. Échauffement RAMP guidé avant chaque séance. Séance de mobilité de 15 min en option (5 exercices de mobilité ajoutés, vidéos vérifiées).
   - Charges (`src/data/programme.ts`, `src/domain/progression.ts`) : double progression ; si la fourchette de répétitions a changé, recalcul depuis le maximum estimé (Epley) avec 2 répétitions en réserve (3 en reprise) ; sinon « charge à choisir ».
