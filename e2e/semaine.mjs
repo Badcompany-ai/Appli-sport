@@ -151,7 +151,7 @@ try {
   await aller(15);
   await page.getByRole('button', { name: 'Programme' }).click();
   verifier(await vu(page.getByText('Manquée · à faire')), 'séance C du jeudi : manquée, toujours à faire');
-  verifier((await page.getByText('Faite', { exact: false }).count()) >= 2, 'séances A et B (basket) faites');
+  verifier(await vu(page.getByText(/^Faite/).nth(1)), 'séances A et B (basket) faites');
   await capture('j5-06-programme');
   await page.getByRole('button', { name: "Aujourd'hui" }).click();
   verifier(await vu(page.getByText(/séance C/)), 'la séance manquée devient la prochaine');

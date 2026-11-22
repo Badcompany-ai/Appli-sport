@@ -573,6 +573,8 @@ Quand un exercice n'est plus possible avec le matériel coché :
 1. **Métabolisme de base,** formule de Mifflin-St Jeor : 10 × poids (kg) + 6,25 × taille (cm) − 5 × âge + 5 (homme).
    - **[Source] Mifflin-St Jeor** (1990) : c'est la formule la plus fiable chez l'adulte selon l'Académie américaine de nutrition et de diététique (2005).
    - *Votre cas, avec 82 kg :* 820 + 1 175 − 125 + 5 = **1 875 kcal**.
+> **Mise à jour du 22/11/2026 (décision D18) :** le sport n'est plus compris dans le niveau d'activité. Calories de maintien du jour = métabolisme de base × **1,4** (journée sans sport, travail assis) **+ dépense des séances et activités du jour** (Compendium des activités physiques 2024). Le texte ci-dessous décrit le calcul d'origine.
+
 2. **Calories de maintien** = métabolisme de base × niveau d'activité. Pour un travail assis avec 4 séances par semaine, le niveau est 1,55.
    - **[Source] Niveaux d'activité de la FAO et de l'OMS** (2004) : un travail assis avec de l'exercice régulier correspond à environ 1,55.
    - *Votre cas :* 1 875 × 1,55 ≈ **2 900 kcal**. Ce n'est qu'un point de départ, corrigé ensuite par la réalité (9.3).

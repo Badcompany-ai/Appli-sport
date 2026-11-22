@@ -27,7 +27,9 @@ import { seriesEchauffement } from '../../domain/echauffement';
 import { recordsBattus } from '../../domain/records';
 import { PRESETS } from '../../domain/materiel';
 import { dureeNavette, epreuve, vo2DepuisPalier } from '../../domain/niveau';
-import { POIDS_PAR_DEFAUT, detailPrevu } from './Aujourdhui';
+import { detailPrevu } from './Aujourdhui';
+import { usePoids } from '../corps';
+import { kcalSeance } from '../../domain/depense';
 import { alleger, eviterZones, sollicite, type Adapte } from '../../domain/adaptation';
 import { FeuilleSignalement } from '../Adaptation';
 import { cleDuJour, useJournee } from '../journee';
@@ -46,6 +48,7 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
   const [douleurs, setDouleurs] = useReglage('douleurs');
   const [fatigues, setFatigues] = useReglage('fatigues');
   const journee = useJournee();
+  const { poids } = usePoids();
 
   useEffect(() => {
     garderEcranAllume(true);
@@ -280,7 +283,7 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
             },
             onAppliquer: async () => {
               setSignalement(false);
-              await adapterLaSuite((p) => eviterZones(p, douleurs, { dispo: seance.dispo ?? PRESETS.salle, poidsCorpsKg: POIDS_PAR_DEFAUT }), 'Suite de la séance adaptée à la douleur');
+              await adapterLaSuite((p) => eviterZones(p, douleurs, { dispo: seance.dispo ?? PRESETS.salle, poidsCorpsKg: poids }), 'Suite de la séance adaptée à la douleur');
             }
           }}
         />
@@ -292,7 +295,7 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
         <Feuille titre={`Remplacer : ${ex.nom}`} onFermer={() => setRemplacer(false)}>
           <span className="doux petit">Équivalents disponibles avec le matériel du jour, du plus proche au moins proche.</span>
           {(() => {
-            const ctx = { dispo: seance.dispo ?? PRESETS.salle, poidsCorpsKg: POIDS_PAR_DEFAUT };
+            const ctx = { dispo: seance.dispo ?? PRESETS.salle, poidsCorpsKg: poids };
             const exclus = new Set(plan.exercices.map((e) => e.exerciceId));
             const liste = candidats(ex, ctx, exclus).slice(0, 8);
             if (!liste.length) return <span className="gras">Aucun équivalent disponible avec ce matériel.</span>;
@@ -631,8 +634,8 @@ function Repos(props: {
 function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie[]; onFermer: () => void }) {
   const dureeMin = Math.max(1, Math.round((Date.now() - seance.debut) / 60000));
   const volume = series.reduce((t, s) => t + (s.chargeKg ?? 0) * (s.reps ?? 0), 0);
-  const [profil] = useReglage('profil');
-  const poids = profil?.poidsKg ?? 82;
+  const { poids } = usePoids();
+  const kcal = Math.round(kcalSeance({ ...seance, fin: Date.now() }, series, poids) / 10) * 10;
   const records = useLiveQuery(async () => {
     const toutes = await db.seances.toArray();
     const ss = await db.series.toArray();
@@ -647,6 +650,7 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
         <div className="carte compacte"><span className="grand-chiffre">{series.length}</span><span className="doux petit gras">séries</span></div>
         <div className="carte compacte"><span className="grand-chiffre">{kg(Math.round(volume))}</span><span className="doux petit gras">kg soulevés</span></div>
       </div>
+      <span className="doux petit">Dépense estimée : environ {kcal} kcal en plus du repos (comptée dans vos objectifs du jour).</span>
       {records && records.length > 0 && (
         <div className="carte record-celebration" role="status">
           <span className="etiquette" style={{ color: 'var(--accent)' }}>{records.length > 1 ? `${records.length} records battus` : 'Record battu'}</span>

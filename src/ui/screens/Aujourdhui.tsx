@@ -10,6 +10,8 @@ import {
   ajusterAuTemps, alertesEquilibre, alleger, controlesRecuperation, dureeTotaleMin, eviterZones, exerciceAjoute, raisonAllegement,
   seancesAFaire, volumeParMuscle, ZONES, type Ajustement
 } from '../../domain/adaptation';
+import { FeuilleMesure, usePoids } from '../corps';
+import { peseeConseillee, tailleDue } from '../../domain/corps';
 import { CarteEquilibre, CarteSommeil, FeuilleChoixSeance, FeuilleSeanceLibre, FeuilleSignalement } from '../Adaptation';
 import type { SeancePrevue } from '../../domain/types';
 import { dateLongue, ilYA, kg, minSec } from '../../domain/format';
@@ -24,7 +26,6 @@ import { FeuilleChangements, FeuilleMateriel } from '../Materiel';
 import { Fiche } from '../Fiche';
 
 const SEPT_JOURS = 7 * 86400000;
-export const POIDS_PAR_DEFAUT = 82; // interview, série 3 (à remplacer par la pesée au jalon J6)
 
 export function detailPrevu(e: ExercicePrevu): string {
   if (e.mesure === 'test') return 'épreuve mesurée';
@@ -58,7 +59,9 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
   const [fatigues, setFatigues] = useReglage('fatigues');
   const [allegement, setAllegement] = useReglage('allegement');
   const maintenant = Date.now();
-  const poids = profil?.poidsKg ?? POIDS_PAR_DEFAUT;
+  const { poids, pesees, tailles } = usePoids();
+  const [mesure, setMesure] = useState<'poids' | 'taille' | null>(null);
+  const [tailleIgnoree, setTailleIgnoree] = useReglage('tailleIgnoreeLe');
   const jour = journee.jour;
   const cle = cleDuJour(maintenant);
 
@@ -368,6 +371,25 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
 
       {!enCours && equilibre && <CarteEquilibre alertes={equilibre} onAjouter={plan && deProgramme ? (id) => void journee.maj({ ajouts: [...(jour.ajouts ?? []), id] }) : undefined} />}
 
+      {!enCours && profil?.modules?.corps !== false && pesees && tailles && (peseeConseillee(pesees, maintenant) || (tailleDue(tailles, maintenant) && maintenant - tailleIgnoree > 7 * 86400000)) && (
+        <section className="carte compacte" aria-label="Mesures du jour">
+          <div className="grille-2">
+            {peseeConseillee(pesees, maintenant) ? <button className="bouton principal" onClick={() => setMesure('poids')}>Peser</button> : <span />}
+            {tailleDue(tailles, maintenant) && maintenant - tailleIgnoree > 7 * 86400000 ? <button className="bouton" onClick={() => setMesure('taille')}>Tour de taille</button> : <span />}
+          </div>
+          {tailleDue(tailles, maintenant) && maintenant - tailleIgnoree > 7 * 86400000 && (
+            <button className="bouton discret" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={() => void setTailleIgnoree(maintenant)}>Tour de taille : plus tard</button>
+          )}
+        </section>
+      )}
+      {mesure && pesees && tailles && (
+        <FeuilleMesure
+          type={mesure}
+          depart={mesure === 'poids' ? pesees[pesees.length - 1]?.valeur ?? poids : tailles[tailles.length - 1]?.valeur ?? 85}
+          onFermer={() => setMesure(null)}
+        />
+      )}
+
       {sauvegardeEnRetard && (
         <button className="carte compacte" style={{ border: 'none', textAlign: 'left' }} onClick={() => allerA('profil')}>
           <span className="gras">Pensez à sauvegarder vos données</span>
@@ -458,9 +480,10 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
             const s = await demarrerSeance(await appliquerProgression(libre), Date.now(), { lieu: journee.lieu, dispo: journee.dispo });
             ouvrirSeance(s.id);
           }}
-          onActivite={async (nom, duree, remplace) => {
+          poidsKg={poids}
+          onActivite={async (nom, duree, remplace, activite) => {
             setFeuille(null);
-            const s = await enregistrerActivite(nom, duree, { semaine: Math.max(0, index), lettre: remplace ?? 'ACT', type: 'activite' });
+            const s = await enregistrerActivite(nom, duree, { semaine: Math.max(0, index), lettre: remplace ?? 'ACT', type: 'activite' }, activite);
             afficherBandeau(`${nom} enregistré${remplace ? ` (remplace la séance ${remplace})` : ''}`, () => mettreALaCorbeille(s.id));
           }}
         />
