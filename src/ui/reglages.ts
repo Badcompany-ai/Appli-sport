@@ -23,7 +23,9 @@ export const DEFAUTS = {
   /** Heures de sommeil par jour (AAAA-MM-JJ). */
   sommeil: {} as Record<string, number>,
   /** Réponse à la proposition de semaine allégée. */
-  allegement: null as { semaine: number; accepte: boolean } | null
+  allegement: null as { semaine: number; accepte: boolean } | null,
+  /** Rappel du tour de taille repoussé (« plus tard »). */
+  tailleIgnoreeLe: 0
 };
 
 type Cles = keyof typeof DEFAUTS;

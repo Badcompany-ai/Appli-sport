@@ -1,5 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 import type { Copie, Reglage, Seance, Serie } from '../domain/types';
+import type { Mesure } from '../domain/corps';
+import type { Aliment, EntreeJournal, Repas } from '../domain/aliments';
 
 /**
  * Base de données interne du navigateur (IndexedDB), uniquement sur l'appareil.
@@ -11,6 +13,10 @@ export class BaseSport extends Dexie {
   series!: Table<Serie, string>;
   reglages!: Table<Reglage, string>;
   copies!: Table<Copie, string>;
+  mesures!: Table<Mesure, string>;
+  journal!: Table<EntreeJournal, string>;
+  aliments!: Table<Aliment, string>;
+  repas!: Table<Repas, string>;
 
   constructor(nom = 'appli-sport') {
     super(nom);
@@ -19,6 +25,13 @@ export class BaseSport extends Dexie {
       series: 'id, seanceId, exerciceId, faiteLe',
       reglages: 'cle',
       copies: 'id, creeeLe'
+    });
+    // Version 2 (jalon J6) : corps et nutrition. Les tables existantes ne changent pas.
+    this.version(2).stores({
+      mesures: 'id, type, date',
+      journal: 'id, jour, ajouteLe',
+      aliments: 'id, code, dernierUsage',
+      repas: 'id'
     });
   }
 }

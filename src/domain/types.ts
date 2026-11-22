@@ -87,6 +87,8 @@ export interface Seance {
   echauffementFait?: boolean;
   /** Suppression douce : la séance va à la corbeille pendant 30 jours. */
   supprimeeLe?: number;
+  /** Activité libre (basket, padel…) : type et intensité, pour la dépense d'énergie. */
+  activite?: { id: string; met: number };
 }
 
 /** Une série enregistrée. */

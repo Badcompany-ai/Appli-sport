@@ -23,6 +23,7 @@ export function Profil({ majDisponible, installerMaj, modifierProfil }: { majDis
   const [raccourci, setRaccourci] = useReglage('raccourci');
   const [son, setSon] = useReglage('sonApplication');
   const [derniereSauvegarde] = useReglage('derniereSauvegarde');
+  const [profil, setProfil] = useReglage('profil');
   const copies = useLiveQuery(() => listeCopies());
   const poubelle = useLiveQuery(() => corbeille());
   const [persistant, setPersistant] = useState<boolean | undefined>();
@@ -103,6 +104,29 @@ export function Profil({ majDisponible, installerMaj, modifierProfil }: { majDis
         </div>
       </section>
 
+      {profil && (
+        <section className="pile" aria-label="Modules">
+          <h2 className="titre-2">Modules</h2>
+          <div className="carte">
+            <label className="reglage">
+              <span className="pile" style={{ gap: 2 }}>
+                <span className="gras">Suivi du corps</span>
+                <span className="doux petit">Pesées, tendance du poids, tour de taille</span>
+              </span>
+              <input type="checkbox" role="switch" className="interrupteur" checked={profil.modules.corps} onChange={(e) => void setProfil({ ...profil, modules: { ...profil.modules, corps: e.target.checked } })} />
+            </label>
+            <label className="reglage">
+              <span className="pile" style={{ gap: 2 }}>
+                <span className="gras">Nutrition</span>
+                <span className="doux petit">Journal, calories et protéines du jour</span>
+              </span>
+              <input type="checkbox" role="switch" className="interrupteur" checked={profil.modules.nutrition} onChange={(e) => void setProfil({ ...profil, modules: { ...profil.modules, nutrition: e.target.checked } })} />
+            </label>
+            <span className="doux petit">Désactiver un module le cache sans rien effacer.</span>
+          </div>
+        </section>
+      )}
+
       <section className="pile" aria-label="Données">
         <h2 className="titre-2">Mes données</h2>
         <div className="carte">
@@ -171,7 +195,7 @@ export function Profil({ majDisponible, installerMaj, modifierProfil }: { majDis
           </span>
           <span>
             Elle contient <b>{aImporter.resume.seances} séance{aImporter.resume.seances > 1 ? 's' : ''}</b> et{' '}
-            <b>{aImporter.resume.series} série{aImporter.resume.series > 1 ? 's' : ''}</b>.
+            <b>{aImporter.resume.series} série{aImporter.resume.series > 1 ? 's' : ''}</b>{aImporter.resume.aliments ? <>, et <b>{aImporter.resume.aliments} aliment{aImporter.resume.aliments > 1 ? 's' : ''} au journal</b></> : null}.
           </span>
           <span className="doux petit">Vos données actuelles seront remplacées. Une copie de sécurité est faite avant, et reste disponible 30 jours dans « Copies automatiques ».</span>
           <button

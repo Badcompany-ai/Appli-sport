@@ -200,3 +200,12 @@ input[type='range'].curseur { width: 100%; accent-color: var(--accent); height: 
 .alerte { border-left: 3px solid var(--accent); }
 .barre-volume { height: 6px; border-radius: 3px; background: var(--carte-2); overflow: hidden; }
 .barre-volume > div { height: 6px; background: var(--accent); }
+
+/* ---------- Nutrition (J6) ---------- */
+.jauge { height: 10px; border-radius: 5px; background: var(--carte-2); overflow: hidden; }
+.jauge > div { height: 100%; background: var(--accent); border-radius: 5px; transition: width 300ms ease-out; }
+.jauge.petite { height: 6px; }
+.raccourcis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.raccourcis .bouton { min-height: 48px; padding: 0 4px; font-size: 13px; flex-direction: column; gap: 0; line-height: 1.15; }
+.valeurs-100 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; text-align: center; }
+.champ-nombre { width: 100%; min-height: 48px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 0 12px; font: inherit; font-size: 20px; font-weight: 700; }

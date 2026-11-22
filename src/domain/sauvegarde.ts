@@ -1,7 +1,9 @@
 import type { Reglage, Seance, Serie } from './types';
+import type { Mesure } from './corps';
+import type { Aliment, EntreeJournal, Repas } from './aliments';
 
 /** Version du format de sauvegarde. Elle augmente si la structure change. */
-export const VERSION_FORMAT = 1;
+export const VERSION_FORMAT = 2;
 
 export interface ContenuSauvegarde {
   application: 'appli-sport';
@@ -11,12 +13,18 @@ export interface ContenuSauvegarde {
     seances: Seance[];
     series: Serie[];
     reglages: Reglage[];
+    /** Format 2 (jalon J6). Absent des sauvegardes au format 1 : converti en listes vides. */
+    mesures: Mesure[];
+    journal: EntreeJournal[];
+    aliments: Aliment[];
+    repas: Repas[];
   };
 }
 
 export interface ResumeSauvegarde {
   seances: number;
   series: number;
+  aliments: number;
   exporteeLe: number;
 }
 
@@ -63,14 +71,21 @@ export function lireSauvegarde(texte: string): ResultatLecture {
     resume: {
       seances: contenu.donnees.seances.filter((s) => !s.supprimeeLe).length,
       series: contenu.donnees.series.length,
+      aliments: contenu.donnees.journal.length,
       exporteeLe: typeof c.exporteeLe === 'number' ? c.exporteeLe : 0
     }
   };
 }
 
-/** Convertit une ancienne sauvegarde au format actuel (aucune conversion nécessaire en version 1). */
+/** Convertit une ancienne sauvegarde au format actuel : le format 1 n'avait ni corps ni nutrition. */
 function migrer(c: ContenuSauvegarde): ContenuSauvegarde {
-  return { ...c, format: VERSION_FORMAT };
+  const d = c.donnees;
+  const liste = <T>(x: T[] | undefined): T[] => (Array.isArray(x) ? x : []);
+  return {
+    ...c,
+    format: VERSION_FORMAT,
+    donnees: { ...d, mesures: liste(d.mesures), journal: liste(d.journal), aliments: liste(d.aliments), repas: liste(d.repas) }
+  };
 }
 
 /** Nom de fichier lisible : « sauvegarde-sport-2026-12-28.json ». */

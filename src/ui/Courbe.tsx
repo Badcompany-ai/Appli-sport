@@ -10,13 +10,14 @@ export interface PointCourbe {
 
 const JOURS_COURTS = (t: number) => new Date(t).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' });
 
-export function Courbe({ points, format }: { points: PointCourbe[]; format: (v: number) => string }) {
+/** « brut » : valeurs brutes affichées en petits points pâles derrière la courbe (pesées autour de la tendance). */
+export function Courbe({ points, format, brut = [] }: { points: PointCourbe[]; format: (v: number) => string; brut?: PointCourbe[] }) {
   const [choisi, setChoisi] = useState<number | null>(points.length ? points.length - 1 : null);
   if (points.length === 0) return null;
   const L = 320;
   const H = 150;
   const marge = { g: 8, d: 8, h: 14, b: 22 };
-  const vs = points.map((p) => p.valeur);
+  const vs = [...points, ...brut].map((p) => p.valeur);
   let min = Math.min(...vs);
   let max = Math.max(...vs);
   if (max - min < 1) {
@@ -48,6 +49,9 @@ export function Courbe({ points, format }: { points: PointCourbe[]; format: (v: 
           <line key={i} x1={marge.g} x2={L - marge.d} y1={y(v)} y2={y(v)} style={{ stroke: '#26262a', strokeWidth: 1 }} />
         ))}
         {p && <line x1={x(p.date)} x2={x(p.date)} y1={marge.h - 6} y2={H - marge.b} style={{ stroke: '#3a3a3c', strokeWidth: 1 }} />}
+        {brut.map((b, i) => (
+          <circle key={`b${i}`} cx={x(b.date)} cy={y(b.valeur)} r={2.5} style={{ fill: 'var(--doux)', opacity: 0.45 }} />
+        ))}
         <path d={chemin} style={{ fill: 'none', stroke: 'var(--accent)', strokeWidth: 2, strokeLinejoin: 'round', strokeLinecap: 'round' }} />
         {points.map((pt, i) => (
           <g key={i} onClick={() => setChoisi(i)} style={{ cursor: 'pointer' }}>

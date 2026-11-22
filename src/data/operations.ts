@@ -128,18 +128,26 @@ export async function ecrireReglage<T>(cle: string, valeur: T) {
 // ---------- Sauvegardes ----------
 
 export async function exporterTout(maintenant = Date.now()): Promise<ContenuSauvegarde> {
-  const [seances, series, reglages] = await Promise.all([db.seances.toArray(), db.series.toArray(), db.reglages.toArray()]);
-  return construireSauvegarde({ seances, series, reglages }, maintenant);
+  const [seances, series, reglages, mesures, journal, aliments, repas] = await Promise.all([
+    db.seances.toArray(), db.series.toArray(), db.reglages.toArray(),
+    db.mesures.toArray(), db.journal.toArray(), db.aliments.toArray(), db.repas.toArray()
+  ]);
+  return construireSauvegarde({ seances, series, reglages, mesures, journal, aliments, repas }, maintenant);
 }
 
 /** Remplace toutes les données par celles d'une sauvegarde, après une copie de sécurité. */
 export async function importerTout(contenu: ContenuSauvegarde, maintenant = Date.now()) {
   await creerCopie('avant_import', maintenant);
-  await db.transaction('rw', db.seances, db.series, db.reglages, async () => {
-    await Promise.all([db.seances.clear(), db.series.clear(), db.reglages.clear()]);
-    await db.seances.bulkAdd(contenu.donnees.seances);
-    await db.series.bulkAdd(contenu.donnees.series);
-    await db.reglages.bulkPut(contenu.donnees.reglages);
+  const d = contenu.donnees;
+  await db.transaction('rw', [db.seances, db.series, db.reglages, db.mesures, db.journal, db.aliments, db.repas], async () => {
+    await Promise.all([db.seances.clear(), db.series.clear(), db.reglages.clear(), db.mesures.clear(), db.journal.clear(), db.aliments.clear(), db.repas.clear()]);
+    await db.seances.bulkAdd(d.seances);
+    await db.series.bulkAdd(d.series);
+    await db.reglages.bulkPut(d.reglages);
+    await db.mesures.bulkPut(d.mesures ?? []);
+    await db.journal.bulkPut(d.journal ?? []);
+    await db.aliments.bulkPut(d.aliments ?? []);
+    await db.repas.bulkPut(d.repas ?? []);
   });
 }
 
@@ -173,7 +181,7 @@ export async function listeCopies(): Promise<Copie[]> {
 }
 
 /** Activité libre (sport entre amis…) : comptée dans l'historique, sans séries. */
-export async function enregistrerActivite(nom: string, dureeMin: number, programme: SeancePrevue['programme'], maintenant = Date.now()): Promise<Seance> {
+export async function enregistrerActivite(nom: string, dureeMin: number, programme: SeancePrevue['programme'], activite?: Seance['activite'], maintenant = Date.now()): Promise<Seance> {
   const plan: SeancePrevue = { id: `activite-${maintenant}`, nom, exercices: [], programme };
   const seance: Seance = {
     id: nouvelId(),
@@ -184,7 +192,8 @@ export async function enregistrerActivite(nom: string, dureeMin: number, program
     debut: maintenant - dureeMin * 60000,
     fin: maintenant,
     exerciceIndex: 0,
-    notes: {}
+    notes: {},
+    activite
   };
   await db.seances.add(seance);
   return seance;

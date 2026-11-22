@@ -4,6 +4,7 @@ import { estDisponible } from '../domain/remplacement';
 import { MESSAGE_MEDICAL, ZONES, type AlerteEquilibre, type Zone } from '../domain/adaptation';
 import type { Dispo } from '../domain/materiel';
 import type { SeancePrevue } from '../domain/types';
+import { ACTIVITES, kcalNettes } from '../domain/depense';
 import { Feuille } from './Feuille';
 
 // Écrans du jalon J5 : fatigue et douleur, sommeil, choix de la séance, séance libre, équilibre.
@@ -97,14 +98,17 @@ export function FeuilleSeanceLibre(props: {
   dispo: Dispo;
   remplacables: SeancePrevue[];
   onCommencer: (ids: string[], remplace?: string) => void;
-  onActivite: (nom: string, dureeMin: number, remplace?: string) => void;
+  onActivite: (nom: string, dureeMin: number, remplace: string | undefined, activite: { id: string; met: number }) => void;
   onFermer: () => void;
+  poidsKg: number;
 }) {
   const [onglet, setOnglet] = useState<'exercices' | 'activite'>('exercices');
   const [choisis, setChoisis] = useState<string[]>([]);
   const [recherche, setRecherche] = useState('');
   const [remplace, setRemplace] = useState<string | undefined>();
   const [nom, setNom] = useState('');
+  const [type, setType] = useState('basket-loisir');
+  const act = ACTIVITES.find((a) => a.id === type)!;
   const [duree, setDuree] = useState(60);
   const liste = useMemo(() => {
     const r = recherche.trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
@@ -156,7 +160,13 @@ export function FeuilleSeanceLibre(props: {
         </>
       ) : (
         <>
-          <input className="champ-texte" placeholder="Par exemple : basket entre amis" aria-label="Nom de l’activité" value={nom} onChange={(e) => setNom(e.target.value)} />
+          <label className="pile" style={{ gap: 6 }}>
+            <span className="petit gras">Activité</span>
+            <select className="champ-texte" aria-label="Type d’activité" value={type} onChange={(e) => setType(e.target.value)}>
+              {ACTIVITES.map((a) => <option key={a.id} value={a.id}>{a.nom}</option>)}
+            </select>
+          </label>
+          <input className="champ-texte" placeholder={`Nom (facultatif) : ${act.nom}`} aria-label="Nom de l’activité" value={nom} onChange={(e) => setNom(e.target.value)} />
           <div className="pile" style={{ gap: 6 }}>
             <span className="petit gras">Durée</span>
             <div className="pilules">
@@ -165,8 +175,11 @@ export function FeuilleSeanceLibre(props: {
               ))}
             </div>
           </div>
+          <span className="doux petit">
+            Dépense estimée : environ {Math.round(kcalNettes(act.met, props.poidsKg, duree) / 10) * 10} kcal en plus du repos (MET {String(act.met).replace('.', ',')}, Compendium des activités physiques 2024).{act.note ? ` ${act.note}` : ''}
+          </span>
           {choixRemplace}
-          <button className="bouton principal plein" disabled={!nom.trim()} onClick={() => props.onActivite(nom.trim(), duree, remplace)}>
+          <button className="bouton principal plein" onClick={() => props.onActivite(nom.trim() || act.nom, duree, remplace, { id: act.id, met: act.met })}>
             Enregistrer l’activité
           </button>
         </>

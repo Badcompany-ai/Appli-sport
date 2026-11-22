@@ -13,6 +13,7 @@ import { Feuille } from '../Feuille';
 import { Courbe } from '../Courbe';
 import { Fiche } from '../Fiche';
 import { afficherBandeau } from '../bandeau';
+import { SectionCorps, usePoids } from '../corps';
 
 const f1 = (x: number) => String(Math.round(x * 10) / 10).replace('.', ',');
 
@@ -34,7 +35,7 @@ export function Progres() {
   const seances = useLiveQuery(() => db.seances.toArray());
   const series = useLiveQuery(() => db.series.toArray());
   const [profil] = useReglage('profil');
-  const poids = profil?.poidsKg ?? 82;
+  const { poids } = usePoids();
   const [exerciceVu, setExerciceVu] = useState<string | null>(null);
   const [seanceVue, setSeanceVue] = useState<string | null>(null);
   const [fiche, setFiche] = useState<string | null>(null);
@@ -83,6 +84,8 @@ export function Progres() {
   return (
     <main className="ecran">
       <h1 className="titre">Progrès</h1>
+
+      {profil?.modules?.corps !== false && <SectionCorps />}
 
       {terminees.length === 0 ? (
         <div className="carte">

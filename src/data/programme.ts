@@ -1,7 +1,7 @@
 import { db } from './db';
 import { dernierePerformance } from './operations';
 import { exercice } from '../domain/exercices';
-import { maxEstime, prochaineCharge } from '../domain/progression';
+import { arrondirCharge, maxEstime, prochaineCharge } from '../domain/progression';
 import type { Seance, SeancePrevue, Serie } from '../domain/types';
 
 const DOUZE_SEMAINES = 12 * 7 * 86400000;
@@ -42,10 +42,30 @@ export async function appliquerProgression(plan: SeancePrevue): Promise<SeancePr
       const r = prochaineCharge(derniere?.series, e.reps ?? 8, e.pasKg ?? 2.5, max, e.repsMin ?? e.reps ?? 8, reprise ? 3 : 2, ressenti);
       if (e.mesure === 'poids_du_corps_reps' && !derniere) return { ...e, chargeKg: 0 };
       if (r.chargeKg === undefined && e.chargeKg !== undefined) return e;
+      // Règle 7.2 : deux fois « trop dur » d'affilée → − 10 % et une série de moins.
+      if (derniere && (await deuxFoisTropDur(e.exerciceId))) {
+        const base = derniere.series.reduce((m, x) => Math.max(m, x.chargeKg ?? 0), 0);
+        if (base > 0) {
+          return {
+            ...e,
+            chargeKg: arrondirCharge(base * 0.9, e.pasKg ?? 2.5),
+            series: Math.max(2, e.series - 1),
+            raisonCharge: 'Deux fois « trop dur » d’affilée : − 10 % et une série de moins, pour repartir sur de bonnes bases.'
+          };
+        }
+      }
       return { ...e, chargeKg: r.chargeKg ?? e.chargeKg, raisonCharge: r.raison };
     })
   );
   return { ...plan, exercices };
+}
+
+/** Les deux dernières séances avec cet exercice ont reçu le ressenti « trop dur ». */
+export async function deuxFoisTropDur(exerciceId: string): Promise<boolean> {
+  const ids = new Set((await db.series.where('exerciceId').equals(exerciceId).toArray()).map((x) => x.seanceId));
+  const seances = (await db.seances.bulkGet([...ids])).filter((x): x is Seance => !!x && !x.supprimeeLe && x.statut === 'terminee');
+  const deux = seances.sort((a, b) => b.debut - a.debut).slice(0, 2);
+  return deux.length === 2 && deux.every((x) => x.ressentis?.[exerciceId] === 'dur');
 }
 
 // ---------- Adaptation (jalon J5) ----------
