@@ -73,6 +73,8 @@ try {
   const carte = () => page.getByRole('region', { name: 'Séance du jour' });
 
   console.log('Premier lancement');
+  // Date fixe (lundi 23 novembre 2026, 10 h) : les règles de la semaine ne dépendent pas du jour du test.
+  await page.clock.install({ time: new Date(2026, 10, 23, 10) });
   await page.goto(URL);
   await page.getByRole('heading', { name: "Aujourd'hui" }).waitFor();
   await page.evaluate(() => navigator.serviceWorker.ready);
@@ -165,7 +167,6 @@ try {
   verifier(await vu(page.getByRole('radio', { name: 'Trop facile', checked: true })), 'ressenti enregistré');
 
   console.log('Fin du repos (horloge avancée)');
-  await page.clock.install();
   await page.reload();
   await page.getByRole('dialog', { name: 'Repos' }).waitFor();
   await page.clock.fastForward('02:35');

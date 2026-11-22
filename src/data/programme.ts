@@ -2,7 +2,7 @@ import { db } from './db';
 import { dernierePerformance } from './operations';
 import { exercice } from '../domain/exercices';
 import { maxEstime, prochaineCharge } from '../domain/progression';
-import type { SeancePrevue } from '../domain/types';
+import type { Seance, SeancePrevue, Serie } from '../domain/types';
 
 const DOUZE_SEMAINES = 12 * 7 * 86400000;
 
@@ -46,4 +46,42 @@ export async function appliquerProgression(plan: SeancePrevue): Promise<SeancePr
     })
   );
   return { ...plan, exercices };
+}
+
+// ---------- Adaptation (jalon J5) ----------
+
+const JOUR_MS = 86400000;
+
+/** Séances terminées et non supprimées depuis une date. */
+export async function seancesDepuis(t: number): Promise<Seance[]> {
+  const l = await db.seances.where('statut').equals('terminee').toArray();
+  return l.filter((s) => !s.supprimeeLe && (s.fin ?? s.debut) >= t).sort((a, b) => (a.fin ?? a.debut) - (b.fin ?? b.debut));
+}
+
+/** Séries des séances terminées depuis une date (pour le volume par muscle). */
+export async function seriesDepuis(t: number): Promise<Serie[]> {
+  const seances = new Set((await seancesDepuis(t)).map((s) => s.id));
+  const l = await db.series.where('faiteLe').aboveOrEqual(t).toArray();
+  return l.filter((s) => seances.has(s.seanceId));
+}
+
+/** Données pour décider s'il faut proposer une semaine allégée (règle 7.3). */
+export async function donneesAllegement(fatigues: number[], lundi: number, maintenant = Date.now()) {
+  // « Dans la semaine » : depuis le lundi de la semaine en cours.
+  const semaine = await seancesDepuis(lundi);
+  const ressentisSemaine = semaine.flatMap((s) => Object.values(s.ressentis ?? {}));
+  const fatiguesSemaine = fatigues.filter((t) => t >= lundi && t <= maintenant).length;
+  // Exercices principaux : priorité 1 avec charge, suivis sur les 8 dernières semaines.
+  const recentes = await seancesDepuis(maintenant - 8 * 7 * JOUR_MS);
+  const valeurs = new Map<string, number[]>();
+  for (const s of recentes) {
+    const principaux = s.plan.exercices.filter((e) => e.priorite === 1 && e.mesure === 'charge_reps').map((e) => e.exerciceId);
+    if (!principaux.length) continue;
+    const series = await db.series.where('seanceId').equals(s.id).toArray();
+    for (const id of principaux) {
+      const best = Math.max(0, ...series.filter((x) => x.exerciceId === id).map((x) => maxEstime(x.chargeKg ?? 0, x.reps ?? 0) ?? 0));
+      if (best > 0) valeurs.set(id, [...(valeurs.get(id) ?? []), best]);
+    }
+  }
+  return { ressentisSemaine, fatiguesSemaine, progressionPrincipaux: [...valeurs.values()] };
 }

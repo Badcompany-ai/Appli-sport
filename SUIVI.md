@@ -12,7 +12,21 @@ Il est mis à jour à chaque étape importante.
 - **Jalon J2 : validé par l'utilisateur le 20/11/2026** (vidéos, fiches, notes : « tout fonctionne bien »). Son en mode silencieux : impossible (essai « son prioritaire » échoué puis retiré) ; l'utilisateur remet les vibrations, la notification du raccourci suffit.
 - **Jalon J3 : validé** (retours intégrés : reprise renforcée, consultation des séances, audit P1-P9, vidéos PureGym).
 - **Jalon J4 : validé le 21/11/2026** (« le reste fonctionne »), avec trois ajouts demandés et publiés le 21/11 (voir D16).
-- Prochaine étape : **jalon J5** (adaptation du jour).
+- **Jalon J5 : construit, testé et publié le 22/11/2026, en attente du retour de l'utilisateur.**
+  - Logique pure dans `src/domain/adaptation.ts` (23 tests) ; données dans `src/data/programme.ts` (`seancesDepuis`, `seriesDepuis`, `donneesAllegement`) ; écrans dans `src/ui/Adaptation.tsx`.
+  - Temps disponible (curseur 20-90 min, par jour) : priorité 3 retirée → 1 série de moins en priorité 2 (min 2) → priorité 2 retirée → 1 série de moins en priorité 1 → échauffement raccourci à 5 min ; éléments retirés grisés avec la raison.
+  - Séances manquées : la première non faite reste la prochaine ; « Changer de séance » pour en avancer une ; s'il reste moins de jours que de séances, on garde dans l'ordre T1, T2, L, A, C, B, D, E (les autres sont « laissées », pas reportées). Programme : statut « Manquée · à faire » / « Non faite ».
+  - Contrôles de récupération (règle 7.4) : séance lourde du bas du corps à moins de 48 h d'une autre (A et C), ou 4e jour d'affilée → alerte, avec « Autre séance » ou « Version allégée » (moitié des séries).
+  - Fatigue (avant ou pendant la séance) : − 30 % de séries, charges − 5 %, pas d'effort maximal en sprint ni en saut ; si la séance est déjà allégée, seules les charges baissent.
+  - Douleur (épaule, coude, poignet, dos, hanche, genou, cheville, autre) : exercices qui sollicitent la zone remplacés par un équivalent qui l'épargne, sinon retirés ; zone gardée jusqu'à ce qu'on la retire ; message médical fixe. En séance : s'applique aux exercices suivants, avec « Arrêter l'exercice ».
+  - Semaine allégée proposée (depuis le lundi) : 3 « trop dur », 2 fatigues, ou 2 exercices principaux qui stagnent sur 3 séances → moitié des séries, mêmes charges ; acceptée ou refusée, annulable.
+  - Sommeil (I4, P8) : saisie en une touche ; moins de 6 h → proposition d'enlever un tiers des sauts et sprints (charges inchangées).
+  - Séance libre : exercices choisis dans la bibliothèque, ou activité (nom + durée) ; peut remplacer une séance de la semaine.
+  - Équilibre : séries difficiles par groupe sur 7 jours (1 principal, ½ secondaire ; cardio et mobilité exclus), repères 10/8/6/4 ; alerte sous la moitié du repère ou à zéro sur 10 jours (après une semaine d'historique), avec « Ajouter [exercice] à la séance du jour » ; volume affiché dans Progrès.
+  - « Revenir à la séance complète » annule tous les ajustements du jour.
+  - Tests : 106 tests unitaires + 62 vérifications de bout en bout + simulation « semaine chaotique » (`e2e/semaine.mjs`, 37 vérifications, horloge contrôlée du lundi au mardi suivant).
+  - Non fait (simplification assumée) : déplacement par glisser-déposer dans Programme (remplacé par « Changer de séance » dans Aujourd'hui) ; règle « 2 fois trop dur d'affilée → − 10 % et une série de moins » (7.2) à faire.
+  - Haltères de la salle : 60 kg (l'utilisateur le pense) ; kettlebells : 32 kg gardés en attendant.
   - Séries d'échauffement automatiques (`src/domain/echauffement.ts`) : charge ≥ 40 kg (ou ≥ 60 % du max estimé) → barre à vide ou 30 % × 8, 50 % × 5, 70 % × 3, 85 % × 1, paliers trop proches retirés ; pastilles à cocher, non comptées dans les records.
   - Ressenti après chaque exercice (pendant le repos suivant, ou en fin de séance) ; utilisé pour la charge suivante (trop facile → + 1 ou 2 paliers ; trop dur et répétitions manquées → − 5 % ; trop dur sinon → même charge).
   - Records (`src/domain/records.ts`) : maximum estimé sur la charge totale (poids du corps + lest pour tractions, dips…), meilleure durée, meilleures répétitions ; records battus affichés en fin de séance avec animation (idée I8).

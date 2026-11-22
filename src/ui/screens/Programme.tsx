@@ -141,6 +141,11 @@ export function Programme() {
             {semaine.map((s, i) => {
               const fait = faites?.has(s.programme?.lettre ?? '');
               const prochaine = !fait && semaine.slice(0, i).every((x) => faites?.has(x.programme?.lettre ?? ''));
+              // Semaine en cours : une séance dont le jour suggéré est passé est « manquée » (elle reste à faire).
+              const ajd = (new Date().getDay() + 6) % 7;
+              const enCours = semaineAffichee === semaineCourante && index >= 0;
+              const manquee = !fait && enCours && jours[i] !== undefined && jours[i] < ajd;
+              const passee = !fait && (semaineAffichee < semaineCourante);
               return (
                 <button key={s.id} className="element-liste" style={{ background: 'none', border: 'none', borderBottom: '1px solid #222224', width: '100%', textAlign: 'left' }} onClick={() => setSeanceVue(s)} aria-label={`Voir la séance : ${s.nom}`}>
                   <div className="pile" style={{ gap: 2 }}>
@@ -149,7 +154,7 @@ export function Programme() {
                       {jours[i] !== undefined ? `${NOMS_JOURS[jours[i]]} (suggéré)` : ''} · {s.exercices.length} {s.programme?.type === 'test' ? 'épreuves ou exercices' : 'exercices'}
                     </span>
                   </div>
-                  <span className={`petit gras ${fait ? '' : 'doux'}`}>{fait ? 'Faite' : prochaine ? 'Prochaine' : 'À venir'} ›</span>
+                  <span className={`petit gras ${fait ? '' : 'doux'}`}>{fait ? 'Faite' : passee ? 'Non faite' : manquee ? (prochaine ? 'Manquée · à faire' : 'Manquée') : prochaine ? 'Prochaine' : 'À venir'} ›</span>
                 </button>
               );
             })}

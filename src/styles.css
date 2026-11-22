@@ -189,3 +189,14 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 .repos.fini .bouton.choisi-ressenti { background: #000; color: var(--accent); }
 .record-celebration { animation: record 700ms cubic-bezier(.2,1.4,.4,1); border: 1px solid var(--accent); }
 @keyframes record { 0% { transform: scale(.9); opacity: 0; } 60% { transform: scale(1.03); opacity: 1; } 100% { transform: none; } }
+
+/* ---------- Adaptation du jour (J5) ---------- */
+.pilules { display: flex; flex-wrap: wrap; gap: 8px; }
+.pilules .bouton { min-height: 44px; padding: 0 14px; font-size: 15px; }
+.pilules .bouton[aria-pressed='true'] { background: var(--accent); color: var(--accent-encre); }
+.grise { opacity: 0.45; }
+.grise .gras { text-decoration: line-through; }
+input[type='range'].curseur { width: 100%; accent-color: var(--accent); height: 32px; }
+.alerte { border-left: 3px solid var(--accent); }
+.barre-volume { height: 6px; border-radius: 3px; background: var(--carte-2); overflow: hidden; }
+.barre-volume > div { height: 6px; background: var(--accent); }

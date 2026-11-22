@@ -3,6 +3,7 @@ import { db } from '../data/db';
 import { ecrireReglage } from '../data/operations';
 import type { Profil } from '../domain/profil';
 import type { Objectif } from '../domain/niveau';
+import type { Zone } from '../domain/adaptation';
 
 export interface ReglageRaccourci {
   actif: boolean;
@@ -14,7 +15,15 @@ export const DEFAUTS = {
   sonApplication: true,
   derniereSauvegarde: 0,
   profil: null as Profil | null,
-  objectifs: null as Objectif[] | null
+  objectifs: null as Objectif[] | null,
+  /** Heures de fatigue signalées (pour proposer une semaine allégée). */
+  fatigues: [] as number[],
+  /** Zones douloureuses signalées, gardées jusqu'à ce que l'utilisateur les retire. */
+  douleurs: [] as Zone[],
+  /** Heures de sommeil par jour (AAAA-MM-JJ). */
+  sommeil: {} as Record<string, number>,
+  /** Réponse à la proposition de semaine allégée. */
+  allegement: null as { semaine: number; accepte: boolean } | null
 };
 
 type Cles = keyof typeof DEFAUTS;
