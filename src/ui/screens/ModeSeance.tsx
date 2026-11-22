@@ -28,6 +28,10 @@ import { recordsBattus } from '../../domain/records';
 import { PRESETS } from '../../domain/materiel';
 import { dureeNavette, epreuve, vo2DepuisPalier } from '../../domain/niveau';
 import { POIDS_PAR_DEFAUT, detailPrevu } from './Aujourdhui';
+import { alleger, eviterZones, sollicite, type Adapte } from '../../domain/adaptation';
+import { FeuilleSignalement } from '../Adaptation';
+import { cleDuJour, useJournee } from '../journee';
+import type { SeancePrevue } from '../../domain/types';
 
 export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer: () => void }) {
   const seance = useLiveQuery(async () => (await db.seances.get(seanceId)) ?? null, [seanceId]);
@@ -38,6 +42,10 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
   const [note, setNote] = useState(false);
   const [fiche, setFiche] = useState(false);
   const [remplacer, setRemplacer] = useState(false);
+  const [signalement, setSignalement] = useState(false);
+  const [douleurs, setDouleurs] = useReglage('douleurs');
+  const [fatigues, setFatigues] = useReglage('fatigues');
+  const journee = useJournee();
 
   useEffect(() => {
     garderEcranAllume(true);
@@ -122,6 +130,17 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
 
   const prochain = prochaineEtape(seance, series);
 
+  /** Applique une adaptation aux exercices qui suivent l'exercice (ou la paire) en cours. */
+  async function adapterLaSuite(fn: (p: SeancePrevue) => Adapte, message: string) {
+    if (!seance) return;
+    const avant = plan;
+    const tete = plan.exercices.slice(0, dernierMembre + 1);
+    const r = fn({ ...plan, exercices: plan.exercices.slice(dernierMembre + 1) });
+    await modifierSeance(seance.id, { plan: { ...plan, exercices: [...tete, ...r.plan.exercices] } });
+    const n = r.ajustements.length;
+    afficherBandeau(n ? message : 'Rien à changer dans la suite de la séance', () => modifierSeance(seance.id, { plan: avant }));
+  }
+
   return (
     <div className="seance" role="dialog" aria-label={`Séance : ${plan.nom}`}>
       <div className="ligne ecartee">
@@ -202,6 +221,9 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
           <button className="bouton plein" onClick={() => { setMenu(false); setNote(true); }}>
             {seance.notes[ex.exerciceId] ? 'Modifier la note' : 'Ajouter une note'} sur {ex.nom}
           </button>
+          <button className="bouton plein" onClick={() => { setMenu(false); setSignalement(true); }}>
+            Fatigue ou douleur
+          </button>
           <button
             className="bouton plein"
             onClick={async () => {
@@ -232,6 +254,36 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
             Abandonner la séance
           </button>
         </Feuille>
+      )}
+
+      {signalement && (
+        <FeuilleSignalement
+          fatigue={!!journee.jour.fatigue}
+          douleurs={douleurs}
+          onFatigue={async (v) => {
+            await journee.maj({ fatigue: v });
+            await setFatigues(v ? [...fatigues, Date.now()] : fatigues.filter((t) => cleDuJour(t) !== cleDuJour()));
+            if (v) {
+              setSignalement(false);
+              await adapterLaSuite((p) => alleger(p, 'fatigue'), 'Suite de la séance allégée (fatigue)');
+            }
+          }}
+          onDouleurs={(z) => void setDouleurs(z)}
+          onFermer={() => setSignalement(false)}
+          enSeance={{
+            exercice: ex.nom,
+            touche: sollicite(ex, douleurs),
+            onArreter: async () => {
+              setSignalement(false);
+              await modifierSeance(seance.id, { exerciceIndex: dernierMembre + 1, reposFin: undefined, reposTotalSec: undefined });
+              afficherBandeau(`${ex.nom} arrêté`, () => modifierSeance(seance.id, { exerciceIndex: idx }));
+            },
+            onAppliquer: async () => {
+              setSignalement(false);
+              await adapterLaSuite((p) => eviterZones(p, douleurs, { dispo: seance.dispo ?? PRESETS.salle, poidsCorpsKg: POIDS_PAR_DEFAUT }), 'Suite de la séance adaptée à la douleur');
+            }
+          }}
+        />
       )}
 
       {fiche && <Fiche id={ex.exerciceId} onFermer={() => setFiche(false)} />}

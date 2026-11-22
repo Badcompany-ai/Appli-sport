@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
 import { mettreALaCorbeille, modifierSeance, modifierSerie, restaurerSeance, enregistrerSerie, supprimerSerie } from '../../data/operations';
-import { exercice } from '../../domain/exercices';
+import { exercice, NOMS_MUSCLES, type Muscle } from '../../domain/exercices';
+import { REPERES, volumeParMuscle } from '../../domain/adaptation';
 import { forceRelative, indicateur, pointsExercice, type Indicateur } from '../../domain/records';
 import { dateLongue, kg } from '../../domain/format';
 import { lundiDe, versCle } from '../../domain/profil';
@@ -67,6 +68,14 @@ export function Progres() {
   }, [terminees]);
   const objectif = profil?.seancesParSemaine ?? 4;
 
+  // Volume des 7 derniers jours par groupe musculaire (règle 7.7).
+  const volume = useMemo(() => {
+    if (!series) return undefined;
+    const depuis = Date.now() - 7 * 86400000;
+    const ids = new Set(terminees.map((t) => t.id));
+    return volumeParMuscle(series.filter((s) => s.faiteLe >= depuis && ids.has(s.seanceId)));
+  }, [series, terminees]);
+
   if (!seances || !series) return <main className="ecran" aria-busy="true" />;
 
   const vu = exerciceVu ? exercices.find((e) => e.id === exerciceVu) : undefined;
@@ -96,6 +105,28 @@ export function Progres() {
               <span className="doux petit">Séances par semaine (6 dernières, cette semaine en orange) · objectif {objectif}</span>
             </div>
           </section>
+
+          {volume && (
+            <section className="pile" aria-label="Volume par muscle">
+              <h2 className="titre-2">Volume des 7 derniers jours</h2>
+              <div className="carte" style={{ gap: 10 }}>
+                {(Object.keys(REPERES) as Muscle[]).map((m) => {
+                  const v = Math.round(volume[m] * 2) / 2;
+                  const bas = v < REPERES[m] / 2;
+                  return (
+                    <div key={m} className="pile" style={{ gap: 4 }}>
+                      <div className="ligne ecartee petit">
+                        <span className={`gras ${bas ? 'mention-orange' : ''}`}>{NOMS_MUSCLES[m]}</span>
+                        <span className="doux">{String(v).replace('.', ',')} / {REPERES[m]} séries</span>
+                      </div>
+                      <div className="barre-volume"><div style={{ width: `${Math.min(100, (v / REPERES[m]) * 100)}%` }} /></div>
+                    </div>
+                  );
+                })}
+                <span className="doux petit">Séries difficiles : 1 pour un muscle principal, ½ pour un muscle secondaire. En orange : moins de la moitié du repère.</span>
+              </div>
+            </section>
+          )}
 
           <section className="pile" aria-label="Exercices">
             <h2 className="titre-2">Exercices</h2>

@@ -49,8 +49,10 @@ export interface SeancePrevue {
   exercices: ExercicePrevu[];
   /** Étapes de l'échauffement (méthode RAMP). */
   echauffement?: string[];
-  /** Place dans le programme. */
-  programme?: { semaine: number; lettre: string; type: 'entrainement' | 'test' | 'test_leger' | 'mobilite' };
+  /** Échauffement raccourci à 5 minutes (temps disponible). */
+  echauffementCourt?: boolean;
+  /** Place dans le programme (« libre » : séance hors programme ; « activite » : sport libre sans séries). */
+  programme?: { semaine: number; lettre: string; type: 'entrainement' | 'test' | 'test_leger' | 'mobilite' | 'libre' | 'activite' };
 }
 
 export type Ressenti = 'facile' | 'correct' | 'dur';

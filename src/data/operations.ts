@@ -171,3 +171,21 @@ export async function copieQuotidienneSiBesoin(maintenant = Date.now()): Promise
 export async function listeCopies(): Promise<Copie[]> {
   return (await db.copies.toArray()).sort((a, b) => b.creeeLe - a.creeeLe);
 }
+
+/** Activité libre (sport entre amis…) : comptée dans l'historique, sans séries. */
+export async function enregistrerActivite(nom: string, dureeMin: number, programme: SeancePrevue['programme'], maintenant = Date.now()): Promise<Seance> {
+  const plan: SeancePrevue = { id: `activite-${maintenant}`, nom, exercices: [], programme };
+  const seance: Seance = {
+    id: nouvelId(),
+    planId: plan.id,
+    nom,
+    plan,
+    statut: 'terminee',
+    debut: maintenant - dureeMin * 60000,
+    fin: maintenant,
+    exerciceIndex: 0,
+    notes: {}
+  };
+  await db.seances.add(seance);
+  return seance;
+}

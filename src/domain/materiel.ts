@@ -62,7 +62,7 @@ export const PRESETS: Record<Lieu, Dispo> = {
       'barres_paralleles', 'ceinture_lest', 'tapis', 'velo_assault', 'rameur', 'skierg', 'box', 'medecine_ball', 'traineau',
       'espace_course', 'sac_frappe'
     ],
-    halteresMaxKg: 40,
+    halteresMaxKg: 60,
     kettlebellMaxKg: 32
   },
   maison: {
