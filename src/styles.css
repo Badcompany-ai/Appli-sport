@@ -141,7 +141,9 @@ button:disabled { opacity: 0.4; cursor: default; }
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); font-size: 15px; font-weight: 600;
   animation: descendre 200ms ease-out; max-width: 536px; margin: 0 auto;
+  touch-action: none; transition: transform 160ms ease-out, opacity 160ms ease-out;
 }
+.bandeau[data-glisse] { transition: none; }
 .bandeau .bouton { min-height: 40px; color: var(--accent); background: transparent; }
 
 @keyframes descendre { from { transform: translateY(-16px); opacity: 0; } to { transform: none; opacity: 1; } }
