@@ -195,6 +195,17 @@ try {
   await page.getByRole('button', { name: 'Plus 2,5 kg' }).click();
   await page.getByRole('button', { name: /Valider 5 × 62,5 kg/ }).click();
   await page.getByRole('button', { name: 'Passer' }).click();
+  console.log('Bandeau fermé en glissant vers le haut');
+  const bandeau = page.locator('.bandeau');
+  await bandeau.waitFor();
+  const boite = await bandeau.boundingBox();
+  await page.mouse.move(boite.x + 20, boite.y + boite.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(boite.x + 20, boite.y - 20, { steps: 5 });
+  await page.mouse.move(boite.x + 20, boite.y - 60, { steps: 5 });
+  await page.mouse.up();
+  await page.waitForTimeout(200);
+  verifier((await bandeau.count()) === 0, 'le bandeau « Annuler » se ferme en glissant vers le haut');
   await page.getByRole('button', { name: 'Note', exact: true }).click();
   await page.getByLabel('Note libre').fill('Pieds un peu plus écartés');
   await page.getByRole('button', { name: 'OK' }).click();
