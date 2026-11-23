@@ -38,3 +38,7 @@ Travailler sur la branche indiquée par la session, puis : commit → pull reque
 ## Limites iOS connues
 
 Pas de vibration depuis une page web ; application mise en pause hors écran ; le mode silencieux coupe les sons. Fin de repos hors de l'appli : raccourci iOS « Repos » (gardé, décision de l'utilisateur). Chrono vidéo et rappels Calendrier : ne fonctionnent pas chez l'utilisateur (voir `SUIVI.md`).
+
+## Skills de design du projet
+
+Installées dans `.claude/skills/` (frontend-design, web-design-guidelines, emil-design-eng, improve-animations, impeccable) ; origine et contenu dans `.claude/skills/PROVENANCE.md`. impeccable est installée sans ses hooks ni son moteur : elle fonctionne en mode de repli (pas de détecteur automatique). Garder le style validé (direction A, accent orange #FF5A1F, Inter) sauf demande contraire de l’utilisateur.
