@@ -2,7 +2,7 @@ import { PastilleSeance, couleurSeance } from '../couleurs';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
-import { demarrerSeance, enregistrerActivite, mettreALaCorbeille, restaurerSeance, seanceEnCours, seancesTerminees } from '../../data/operations';
+import { demarrerSeance, enregistrerActivite, mettreALaCorbeille, seanceEnCours, seancesTerminees } from '../../data/operations';
 import { SEANCE_DEMO } from '../../domain/demo';
 import { NOMS_PHASES, contactsAuSol, indexSemaine, infoSemaine, seanceMobilite, seancesDeLaSemaine } from '../../domain/programme';
 import { depuisCle, joursEntre, lundiDe, versCle } from '../../domain/profil';
@@ -46,7 +46,7 @@ export function detailPrevu(e: ExercicePrevu): string {
   return (e.tempoLent ? `${base} · descente lente` : base) + enchaine;
 }
 
-export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string) => void; allerA: (onglet: 'profil') => void }) {
+export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string) => void; allerA: (onglet: 'profil' | 'progres') => void }) {
   const enCours = useLiveQuery(() => seanceEnCours());
   const historique = useLiveQuery(() => seancesTerminees());
   const nbSeries = useLiveQuery(() => db.series.count());
@@ -423,7 +423,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
         )}
         {historique && historique.length > 0 && (
           <div className="carte" style={{ gap: 0, paddingTop: 6, paddingBottom: 6 }}>
-            {historique.slice(0, 20).map((s) => (
+            {historique.slice(0, 5).map((s) => (
               <div key={s.id} className="element-liste">
                 <div className="pile" style={{ gap: 2 }}>
                   <span className="gras ligne" style={{ gap: 8 }}><PastilleSeance lettre={s.plan.programme?.lettre} />{s.nom}</span>
@@ -432,18 +432,11 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
                     {s.lieu ? ` · ${LIEUX.find((l) => l.id === s.lieu)?.nom}` : ''}
                   </span>
                 </div>
-                <button
-                  className="bouton discret danger"
-                  aria-label={`Supprimer la séance du ${dateLongue(s.debut)}`}
-                  onClick={async () => {
-                    await mettreALaCorbeille(s.id);
-                    afficherBandeau('Séance mise à la corbeille', () => restaurerSeance(s.id));
-                  }}
-                >
-                  Supprimer
-                </button>
               </div>
             ))}
+            <button className="bouton discret plein" style={{ justifyContent: 'flex-start', paddingLeft: 0 }} onClick={() => allerA('progres')}>
+              Tout l’historique (modifier, supprimer) › Progrès
+            </button>
           </div>
         )}
       </section>
