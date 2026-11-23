@@ -1,7 +1,8 @@
+import { PastilleSeance, couleurSeance } from '../couleurs';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
-import { demarrerSeance, enregistrerActivite, mettreALaCorbeille, restaurerSeance, seanceEnCours, seancesTerminees } from '../../data/operations';
+import { demarrerSeance, enregistrerActivite, mettreALaCorbeille, seanceEnCours, seancesTerminees } from '../../data/operations';
 import { SEANCE_DEMO } from '../../domain/demo';
 import { NOMS_PHASES, contactsAuSol, indexSemaine, infoSemaine, seanceMobilite, seancesDeLaSemaine } from '../../domain/programme';
 import { depuisCle, joursEntre, lundiDe, versCle } from '../../domain/profil';
@@ -26,6 +27,7 @@ import { useReglage } from '../reglages';
 import { cleDuJour, useJournee } from '../journee';
 import { FeuilleChangements, FeuilleMateriel } from '../Materiel';
 import { Fiche } from '../Fiche';
+import { Anneaux } from '../Anneaux';
 
 const SEPT_JOURS = 7 * 86400000;
 
@@ -45,7 +47,7 @@ export function detailPrevu(e: ExercicePrevu): string {
   return (e.tempoLent ? `${base} · descente lente` : base) + enchaine;
 }
 
-export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string) => void; allerA: (onglet: 'profil') => void }) {
+export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string) => void; allerA: (onglet: 'profil' | 'progres' | 'programme' | 'nutrition') => void }) {
   const enCours = useLiveQuery(() => seanceEnCours());
   const historique = useLiveQuery(() => seancesTerminees());
   const nbSeries = useLiveQuery(() => db.series.count());
@@ -146,10 +148,18 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
 
   return (
     <main className="ecran">
-      <div className="pile" style={{ gap: 2 }}>
-        <span className="surtitre">{dateLongue(maintenant)}</span>
+      <header className="entete">
         <h1 className="titre">Aujourd'hui</h1>
-      </div>
+        <span className="doux">{dateLongue(maintenant).toLowerCase()}</span>
+      </header>
+
+      {profil && !enCours && (
+        <Anneaux
+          profil={profil}
+          seances={!avantDebut && faites ? { faites: semaine.filter((x) => faites.has(x.programme?.lettre ?? '')).length, total: semaine.length } : undefined}
+          allerA={allerA}
+        />
+      )}
 
       {!enCours && (
         <div className="lieux" role="group" aria-label="Lieu d'entraînement">
@@ -164,7 +174,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       {!enCours && profil && avantDebut && !essai && (
         <section className="carte" aria-label="Début du programme">
           <span className="doux petit gras">Votre programme</span>
-          <span style={{ fontSize: 22, fontWeight: 700 }}>Commence le {dateLongue(depuisCle(profil.debut).getTime()).toLowerCase()}</span>
+          <span style={{ fontSize: 'var(--t-5)', fontWeight: 700 }}>Commence le {dateLongue(depuisCle(profil.debut).getTime()).toLowerCase()}</span>
           <span className="doux">Dans {-Math.floor(joursEntre(depuisCle(profil.debut), new Date(maintenant)))} jours. En attendant, vous pouvez faire une séance d’essai.</span>
           <div className="grille-2">
             <button className="bouton" onClick={() => setEssai(true)}>Séance d’essai</button>
@@ -186,7 +196,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       )}
 
       {!enCours && bilanDispo && (
-        <button className="carte compacte alerte" style={{ border: 'none', textAlign: 'left' }} onClick={() => setBilanOuvert(true)}>
+        <button className="carte compacte alerte" style={{ textAlign: 'left', color: 'inherit' }} onClick={() => setBilanOuvert(true)}>
           <span className="gras">Bilan de la semaine dernière</span>
           <span className="doux petit">Séances, poids, nutrition et sommeil, en une page. Touchez pour l’ouvrir.</span>
         </button>
@@ -212,7 +222,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
           <span className="doux petit">Alléger les sauts et les sprints d’un tiers aujourd’hui ? Les charges ne changent pas.</span>
           <div className="grille-2">
             <button className="bouton" onClick={() => void journee.maj({ allegerSommeil: false })}>Garder</button>
-            <button className="bouton principal" onClick={() => void journee.maj({ allegerSommeil: true })}>Alléger</button>
+            <button className="bouton clair" onClick={() => void journee.maj({ allegerSommeil: true })}>Alléger</button>
           </div>
         </section>
       )}
@@ -223,13 +233,13 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
           <span className="doux petit">{raison} Proposition : environ moitié moins de séries jusqu’à dimanche, mêmes charges, pas de sprint ni de saut au maximum.</span>
           <div className="grille-2">
             <button className="bouton" onClick={async () => { await setAllegement({ semaine: index, accepte: false }); afficherBandeau('Semaine normale conservée', () => setAllegement(allegement)); }}>Non merci</button>
-            <button className="bouton principal" onClick={async () => { await setAllegement({ semaine: index, accepte: true }); afficherBandeau('Semaine allégée', () => setAllegement(allegement)); }}>Alléger la semaine</button>
+            <button className="bouton clair" onClick={async () => { await setAllegement({ semaine: index, accepte: true }); afficherBandeau('Semaine allégée', () => setAllegement(allegement)); }}>Alléger la semaine</button>
           </div>
         </section>
       )}
 
       {!enCours && douleurs.length > 0 && (
-        <button className="carte compacte alerte" style={{ border: 'none', textAlign: 'left' }} onClick={() => setFeuille('signalement')}>
+        <button className="carte compacte alerte" style={{ textAlign: 'left', color: 'inherit' }} onClick={() => setFeuille('signalement')}>
           <span className="gras">Douleur signalée : {douleurs.map((z) => ZONES.find((x) => x.id === z)?.nom.toLowerCase()).join(', ')}</span>
           <span className="doux petit">Les exercices qui sollicitent cette zone sont retirés ou remplacés. Touchez pour modifier.</span>
         </button>
@@ -244,21 +254,22 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       {!enCours && !avantDebut && !prochaine && !mobilite && faites && (
         <section className="carte" aria-label="Semaine terminée">
           <span className="doux petit gras">Semaine {index + 1} · {NOMS_PHASES[info.phase]}</span>
-          <span style={{ fontSize: 22, fontWeight: 700 }}>Semaine terminée</span>
+          <span style={{ fontSize: 'var(--t-5)', fontWeight: 700 }}>Semaine terminée</span>
           <span className="doux">{laissees.length ? 'Les séances possibles sont faites.' : `Les ${semaine.length} séances sont faites.`} Repos, ou une séance de mobilité.</span>
         </section>
       )}
 
       {(enCours || (plan && (!avantDebut || essai))) && (
-      <section className="carte" aria-label="Séance du jour">
-        <span className="doux petit gras">
+      <section className="carte vedette" aria-label="Séance du jour" style={{ '--teinte': couleurSeance((enCours?.plan ?? plan)?.programme?.lettre) } as React.CSSProperties}>
+        <span className="doux petit gras ligne" style={{ gap: 8 }}>
+          <PastilleSeance lettre={(enCours?.plan ?? plan)?.programme?.lettre} />
           {enCours
             ? 'Séance en cours'
             : essai || avantDebut
               ? 'Séance d’essai (avant le début du programme)'
               : `Semaine ${index + 1} · ${NOMS_PHASES[info.phase]}${info.allegee || semaineAllegee ? ' · allégée' : ''}${plan?.programme?.lettre && plan.programme.lettre.length === 1 && plan.programme.lettre !== 'L' && plan.programme.lettre !== 'M' ? ` · séance ${plan.programme.lettre}` : ''}`}
         </span>
-        <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.01em' }}>{enCours ? enCours.nom : plan?.nom}</span>
+        <span className="nom-seance">{enCours ? enCours.nom : plan?.nom}</span>
         {enCours ? (
           <button className="bouton principal plein" onClick={() => { preparerSon(); ouvrirSeance(enCours.id); }}>
             Reprendre la séance · {minSec((maintenant - enCours.debut) / 1000)}
@@ -270,11 +281,29 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
               <span className="grand-chiffre">{plan.exercices.length}<small> exercices</small></span>
               {contactsAuSol(plan) > 0 && <span className="grand-chiffre">{contactsAuSol(plan)}<small> sauts</small></span>}
             </div>
+            <button
+              className="bouton principal geant"
+              onClick={async () => {
+                preparerSon();
+                void demanderStockagePersistant();
+                const s = await demarrerSeance(plan, Date.now(), { lieu: journee.lieu, dispo: journee.dispo });
+                setEssai(false);
+                setMobilite(false);
+                ouvrirSeance(s.id);
+              }}
+            >
+              Commencer
+            </button>
+            <div className={deProgramme && aFaire.length > 1 ? 'grille-3 actions-seance' : 'grille-2 actions-seance'}>
+              {deProgramme && aFaire.length > 1 && <button className="bouton" onClick={() => setFeuille('choix')}>Changer de séance</button>}
+              <button className="bouton" onClick={() => setFeuille('signalement')}>{jour.fatigue ? 'Fatigue signalée' : 'Fatigue ou douleur'}</button>
+              <button className="bouton" onClick={() => setFeuille('materiel')}>Matériel</button>
+            </div>
             {adapte && (
               <div className="pile" style={{ gap: 2 }}>
                 <label className="ligne ecartee petit" htmlFor="temps-dispo">
                   <span className="gras">Temps disponible</span>
-                  <span className={jour.tempsMin ? 'mention-orange gras' : 'doux'}>{jour.tempsMin ? `${jour.tempsMin} min` : 'toute la séance'}</span>
+                  <span className={jour.tempsMin ? 'gras' : 'doux'}>{jour.tempsMin ? `${jour.tempsMin} min` : 'toute la séance'}</span>
                 </label>
                 <input
                   id="temps-dispo"
@@ -293,7 +322,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
               </div>
             )}
             {alertesRecup.length > 0 && (
-              <div className="pile alerte" style={{ gap: 6, paddingLeft: 10 }}>
+              <div className="pile alerte" style={{ gap: 6, padding: 12, borderRadius: 16 }}>
                 {alertesRecup.map((a) => <span key={a} className="petit gras">{a}</span>)}
                 <span className="doux petit">Conseil : faites une autre séance aujourd’hui, ou la version allégée.</span>
                 <div className="grille-2">
@@ -305,14 +334,14 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
             {autresAjustements.length > 0 && (
               <div className="pile" style={{ gap: 4 }} aria-label="Ajustements du jour">
                 {autresAjustements.map((a, i) => (
-                  <span key={i} className="petit"><span className="gras mention-orange">{a.nom} : </span>{a.raison}</span>
+                  <span key={i} className="petit doux"><span className="gras" style={{ color: 'var(--texte)' }}>{a.nom} : </span>{a.raison}</span>
                 ))}
               </div>
             )}
-            {journee.dispo.materiel.length === 0 && <span className="mention-orange gras petit">Aucun matériel coché : séance au poids du corps.</span>}
+            {journee.dispo.materiel.length === 0 && <span className="gras petit">Aucun matériel coché : séance au poids du corps.</span>}
             {changements.length > 0 && (
               <button className="bouton plein" style={{ justifyContent: 'space-between' }} onClick={() => setFeuille('changements')}>
-                <span className="mention-orange">
+                <span className="gras">
                   {changements.length} changement{changements.length > 1 ? 's' : ''} selon le matériel
                 </span>
                 <span style={{ whiteSpace: 'nowrap' }}>Voir pourquoi</span>
@@ -321,7 +350,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
             <div className="pile" style={{ gap: 0 }}>
               {plan.exercices.map((e) => (
                 <button key={e.exerciceId} className="lien-liste" onClick={() => setFiche(e.exerciceId)} aria-label={`Fiche : ${e.nom}`}>
-                  <span className={`gras ${e.origineId ? 'mention-orange' : ''}`}>{e.nom}</span>
+                  <span className="gras ligne" style={{ gap: 8 }}>{e.nom}{e.origineId && <span className="etiquette-remplace">remplacé</span>}</span>
                   <span className="doux petit">{detailPrevu(e)}</span>
                 </button>
               ))}
@@ -345,26 +374,6 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
                 Revenir à la séance complète
               </button>
             )}
-            <div className="grille-2">
-              {deProgramme && aFaire.length > 1 ? <button className="bouton" onClick={() => setFeuille('choix')}>Changer de séance</button> : <span />}
-              <button className="bouton" onClick={() => setFeuille('signalement')}>{jour.fatigue ? 'Fatigue signalée' : 'Fatigue ou douleur'}</button>
-            </div>
-            <div className="grille-2">
-              <button className="bouton" onClick={() => setFeuille('materiel')}>Matériel</button>
-              <button
-                className="bouton principal"
-                onClick={async () => {
-                  preparerSon();
-                  void demanderStockagePersistant();
-                  const s = await demarrerSeance(plan, Date.now(), { lieu: journee.lieu, dispo: journee.dispo });
-                  setEssai(false);
-                  setMobilite(false);
-                  ouvrirSeance(s.id);
-                }}
-              >
-                Commencer
-              </button>
-            </div>
             {(essai || mobilite) && (
               <button className="bouton plein discret" onClick={() => { setEssai(false); setMobilite(false); }}>
                 Revenir à la séance prévue
@@ -375,12 +384,13 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       </section>
       )}
 
-      {!enCours && !avantDebut && profil?.seanceMobilite && !mobilite && (
-        <button className="bouton plein" onClick={() => setMobilite(true)}>Séance de mobilité (15 min)</button>
-      )}
-
       {!enCours && (
-        <button className="bouton plein" onClick={() => setFeuille('libre')}>Séance libre</button>
+        <div className={!avantDebut && profil?.seanceMobilite && !mobilite ? 'grille-2' : 'pile'}>
+          {!avantDebut && profil?.seanceMobilite && !mobilite && (
+            <button className="bouton" onClick={() => setMobilite(true)}>Mobilité · 15 min</button>
+          )}
+          <button className="bouton" onClick={() => setFeuille('libre')}>Séance libre</button>
+        </div>
       )}
 
       {!enCours && equilibre && <CarteEquilibre alertes={equilibre} onAjouter={plan && deProgramme ? (id) => void journee.maj({ ajouts: [...(jour.ajouts ?? []), id] }) : undefined} />}
@@ -388,7 +398,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       {!enCours && profil?.modules?.corps !== false && pesees && tailles && (peseeConseillee(pesees, maintenant) || (tailleDue(tailles, maintenant) && maintenant - tailleIgnoree > 7 * 86400000)) && (
         <section className="carte compacte" aria-label="Mesures du jour">
           <div className="grille-2">
-            {peseeConseillee(pesees, maintenant) ? <button className="bouton principal" onClick={() => setMesure('poids')}>Peser</button> : <span />}
+            {peseeConseillee(pesees, maintenant) ? <button className="bouton" onClick={() => setMesure('poids')}>Peser</button> : <span />}
             {tailleDue(tailles, maintenant) && maintenant - tailleIgnoree > 7 * 86400000 ? <button className="bouton" onClick={() => setMesure('taille')}>Tour de taille</button> : <span />}
           </div>
           {tailleDue(tailles, maintenant) && maintenant - tailleIgnoree > 7 * 86400000 && (
@@ -405,7 +415,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       )}
 
       {sauvegardeEnRetard && (
-        <button className="carte compacte" style={{ border: 'none', textAlign: 'left' }} onClick={() => allerA('profil')}>
+        <button className="carte compacte discrete" style={{ textAlign: 'left' }} onClick={() => allerA('profil')}>
           <span className="gras">Pensez à sauvegarder vos données</span>
           <span className="doux petit">
             {derniereSauvegarde ? `Dernière sauvegarde ${ilYA(derniereSauvegarde, maintenant)}.` : 'Aucune sauvegarde pour l’instant.'} Touchez pour exporter.
@@ -422,27 +432,20 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
         )}
         {historique && historique.length > 0 && (
           <div className="carte" style={{ gap: 0, paddingTop: 6, paddingBottom: 6 }}>
-            {historique.slice(0, 20).map((s) => (
+            {historique.slice(0, 5).map((s) => (
               <div key={s.id} className="element-liste">
                 <div className="pile" style={{ gap: 2 }}>
-                  <span className="gras">{s.nom}</span>
+                  <span className="gras ligne" style={{ gap: 8 }}><PastilleSeance lettre={s.plan.programme?.lettre} />{s.nom}</span>
                   <span className="doux petit">
                     {dateLongue(s.debut)} · {Math.max(1, Math.round(((s.fin ?? s.debut) - s.debut) / 60000))} min
                     {s.lieu ? ` · ${LIEUX.find((l) => l.id === s.lieu)?.nom}` : ''}
                   </span>
                 </div>
-                <button
-                  className="bouton discret danger"
-                  aria-label={`Supprimer la séance du ${dateLongue(s.debut)}`}
-                  onClick={async () => {
-                    await mettreALaCorbeille(s.id);
-                    afficherBandeau('Séance mise à la corbeille', () => restaurerSeance(s.id));
-                  }}
-                >
-                  Supprimer
-                </button>
               </div>
             ))}
+            <button className="bouton discret plein" style={{ justifyContent: 'flex-start', paddingLeft: 0 }} onClick={() => allerA('progres')}>
+              Tout l’historique (modifier, supprimer) › Progrès
+            </button>
           </div>
         )}
       </section>

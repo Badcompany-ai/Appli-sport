@@ -1,5 +1,5 @@
 // Jalon J7 : ajustement automatique, bilan hebdomadaire, idées de protéines (I5), compléments pris (I7),
-// rappels Calendrier, chronométrage vidéo (I3), mode analyse sur grand écran (I9).
+// rappels Calendrier et chronométrage vidéo (cachés), mode analyse sur grand écran (I9).
 // Lancement : npm run build && node e2e/j7.mjs
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
@@ -165,54 +165,24 @@ try {
   verifier(await vu(page.getByText(/Créatine : 1 jour d’affilée/)), 'jours d’affilée de créatine');
   await capture('j7-03-nutrition');
 
-  console.log('Rappels Calendrier');
+  console.log('Rappels Calendrier : cachés (ne marchent pas sur l’iPhone de l’utilisateur)');
   await page.getByRole('button', { name: 'Profil', exact: true }).click();
-  const [tele] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Enregistrer le fichier de rappels' }).click()]);
-  const chemin = `${SORTIE}/${tele.suggestedFilename()}`;
-  await tele.saveAs(chemin);
-  const { readFileSync } = await import('node:fs');
-  const ics = readFileSync(chemin, 'utf8');
-  verifier(ics.startsWith('BEGIN:VCALENDAR') && (ics.match(/BEGIN:VEVENT/g) ?? []).length === 4, 'fichier de rappels : séances, pesées, tour de taille, sauvegarde');
-  await page.getByRole('switch', { name: /Tour de taille/ }).click();
-  await attendre(async () => !(await page.getByRole('switch', { name: /Tour de taille/ }).isChecked()));
-  const [tele2] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Enregistrer le fichier de rappels' }).click()]);
-  await tele2.saveAs(chemin);
-  verifier((readFileSync(chemin, 'utf8').match(/BEGIN:VEVENT/g) ?? []).length === 3, 'un rappel désactivé n’est plus dans le fichier');
-  const [popup] = await Promise.all([page.waitForEvent('popup'), page.getByRole('button', { name: 'Ajouter au Calendrier' }).click()]);
-  await popup.waitForLoadState().catch(() => undefined);
-  const urlPopup = popup.url();
-  const telechargementPopup = await popup.waitForEvent('download', { timeout: 1500 }).then(() => true, () => false);
-  // Chromium télécharge le fichier ; sur iPhone, Safari propose « Ajouter tout » (à vérifier sur l'appareil).
-  verifier(urlPopup.startsWith('blob:') || telechargementPopup || urlPopup === '' || urlPopup === 'about:blank', '« Ajouter au Calendrier » ouvre le fichier de calendrier');
-  await popup.close();
+  await page.getByRole('button', { name: 'À propos et sources' }).waitFor();
+  verifier(!(await page.getByRole('button', { name: 'Ajouter au Calendrier' }).isVisible()), 'rappels Calendrier cachés dans le Profil');
   await page.getByRole('button', { name: 'À propos et sources' }).click();
   verifier(await vu(feuille('À propos').getByText(/Compendium des activités physiques 2024/)), 'à propos : sources et avertissement');
   await feuille('À propos').getByRole('button', { name: 'OK' }).click();
 
-  console.log('Chronométrage d’un sprint sur vidéo (I3)');
+  console.log('Chronométrage vidéo d’un sprint : caché (ne marche pas chez l’utilisateur)');
   await page.getByRole('button', { name: "Aujourd'hui" }).click();
   await page.getByRole('region', { name: 'Séance du jour' }).getByRole('button', { name: 'Changer de séance' }).click();
   await feuille('Changer de séance').getByRole('button', { name: /Vitesse, appuis et chaîne arrière/ }).click();
+  // Attendre que la carte affiche la séance choisie avant de la commencer.
+  await page.getByRole('region', { name: 'Séance du jour' }).getByText('Vitesse, appuis et chaîne arrière').waitFor();
   await page.getByRole('region', { name: 'Séance du jour' }).getByRole('button', { name: 'Commencer', exact: true }).click();
   await page.getByRole('button', { name: 'Échauffement fait' }).click();
-  await page.getByRole('button', { name: 'Chronométrer sur une vidéo (facultatif)' }).click();
-  await page.getByLabel('Choisir la vidéo du sprint').setInputFiles('e2e/sprint-test.webm');
-  await page.waitForFunction(() => (document.querySelector('video')?.duration ?? 0) > 3);
-  await page.getByLabel('Position dans la vidéo').fill('0.5');
-  await page.getByRole('button', { name: 'Marquer le départ' }).click();
-  await page.getByLabel('Position dans la vidéo').fill('3.7');
-  await page.getByRole('button', { name: 'Image suivante' }).click();
-  await page.getByRole('button', { name: 'Image précédente' }).click();
-  await page.getByRole('button', { name: 'Marquer l’arrivée' }).click();
-  verifier(await vu(page.getByText('3,20 s')), 'temps calculé entre les deux images (3,20 s)');
-  await page.getByRole('button', { name: 'Ralenti lu 8 fois plus lentement (240 images/s)' }).click();
-  verifier(await vu(page.getByText('0,40 s')), 'ralenti : temps divisé par le facteur');
-  await page.getByRole('button', { name: 'Vidéo normale ou ralenti lu à vitesse réelle' }).click();
-  await capture('j7-04-chrono');
-  await page.getByRole('button', { name: 'Utiliser ce temps' }).click();
-  await page.getByText('Série enregistrée').waitFor();
-  const series = await lire('series');
-  verifier(series.some((s) => s.exerciceId === 'sprint-court' && s.valeur === 3.2), 'temps du sprint enregistré avec la série');
+  verifier(await vu(page.getByRole('button', { name: 'Sprint fait' })), 'sprint : validation en un geste');
+  verifier(!(await page.getByRole('button', { name: /Chronométrer sur une vidéo/ }).isVisible()), 'chrono vidéo caché');
 
   console.log('Mode analyse sur grand écran (I9)');
   const mac = await navigateur.newContext({ viewport: { width: 1280, height: 860 } });

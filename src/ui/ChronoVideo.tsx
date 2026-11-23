@@ -80,7 +80,7 @@ export function ChronoVideo({ onTemps, onFermer }: { onTemps: (secondes: number)
             <span className="petit gras">La vidéo se lit-elle au ralenti ici ?</span>
             <div className="pilules" role="group" aria-label="Ralenti">
               {FACTEURS.map((f) => (
-                <button key={f.valeur} className="bouton" aria-pressed={facteur === f.valeur} onClick={() => setFacteur(f.valeur)} style={{ fontSize: 13 }}>{f.nom}</button>
+                <button key={f.valeur} className="bouton" aria-pressed={facteur === f.valeur} onClick={() => setFacteur(f.valeur)} style={{ fontSize: 'var(--t-2)' }}>{f.nom}</button>
               ))}
             </div>
           </div>

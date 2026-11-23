@@ -1,3 +1,4 @@
+import { PastilleSeance } from '../couleurs';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
@@ -114,8 +115,8 @@ export function Progres() {
 
       {terminees.length === 0 ? (
         <div className="carte">
-          <span className="gras">Rien à afficher pour l’instant</span>
-          <span className="doux">Vos graphiques, records et l’historique apparaîtront ici dès votre première séance enregistrée.</span>
+          <span className="gras">Pas encore de séance enregistrée</span>
+          <span className="doux">Les graphiques par exercice, les records et l’historique des séances apparaîtront ici après la première.</span>
         </div>
       ) : (
         <>
@@ -144,7 +145,7 @@ export function Progres() {
                   return (
                     <div key={m} className="pile" style={{ gap: 4 }}>
                       <div className="ligne ecartee petit">
-                        <span className={`gras ${bas ? 'mention-orange' : ''}`}>{NOMS_MUSCLES[m]}</span>
+                        <span className={bas ? 'gras' : 'doux'}>{NOMS_MUSCLES[m]}{bas ? ' · peu travaillé' : ''}</span>
                         <span className="doux">{String(v).replace('.', ',')} / {REPERES[m]} séries</span>
                       </div>
                       <div className="barre-volume"><div style={{ width: `${Math.min(100, (v / REPERES[m]) * 100)}%` }} /></div>
@@ -185,7 +186,7 @@ export function Progres() {
             <div className="carte" style={{ gap: 0, paddingTop: 0, paddingBottom: 0 }}>
               {terminees.slice(0, 50).map((s) => (
                 <button key={s.id} className="lien-liste" onClick={() => setSeanceVue(s.id)} aria-label={`Séance du ${dateLongue(s.debut)} : ${s.nom}`}>
-                  <span className="gras">{s.nom}</span>
+                  <span className="gras ligne" style={{ gap: 8 }}><PastilleSeance lettre={s.plan.programme?.lettre} />{s.nom}</span>
                   <span className="doux petit">
                     {dateLongue(s.debut)} · {series.filter((x) => x.seanceId === s.id).length} séries · {Math.max(1, Math.round(((s.fin ?? s.debut) - s.debut) / 60000))} min
                   </span>
@@ -202,12 +203,12 @@ export function Progres() {
           <span className="etiquette">{NOMS_INDICATEURS[indicateur(vu.id)]}</span>
           <Courbe points={vu.pts} format={formatIndicateur(indicateur(vu.id))} />
           <div className="grille-3">
-            <div className="carte compacte"><span className="doux petit gras">Record</span><span className="gras" style={{ fontSize: 18 }}>{formatIndicateur(indicateur(vu.id))(vu.record)}</span></div>
-            <div className="carte compacte"><span className="doux petit gras">Séances</span><span className="gras" style={{ fontSize: 18 }}>{vu.pts.length}</span></div>
+            <div className="carte compacte"><span className="doux petit gras">Record</span><span className="gras" style={{ fontSize: 'var(--t-4)' }}>{formatIndicateur(indicateur(vu.id))(vu.record)}</span></div>
+            <div className="carte compacte"><span className="doux petit gras">Séances</span><span className="gras" style={{ fontSize: 'var(--t-4)' }}>{vu.pts.length}</span></div>
             {indicateur(vu.id) === 'max' ? (
-              <div className="carte compacte"><span className="doux petit gras">Force relative</span><span className="gras" style={{ fontSize: 18 }}>{f1(forceRelative(vu.record, poids))} ×</span></div>
+              <div className="carte compacte"><span className="doux petit gras">Force relative</span><span className="gras" style={{ fontSize: 'var(--t-4)' }}>{f1(forceRelative(vu.record, poids))} ×</span></div>
             ) : (
-              <div className="carte compacte"><span className="doux petit gras">Dernière</span><span className="gras" style={{ fontSize: 18 }}>{formatIndicateur(indicateur(vu.id))(vu.dernier!.valeur)}</span></div>
+              <div className="carte compacte"><span className="doux petit gras">Dernière</span><span className="gras" style={{ fontSize: 'var(--t-4)' }}>{formatIndicateur(indicateur(vu.id))(vu.dernier!.valeur)}</span></div>
             )}
           </div>
           {indicateur(vu.id) === 'max' && (

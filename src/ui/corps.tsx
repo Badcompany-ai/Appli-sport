@@ -29,7 +29,7 @@ export function FeuilleMesure({ type, depart, onFermer }: { type: Mesure['type']
     <Feuille titre={type === 'poids' ? 'Pesée' : 'Tour de taille'} onFermer={onFermer}>
       {type === 'taille' && <span className="doux petit">Au niveau du nombril, debout et détendu, le matin, sans serrer le mètre.</span>}
       <div className="pile" style={{ alignItems: 'center', gap: 4 }}>
-        <span className="grand-chiffre" style={{ fontSize: 56 }} aria-live="polite">{f1(v)}<small> {unite}</small></span>
+        <span className="grand-chiffre" style={{ fontSize: 'var(--d-2)' }} aria-live="polite">{f1(v)}<small> {unite}</small></span>
       </div>
       <div className="grille-2" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
         <button className="bouton" aria-label={`Moins ${pas[1]} ${unite}`} onClick={() => changer(-pas[1])}>−{String(pas[1]).replace('.', ',')}</button>
@@ -80,6 +80,7 @@ export function SectionCorps() {
               <div className="pile" style={{ gap: 0 }}>
                 <span className="doux petit gras">Tendance sur 7 jours</span>
                 <span className="grand-chiffre">{f1(t ?? poids)}<small> kg</small></span>
+                <span className="doux petit">Dernière pesée : {f1(pesees[pesees.length - 1].valeur)} kg</span>
               </div>
               {r ? (
                 <span className="gras" style={{ textAlign: 'right' }}>
@@ -91,7 +92,7 @@ export function SectionCorps() {
                 <span className="doux petit" style={{ textAlign: 'right', maxWidth: 150 }}>Rythme dès 4 pesées sur 14 jours</span>
               )}
             </div>
-            <Courbe points={courbeTendance(pesees)} brut={pesees.map((p) => ({ date: p.date, valeur: p.valeur }))} format={(v) => `${f1(v)} kg`} />
+            <Courbe points={courbeTendance(pesees)} brut={pesees.map((p) => ({ date: p.date, valeur: p.valeur }))} format={(v) => `${f1(v)} kg`} lectureDiscrete />
             <span className="doux petit">Ligne : tendance. Points pâles : pesées du jour (elles varient de 1 à 2 kg avec l’eau, le sel et les repas).</span>
           </>
         )}

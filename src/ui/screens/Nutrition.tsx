@@ -128,10 +128,7 @@ export function Nutrition() {
     <main className="ecran">
       <div className="ligne ecartee">
         <button className="bouton rond" aria-label="Jour précédent" onClick={() => setJour(decaler(jour, -1))}>‹</button>
-        <div className="pile" style={{ gap: 0, alignItems: 'center' }}>
-          <span className="surtitre">Nutrition</span>
-          <h1 className="titre-2" style={{ textTransform: 'none' }}>{nomDuJour(jour, aujourdhui)}</h1>
-        </div>
+        <h1 className="titre-2">{nomDuJour(jour, aujourdhui)}</h1>
         <button className="bouton rond" aria-label="Jour suivant" disabled={jour >= aujourdhui} onClick={() => setJour(decaler(jour, 1))}>›</button>
       </div>
 
@@ -161,8 +158,8 @@ export function Nutrition() {
           <JaugePetite nom="Glucides" valeur={total.glucides} cible={obj.glucides} />
           <JaugePetite nom="Fibres" valeur={total.fibres} cible={obj.fibres} />
         </div>
-        <button className="bouton discret petit" style={{ alignSelf: 'flex-start', padding: 0, minHeight: 32, textAlign: 'left', fontWeight: 500, color: 'var(--doux)' }} onClick={() => setFeuille('info')}>
-          Objectif {ent(obj.kcal)} kcal = dépense {ent(obj.depense)} {ecart ? `${ecart < 0 ? '−' : '+'} ${ent(Math.abs(ecart))}` : ''} <span className="mention-orange" style={{ display: 'block' }}>D’où vient ce chiffre ?</span>
+        <button className="bouton discret petit" style={{ alignSelf: 'flex-start', padding: 0, minHeight: 44, color: 'var(--accent)', fontWeight: 600 }} onClick={() => setFeuille('info')}>
+          D’où vient l’objectif ?
         </button>
       </section>
 
@@ -174,7 +171,7 @@ export function Nutrition() {
             <div className="grille-2">
               <button className="bouton" onClick={async () => { const avant = ajDepuis; await setAjDepuis(Date.now()); afficherBandeau('Ancien objectif gardé', () => setAjDepuis(avant)); }}>Garder l’ancien</button>
               <button
-                className="bouton principal"
+                className="bouton clair"
                 onClick={async () => {
                   const avant = { reglage, ajDepuis };
                   await ecrireReglage('nutrition', { ...reglage, correctionKcal: reglage.correctionKcal + proposition.delta });
@@ -221,9 +218,9 @@ export function Nutrition() {
           {COMPLEMENTS.map((c, i) => {
             const p = jour === aujourdhui ? pris?.[i] : undefined;
             return (
-              <button key={c.id} className="bouton" onClick={() => void ajouterComplement(c)} aria-label={`Ajouter 1 dose : ${c.nom}`} style={p?.aujourdhui ? { boxShadow: 'inset 0 0 0 2px var(--accent)' } : undefined}>
+              <button key={c.id} className="bouton" onClick={() => void ajouterComplement(c)} aria-label={`Ajouter 1 dose : ${c.nom}`} aria-pressed={!!p?.aujourdhui}>
                 <span>{p?.aujourdhui ? '✓ ' : ''}{c.nom.replace(' en poudre', '')}</span>
-                <span className="doux" style={{ fontSize: 11 }}>{p?.aujourdhui ? 'pris' : '+ 1 dose'}</span>
+                <span className="doux" style={{ fontSize: 'var(--t-1)' }}>{p?.aujourdhui ? 'pris' : '+ 1 dose'}</span>
               </button>
             );
           })}
@@ -334,7 +331,7 @@ function JaugeGrande({ nom, valeur, cible, unite, texte }: { nom: string; valeur
     <div className="pile" style={{ gap: 6 }} aria-label={`${nom} : ${ent(valeur)} sur ${ent(cible)} ${unite}`}>
       <div className="ligne ecartee" style={{ alignItems: 'baseline' }}>
         <span className="gras">{nom}</span>
-        <span><span className="grand-chiffre" style={{ fontSize: 26 }}>{ent(valeur)}</span><span className="doux petit"> / {ent(cible)} {unite}</span></span>
+        <span className="jauge-valeurs"><span className="grand-chiffre" style={{ fontSize: 'var(--t-6)' }}>{ent(valeur)}</span><span className="doux petit"> / {ent(cible)} {unite}</span></span>
       </div>
       <div className="jauge"><div style={{ width: `${Math.min(100, (valeur / Math.max(1, cible)) * 100)}%` }} /></div>
       <span className="doux petit">{texte}</span>
@@ -408,7 +405,6 @@ function FeuilleAjout({ jour, scanner, onFermer }: { jour: string; scanner?: boo
       <input
         className="champ-texte"
         type="search"
-        autoFocus
         placeholder="Chercher : œuf, poulet, pizza…"
         aria-label="Chercher un aliment"
         value={recherche}
@@ -531,7 +527,7 @@ function FeuilleQuantite({ aliment, jour, onRetour, onFermer }: { aliment: Alime
       {portion ? (
         <div className="ligne ecartee">
           <button className="bouton rond" aria-label="Une portion de moins" onClick={() => setNb((x) => Math.max(0.5, x - 0.5))}>−</button>
-          <span className="grand-chiffre" style={{ fontSize: 32 }}>{String(nb).replace('.', ',')} × <small>{portion.nom}</small></span>
+          <span className="grand-chiffre" style={{ fontSize: 'var(--t-7)' }}>{String(nb).replace('.', ',')} × <small>{portion.nom}</small></span>
           <button className="bouton rond" aria-label="Une portion de plus" onClick={() => setNb((x) => x + 0.5)}>+</button>
         </div>
       ) : (
@@ -744,7 +740,7 @@ function FeuilleEnregistrerRepas({ entrees, onFermer }: { entrees: EntreeJournal
           const on = choisis.includes(e.id);
           return (
             <button key={e.id} className="lien-liste" aria-pressed={on} onClick={() => setChoisis(on ? choisis.filter((x) => x !== e.id) : [...choisis, e.id])}>
-              <span className={`gras ${on ? 'mention-orange' : 'doux'}`}>{on ? '✓ ' : ''}{e.nom}</span>
+              <span className={`gras ${on ? '' : 'doux'}`}>{on ? '✓ ' : ''}{e.nom}</span>
               <span className="doux petit">{e.quantite} · {ent(e.nutriments.kcal)} kcal</span>
             </button>
           );

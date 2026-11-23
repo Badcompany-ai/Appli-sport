@@ -1,3 +1,4 @@
+import { AFFICHER_RAPPELS_CALENDRIER } from '../fonctionsCachees';
 import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
@@ -130,7 +131,7 @@ export function Profil({ majDisponible, installerMaj, modifierProfil }: { majDis
         </section>
       )}
 
-      {profil && (
+      {profil && AFFICHER_RAPPELS_CALENDRIER && (
         <section className="pile" aria-label="Rappels">
           <h2 className="titre-2">Rappels (Calendrier)</h2>
           <div className="carte">

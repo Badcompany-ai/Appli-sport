@@ -1,3 +1,4 @@
+import { PastilleSeance } from '../couleurs';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
@@ -91,7 +92,7 @@ export function Programme() {
           <span className="doux petit gras">
             {index < 0 ? `Commence le ${dateLongue(depuisCle(profil.debut).getTime()).toLowerCase()}` : info.apresProgramme ? 'Programme de 6 mois terminé : maintien en attendant le suivant' : `Semaine ${index + 1} sur ${NB_SEMAINES}`}
           </span>
-          <span style={{ fontSize: 22, fontWeight: 700 }}>{NOMS_PHASES[info.phase]}{info.allegee ? ' · semaine allégée et tests' : ''}</span>
+          <span style={{ fontSize: 'var(--t-5)', fontWeight: 700 }}>{NOMS_PHASES[info.phase]}{info.allegee ? ' · semaine allégée et tests' : ''}</span>
           {profil.debut !== PROFIL_INTERVIEW.debut && (
             <button
               className="bouton plein"
@@ -105,18 +106,20 @@ export function Programme() {
               Remettre le début au lundi 28 décembre
             </button>
           )}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 6fr 6fr 6fr 6fr', gap: 4 }} aria-hidden="true">
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(34px, 2fr) 6fr 6fr 6fr 6fr', gap: 6 }} aria-hidden="true">
             {PHASES.map((p, i) => {
               const debutPhase = PHASES.slice(0, i).reduce((n, x) => n + x.semaines, 0);
               const dedans = index >= debutPhase && index < debutPhase + p.semaines;
               const fini = index >= debutPhase + p.semaines;
               const part = dedans ? (index - debutPhase + 1) / p.semaines : fini ? 1 : 0;
               return (
-                <div key={p.cle} className="pile" style={{ gap: 4 }}>
-                  <div style={{ height: 8, borderRadius: 4, background: 'var(--accent-piste)', overflow: 'hidden' }}>
-                    <div style={{ height: 8, width: `${part * 100}%`, background: 'var(--accent)' }} />
+                <div key={p.cle} className="pile" style={{ gap: 6 }}>
+                  <div style={{ height: 8, borderRadius: 4, background: 'var(--carte-2)', overflow: 'hidden' }}>
+                    <div style={{ height: 8, width: `${part * 100}%`, background: dedans ? 'var(--accent)' : 'var(--doux)' }} />
                   </div>
-                  <span className="doux" style={{ fontSize: 10, fontWeight: 600 }}>{p.cle === 'reprise' ? 'Rep.' : p.cle.toUpperCase()}</span>
+                  <span style={{ fontSize: 'var(--t-1)', fontWeight: dedans ? 800 : 600, color: dedans ? 'var(--texte)' : 'var(--doux)' }}>
+                    {p.cle === 'reprise' ? 'Rep.' : p.cle.toUpperCase()}{dedans && p.cle !== 'reprise' ? ' · ici' : ''}
+                  </span>
                 </div>
               );
             })}
@@ -149,12 +152,12 @@ export function Programme() {
               return (
                 <button key={s.id} className="element-liste" style={{ background: 'none', border: 'none', borderBottom: '1px solid #222224', width: '100%', textAlign: 'left' }} onClick={() => setSeanceVue(s)} aria-label={`Voir la séance : ${s.nom}`}>
                   <div className="pile" style={{ gap: 2 }}>
-                    <span className={`gras ${prochaine ? 'mention-orange' : ''}`}>{s.nom}</span>
+                    <span className="gras ligne" style={{ gap: 8 }}><PastilleSeance lettre={s.programme?.lettre} />{s.nom}</span>
                     <span className="doux petit">
                       {jours[i] !== undefined ? `${NOMS_JOURS[jours[i]]} (suggéré)` : ''} · {s.exercices.length} {s.programme?.type === 'test' ? 'épreuves ou exercices' : 'exercices'}
                     </span>
                   </div>
-                  <span className={`petit gras ${fait ? '' : 'doux'}`}>{fait ? 'Faite' : passee ? 'Non faite' : manquee ? (prochaine ? 'Manquée · à faire' : 'Manquée') : prochaine ? 'Prochaine' : 'À venir'} ›</span>
+                  <span className={`petit gras ${fait || prochaine ? '' : 'doux'}`} style={{ whiteSpace: 'nowrap', ...(prochaine ? { color: 'var(--accent)' } : {}) }}>{fait ? 'Faite' : passee ? 'Non faite' : manquee ? (prochaine ? 'Manquée · à faire' : 'Manquée') : prochaine ? 'Prochaine' : 'À venir'} ›</span>
                 </button>
               );
             })}
@@ -274,7 +277,7 @@ export function Programme() {
           {seanceVue.echauffement && (
             <div className="pile" style={{ gap: 6 }}>
               <span className="etiquette">Échauffement</span>
-              <ul className="liste-etapes" style={{ fontSize: 14 }}>{seanceVue.echauffement.map((e) => <li key={e}>{e}</li>)}</ul>
+              <ul className="liste-etapes" style={{ fontSize: 'var(--t-2)' }}>{seanceVue.echauffement.map((e) => <li key={e}>{e}</li>)}</ul>
             </div>
           )}
           <span className="etiquette">Exercices</span>
@@ -283,7 +286,7 @@ export function Programme() {
               <button key={e.exerciceId} className="lien-liste" onClick={() => !e.testId && setFiche(e.exerciceId)} aria-label={e.testId ? e.nom : `Fiche : ${e.nom}`}>
                 <span className="gras">{e.nom}</span>
                 <span className="doux petit">{detailPrevu(e)} · repos {e.reposSec >= 60 ? `${Math.floor(e.reposSec / 60)} min${e.reposSec % 60 ? ` ${e.reposSec % 60} s` : ''}` : `${e.reposSec} s`}</span>
-                {e.consigne && <span className="mention-orange petit">{e.consigne}</span>}
+                {e.consigne && <span className="consigne">{e.consigne}</span>}
               </button>
             ))}
           </div>

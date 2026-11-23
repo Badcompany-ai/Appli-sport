@@ -220,7 +220,7 @@ try {
   await capture('10-fin');
   await page.getByRole('button', { name: 'Enregistrer la séance' }).click();
   await page.getByRole('heading', { name: 'Séances enregistrées' }).waitFor();
-  verifier(await vu(page.getByRole('button', { name: /Supprimer la séance/ })), 'la séance apparaît dans l’historique');
+  verifier(await vu(page.getByRole('region', { name: 'Séances enregistrées' }).getByText('Séance de démonstration')), 'la séance apparaît dans l’historique');
 
   console.log('Onglet Progrès : graphiques et historique modifiable');
   await page.getByRole('button', { name: 'Progrès', exact: true }).click();

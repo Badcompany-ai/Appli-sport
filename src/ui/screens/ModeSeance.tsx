@@ -1,3 +1,4 @@
+import { AFFICHER_CHRONO_VIDEO } from '../fonctionsCachees';
 import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
@@ -81,10 +82,10 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
           <span className="doux petit gras">{plan.nom}</span>
           <span style={{ width: 44 }} />
         </div>
-        <h1 className="titre" style={{ fontSize: 30 }}>Échauffement</h1>
+        <h1 className="titre" style={{ fontSize: 'var(--t-6)' }}>Échauffement</h1>
         <span className="doux">Environ 8 à 10 minutes, de plus en plus intense.</span>
         <div className="carte">
-          <ol className="liste-etapes" style={{ fontSize: 17, gap: 12 }}>
+          <ol className="liste-etapes" style={{ fontSize: 'var(--t-4)', gap: 12 }}>
             {plan.echauffement.map((e) => <li key={e}>{e}</li>)}
           </ol>
         </div>
@@ -155,9 +156,9 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
       <div className="barre-progres" aria-hidden="true"><div style={{ width: `${Math.round(progression * 100)}%` }} /></div>
 
       <div className="pile" style={{ gap: 8 }}>
-        <h1 className="titre" style={{ fontSize: 30 }}>{ex.nom}</h1>
+        <h1 className="titre" style={{ fontSize: 'var(--t-6)' }}>{ex.nom}</h1>
         {partenaires.length > 0 && <span className="petit gras">Enchaîné avec : {partenaires.join(', ')}</span>}
-        {ex.consigne && <span className="mention-orange gras petit">{ex.consigne}</span>}
+        {ex.consigne && <span className="consigne">{ex.consigne}</span>}
         {ex.raisonCharge && numero === 0 && <span className="doux petit">{ex.raisonCharge}</span>}
         {ex.mesure !== 'test' && <div className="points" >
           <span className="doux gras petit" style={{ marginRight: 4 }}>{numero < ex.series ? `Série ${numero + 1} sur ${ex.series}` : 'Série supplémentaire'}</span>
@@ -165,6 +166,7 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
             <span key={i} className={`point ${i < numero ? 'fait' : i === numero ? 'actuel' : ''}`} />
           ))}
         </div>}
+        <DernierePerf ex={ex} seanceId={seance.id} />
       </div>
 
       {ex.mesure === 'test' ? (
@@ -190,8 +192,6 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
           <button className="bouton" onClick={() => setNote(true)}>Note</button>
         </div>
       )}
-
-      <DernierePerf ex={ex} seanceId={seance.id} />
 
       {seance.notes[ex.exerciceId] && (
         <button className="carte compacte" style={{ border: 'none', textAlign: 'left' }} onClick={() => setNote(true)}>
@@ -383,12 +383,17 @@ function SaisieReps({
   const pas = ex.pasKg ?? 2.5;
   const vise = ex.reps ?? 8;
   const [reps, setReps] = useState(vise);
-  const choix = Array.from({ length: 5 }, (_, i) => Math.max(1, vise - 2) + i);
+  // 5 choix autour de l'objectif ; si le nombre choisi en sort (avec − ou +), ils se recentrent dessus.
+  const premierChoix = Math.max(1, vise - 2);
+  const centre = reps < premierChoix || reps > premierChoix + 4 ? reps : vise;
+  const choix = Array.from({ length: 5 }, (_, i) => Math.max(1, centre - 2) + i);
   const lest = ex.mesure === 'poids_du_corps_reps';
   const lib = exercice(ex.exerciceId);
   // Sauts : lest facultatif (haltères dans chaque main), noté s'il est utilisé.
   const lestOptionnel = ex.mesure === 'reps' && !!lib && ['saut_v', 'saut_h', 'bonds'].includes(lib.mouvement);
   const sansCharge = ex.mesure === 'reps' && !lestOptionnel;
+  // Lest facultatif : replié tant qu'il n'est pas utilisé.
+  const [lestOuvert, setLestOuvert] = useState(!lestOptionnel || (precedenteIci ?? 0) > 0);
   const echauffement =
     faites.length === 0 && ex.mesure === 'charge_reps'
       ? seriesEchauffement(valeurCharge, { pas: ex.pasKg ?? 2.5, barre: lib?.charge === 'barre' ? 20 : 0 })
@@ -402,7 +407,7 @@ function SaisieReps({
         <span className="etiquette">Distance</span>
         <span className="valeur-geante">{ex.distanceM} m</span>
         <button className="bouton principal geant" onClick={() => onValider({ reps: 1 })}>Sprint fait</button>
-        <button className="bouton discret" onClick={() => setChronoSprint(true)}>Chronométrer sur une vidéo (facultatif)</button>
+        {AFFICHER_CHRONO_VIDEO && <button className="bouton discret" onClick={() => setChronoSprint(true)}>Chronométrer sur une vidéo (facultatif)</button>}
         {chronoSprint && <ChronoVideo onFermer={() => setChronoSprint(false)} onTemps={(s) => { setChronoSprint(false); onValider({ reps: 1, valeur: s }); }} />}
       </div>
     );
@@ -411,7 +416,7 @@ function SaisieReps({
   // Saisie en deux gestes au plus : choisir une valeur (si besoin), puis « Valider ».
   return (
     <div className="carte" style={{ gap: 16 }}>
-      {ex.tempoLent && <span className="mention-orange gras petit" style={{ textAlign: 'center' }}>Descente lente : 3 secondes à chaque répétition</span>}
+      {ex.tempoLent && <span className="consigne" style={{ alignSelf: 'center' }}>Descente lente : 3 secondes à chaque répétition</span>}
       {echauffement.length > 0 && (
         <div className="pile" style={{ gap: 6 }}>
           <span className="etiquette">Échauffement proposé (ne compte pas dans les records)</span>
@@ -420,7 +425,7 @@ function SaisieReps({
               <button
                 key={i}
                 className={`bouton ${faitsEch.has(i) ? 'choisi-ressenti' : ''}`}
-                style={{ minHeight: 40, fontSize: 14, padding: '0 12px' }}
+                style={{ minHeight: 40, fontSize: 'var(--t-2)', padding: '0 12px' }}
                 aria-pressed={faitsEch.has(i)}
                 onClick={() => setFaitsEch(new Set(faitsEch.has(i) ? [...faitsEch].filter((x) => x !== i) : [...faitsEch, i]))}
               >
@@ -430,28 +435,26 @@ function SaisieReps({
           </div>
         </div>
       )}
-      <div className={sansCharge ? '' : 'grille-2'}>
-        {!sansCharge && <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
+      {!sansCharge && (lestOuvert ? (
+        <div className="pile" style={{ alignItems: 'center', gap: 4 }}>
           <span className="etiquette">{lestOptionnel ? 'Lest (haltères)' : lest ? 'Lest' : 'Charge'}</span>
-          <span className="valeur-geante" aria-live="polite">{kg(valeurCharge)}</span>
-          <span className="doux petit gras">kg</span>
-          <div className="ligne" style={{ gap: 8 }}>
-            <button className="bouton" style={{ width: 52 }} aria-label={`Moins ${kg(pas)} kg`} onClick={() => setCharge(Math.max(0, valeurCharge - pas))}>−</button>
-            <button className="bouton" style={{ width: 52 }} aria-label={`Plus ${kg(pas)} kg`} onClick={() => setCharge(valeurCharge + pas)}>+</button>
-          </div>
-        </div>}
-        <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
-          <span className="etiquette">Répétitions</span>
-          <span className="valeur-geante" aria-live="polite" style={{ color: reps !== vise ? 'var(--accent)' : undefined }}>{reps}</span>
-          <span className="doux petit gras">objectif {vise}</span>
-          <div className="ligne" style={{ gap: 8 }}>
-            <button className="bouton" style={{ width: 52 }} aria-label="Une répétition de moins" onClick={() => setReps(Math.max(0, reps - 1))}>−</button>
-            <button className="bouton" style={{ width: 52 }} aria-label="Une répétition de plus" onClick={() => setReps(reps + 1)}>+</button>
+          <div className="reglage-charge">
+            <button className="bouton rond-grand" aria-label={`Moins ${kg(pas)} kg`} onClick={() => setCharge(Math.max(0, valeurCharge - pas))}>−</button>
+            <span className="valeur-geante" aria-live="polite">{kg(valeurCharge)}<small> kg</small></span>
+            <button className="bouton rond-grand" aria-label={`Plus ${kg(pas)} kg`} onClick={() => setCharge(valeurCharge + pas)}>+</button>
           </div>
         </div>
-      </div>
+      ) : (
+        <button className="bouton discret" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={() => setLestOuvert(true)}>+ Ajouter du lest</button>
+      ))}
       <div className="pile" style={{ gap: 8 }}>
-        <span className="doux petit gras">Répétitions faites</span>
+        <div className="ligne ecartee">
+          <span className="doux petit gras">Répétitions faites · objectif {vise}</span>
+          <div className="ligne" style={{ gap: 6 }}>
+            <button className="bouton petit-rond" aria-label="Une répétition de moins" onClick={() => setReps(Math.max(0, reps - 1))}>−</button>
+            <button className="bouton petit-rond" aria-label="Une répétition de plus" onClick={() => setReps(reps + 1)}>+</button>
+          </div>
+        </div>
         <div className="choix-reps" role="radiogroup" aria-label="Répétitions faites">
           {choix.map((r) => (
             <button
@@ -499,7 +502,7 @@ function SaisieTenue({ ex, son, onValider }: { ex: ExercicePrevu; son: boolean; 
   return (
     <div className="carte" style={{ alignItems: 'center', gap: 14 }}>
       <span className="etiquette">{debut ? 'Temps tenu' : `Objectif ${cible} s`}</span>
-      <span className="valeur-geante" style={{ fontSize: 88, color: ecoule >= cible ? 'var(--accent)' : undefined }}>{minSec(ecoule)}</span>
+      <span className="valeur-geante" style={{ fontSize: 'var(--d-3)', color: ecoule >= cible ? 'var(--accent)' : undefined }}>{minSec(ecoule)}</span>
       {debut === undefined ? (
         <button className="bouton principal geant" onClick={() => { preparerSon(); setDebut(Date.now()); setMaintenant(Date.now()); }}>
           Démarrer le chronomètre
@@ -519,8 +522,8 @@ function DernierePerf({ ex, seanceId }: { ex: ExercicePrevu; seanceId: string })
   const d = useLiveQuery(() => dernierePerformance(ex.exerciceId, seanceId), [ex.exerciceId, seanceId]);
   if (d === undefined) {
     return (
-      <div className="carte compacte">
-        <span className="doux petit gras">Dernière fois</span>
+      <div className="derniere-fois">
+        <span className="doux">Dernière fois</span>
         <span className="gras">Première fois sur cet exercice</span>
       </div>
     );
@@ -540,9 +543,9 @@ function DernierePerf({ ex, seanceId }: { ex: ExercicePrevu; seanceId: string })
         : `${kg(c)} kg × ${reps}`;
   }
   return (
-    <div className="carte compacte">
-      <span className="doux petit gras">Dernière fois · {ilYA(d.seance.debut, Date.now())}</span>
-      <span className="gras" style={{ fontSize: 17 }}>{texte}</span>
+    <div className="derniere-fois">
+      <span className="doux">Dernière fois · {ilYA(d.seance.debut, Date.now())}</span>
+      <span className="gras">{texte}</span>
     </div>
   );
 }
@@ -586,7 +589,7 @@ function Repos(props: {
   return (
     <div className={`repos ${e.termine ? 'fini' : ''}`} role="dialog" aria-label="Repos">
       <div className="pile" style={{ alignItems: 'center', gap: 4 }}>
-        <span style={{ fontSize: 22, fontWeight: 800 }}>{e.termine ? 'Repos terminé' : 'Repos'}</span>
+        <span style={{ fontSize: 'var(--t-5)', fontWeight: 800 }}>{e.termine ? 'Repos terminé' : 'Repos'}</span>
       </div>
       <div className="anneau">
         <svg viewBox="0 0 280 280" role="img" aria-label={`Temps restant : ${minSec(e.restantSec)}`}>
@@ -622,10 +625,10 @@ function Repos(props: {
         ))}
         <div className="carte compacte">
           <span className="etiquette" style={{ color: 'inherit', opacity: 0.7 }}>Ensuite</span>
-          <span className="gras" style={{ fontSize: 17 }}>{props.prochain}</span>
+          <span className="gras" style={{ fontSize: 'var(--t-4)' }}>{props.prochain}</span>
         </div>
         <div className="grille-2">
-          <button className="bouton" style={{ minHeight: 56, fontSize: 18 }} onClick={props.onPlus30}>+30 s</button>
+          <button className="bouton" style={{ minHeight: 56, fontSize: 'var(--t-4)' }} onClick={props.onPlus30}>+30 s</button>
           <button className="bouton principal" onClick={props.onFin}>{e.termine ? 'Série suivante' : 'Passer'}</button>
         </div>
       </div>
@@ -645,10 +648,11 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
     const ss = await db.series.toArray();
     return recordsBattus(seance.id, toutes.map((x) => (x.id === seance.id ? { ...x, statut: 'terminee' as const } : x)), ss, poids);
   }, [seance.id, series.length, poids]);
+  // Le ressenti n'est redemandé que pour les exercices où il manque (souvent déjà donné pendant le repos).
+  const [aDemander, setADemander] = useState(() => new Set(seance.plan.exercices.filter((ex) => !seance.ressentis?.[ex.exerciceId]).map((ex) => ex.exerciceId)));
   return (
     <div className="seance" role="dialog" aria-label="Fin de séance">
-      <span className="surtitre">Bravo</span>
-      <h1 className="titre">Séance terminée</h1>
+      <h1 className="titre" style={{ fontSize: 'var(--t-7)' }}>Séance terminée</h1>
       <div className="grille-3">
         <div className="carte compacte"><span className="grand-chiffre">{dureeMin}</span><span className="doux petit gras">minutes</span></div>
         <div className="carte compacte"><span className="grand-chiffre">{series.length}</span><span className="doux petit gras">séries</span></div>
@@ -678,11 +682,16 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
               : s.map((x) => `${x.reps}${x.chargeKg ? ` × ${kg(x.chargeKg)}` : ''}`).join(' · ');
           return (
             <div key={ex.exerciceId} className="pile" style={{ gap: 6, padding: '10px 0', borderBottom: '1px solid #222224' }}>
-              <div className="ligne ecartee">
-                <span className="gras">{ex.nom}</span>
-                <span className="doux">{detail}</span>
+              <div className="ligne ecartee" style={{ alignItems: 'baseline' }}>
+                <span className="gras" style={{ minWidth: 0 }}>{ex.nom}</span>
+                <span className="doux" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>{detail}</span>
               </div>
-              {s.length > 0 && ex.mesure !== 'test' && (
+              {s.length > 0 && ex.mesure !== 'test' && !aDemander.has(ex.exerciceId) && seance.ressentis?.[ex.exerciceId] && (
+                <button className="bouton discret petit" style={{ alignSelf: 'flex-start', padding: 0, minHeight: 32, fontWeight: 500, fontSize: 'var(--t-2)' }} onClick={() => setADemander(new Set([...aDemander, ex.exerciceId]))}>
+                  Ressenti : {RESSENTIS.find((r) => r.v === seance.ressentis?.[ex.exerciceId])?.nom.toLowerCase()} · modifier
+                </button>
+              )}
+              {s.length > 0 && ex.mesure !== 'test' && (aDemander.has(ex.exerciceId) || !seance.ressentis?.[ex.exerciceId]) && (
                 <BoutonsRessenti
                   petit
                   valeur={seance.ressentis?.[ex.exerciceId]}
@@ -741,7 +750,7 @@ function SaisieTest({ ex, onValider }: { ex: ExercicePrevu; onValider: (v: numbe
         />
         <span className="doux gras">{e ? NOMS_UNITES[e.unite] : ''}</span>
       </label>
-      {e?.unite === 's' && (
+      {AFFICHER_CHRONO_VIDEO && e?.unite === 's' && (
         <button className="bouton plein" onClick={() => setChrono(true)}>Chronométrer sur une vidéo</button>
       )}
       <button className="bouton principal geant" disabled={!ok} onClick={() => onValider(Math.round(v * 100) / 100)}>
@@ -810,7 +819,7 @@ function Navette({ onValider }: { onValider: (palier: number) => void }) {
   return (
     <div className="carte" style={{ alignItems: 'center', gap: 12 }}>
       <span className="etiquette">Palier</span>
-      <span className="valeur-geante" style={{ fontSize: 96 }}>{palier}</span>
+      <span className="valeur-geante" style={{ fontSize: 'var(--d-3)' }}>{palier}</span>
       <span className="doux gras">{(8 + 0.5 * palier).toString().replace('.', ',')} km/h · aller {allers + 1}</span>
       <div className="barre-progres" style={{ width: '100%', height: 10 }}><div style={{ width: `${Math.round(dansAller * 100)}%`, transition: 'none' }} /></div>
       <button className="bouton principal geant" onClick={() => onValider(palier)}>J’arrête : palier {palier}</button>
@@ -851,7 +860,7 @@ function BoutonsRessenti({ valeur, onChoisir, petit }: { valeur?: Ressenti; onCh
           role="radio"
           aria-checked={valeur === r.v}
           className={`bouton ${valeur === r.v ? 'choisi-ressenti' : ''}`}
-          style={{ minHeight: petit ? 40 : 48, fontSize: petit ? 13 : 15, padding: 0 }}
+          style={{ minHeight: petit ? 40 : 48, fontSize: petit ? 'var(--t-2)' : 'var(--t-3)', padding: 0 }}
           onClick={() => onChoisir(r.v)}
         >
           {r.nom}
@@ -928,7 +937,7 @@ function Intervalles({ ex, faites, son, onRound }: { ex: ExercicePrevu; faites: 
     return (
       <div className="carte" style={{ gap: 14, alignItems: 'center' }}>
         <span className="etiquette">{ex.series} rounds</span>
-        <span className="valeur-geante" style={{ fontSize: 44, textAlign: 'center' }}>
+        <span className="valeur-geante" style={{ fontSize: 'var(--d-1)', textAlign: 'center' }}>
           {Math.round(effort) >= 60 ? `${effort / 60} min` : `${effort} s`} {frappe ? 'de round' : fort ? 'à fond' : 'd’effort soutenu'}
         </span>
         <span className="doux gras">puis {recup >= 60 ? `${recup / 60} min` : `${recup} s`} de récupération</span>
@@ -950,10 +959,10 @@ function Intervalles({ ex, faites, son, onRound }: { ex: ExercicePrevu; faites: 
       aria-live="polite"
     >
       <span className="etiquette" style={{ color: 'inherit', opacity: 0.75 }}>{enEffort ? `Round ${round} sur ${ex.series}` : `Avant le round ${round} sur ${ex.series}`}</span>
-      <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-0.02em' }}>
+      <span style={{ fontSize: 'var(--t-7)', fontWeight: 800, letterSpacing: '-0.02em' }}>
         {enEffort ? (frappe ? 'ROUND : FRAPPEZ' : fort ? 'À FOND' : 'EFFORT SOUTENU') : 'RÉCUPÉRATION'}
       </span>
-      <span className="valeur-geante" style={{ fontSize: 96 }}>{minSec(reste)}</span>
+      <span className="valeur-geante" style={{ fontSize: 'var(--d-3)' }}>{minSec(reste)}</span>
       <span className="petit gras" style={{ opacity: 0.8, textAlign: 'center' }}>
         {enEffort
           ? frappe

@@ -133,7 +133,7 @@ try {
   await feuille('Ajouter un aliment').getByRole('button', { name: /^Oeuf de poule, entier, cuit dur/ }).click();
   await page.getByRole('button', { name: 'Une portion de plus' }).click();
   await page.getByRole('button', { name: 'Une portion de plus' }).click();
-  verifier(await vu(page.getByText('2 ×')), 'portion « 1 œuf » proposée, 2 œufs choisis');
+  verifier(await vu(page.getByRole('dialog', { name: /^Oeuf de poule/ }).getByText('2 ×')), 'portion « 1 œuf » proposée, 2 œufs choisis');
   await page.getByRole('button', { name: 'Midi' }).click();
   await capture('j6-02-quantite');
   await page.getByRole('button', { name: 'Ajouter', exact: true }).click();
@@ -215,6 +215,8 @@ try {
   await page.getByRole('button', { name: 'Enregistrer comme repas' }).click();
   await feuille('Enregistrer comme repas').getByLabel('Nom du repas').fill('Mon midi');
   await feuille('Enregistrer comme repas').getByRole('button', { name: 'Enregistrer' }).click();
+  // Attendre la confirmation (repas écrit dans la base) avant de changer de jour.
+  await page.getByText('Repas « Mon midi » enregistré').waitFor();
   await aller(26, 9);
   await page.getByRole('button', { name: 'Nutrition', exact: true }).click();
   await page.getByRole('button', { name: 'Ajouter un aliment' }).click();
