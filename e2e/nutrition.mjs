@@ -70,7 +70,7 @@ let reseau = true;
 await contexte.route('https://world.openfoodfacts.org/**', (route) => {
   if (!reseau) return route.abort('internetdisconnected');
   const url = route.request().url();
-  if (url.includes('/product/7610000000017')) {
+  if (url.includes('/product/7610000000017') || url.includes('/product/7610000000011')) {
     return route.fulfill({ json: { status: 1, product: { product_name: 'Skyr nature', brands: 'Migros', quantity: '450 g', serving_quantity: 150, nutriments: { 'energy-kcal_100g': 63, proteins_100g: 11, fat_100g: 0.2, carbohydrates_100g: 4 } } } });
   }
   if (url.includes('/product/')) return route.fulfill({ json: { status: 0 } });
@@ -162,7 +162,18 @@ try {
   await page.getByRole('button', { name: 'Annuler' }).click();
   verifier(await vu(page.getByRole('button', { name: 'Modifier : Burger et frites' })), 'suppression annulée');
 
-  console.log('Scan : produit connu, inconnu, hors ligne');
+  console.log('Scan : caméra, photo, produit connu, inconnu, hors ligne');
+  await page.getByRole('button', { name: 'Scanner', exact: true }).click();
+  verifier(await vu(page.getByText('Placez le code-barres dans le cadre orange.')), 'caméra ouverte (une seule fois)');
+  const flux = await page.evaluate(() => new Promise((ok) => setTimeout(() => {
+    const v = document.querySelector('video');
+    ok(!!v && !!v.srcObject && v.srcObject.getVideoTracks()[0]?.readyState === 'live');
+  }, 1500)));
+  verifier(flux, 'image de la caméra toujours active après les rafraîchissements de l’écran');
+  await page.getByLabel('Photographier le code-barres').setInputFiles('e2e/code-test.png');
+  verifier(await vu(feuille('Skyr nature')), 'code lu sur une photo (solution de secours)');
+  await feuille('Skyr nature').getByRole('button', { name: 'Fermer' }).click();
+  verifier(await page.evaluate(() => !document.querySelector('video')), 'caméra éteinte après la lecture');
   await page.getByRole('button', { name: 'Scanner', exact: true }).click();
   await page.getByRole('textbox', { name: 'Code-barres' }).fill('7610000000017');
   await page.getByRole('button', { name: 'OK' }).click();

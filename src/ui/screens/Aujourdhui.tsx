@@ -365,7 +365,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
         <button className="bouton plein" onClick={() => setMobilite(true)}>Séance de mobilité (15 min)</button>
       )}
 
-      {!enCours && !avantDebut && (
+      {!enCours && (
         <button className="bouton plein" onClick={() => setFeuille('libre')}>Séance libre</button>
       )}
 
@@ -466,7 +466,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       {feuille === 'libre' && (
         <FeuilleSeanceLibre
           dispo={journee.dispo}
-          remplacables={aFaire}
+          remplacables={avantDebut ? [] : aFaire}
           onFermer={() => setFeuille(null)}
           onCommencer={async (ids, remplace) => {
             setFeuille(null);

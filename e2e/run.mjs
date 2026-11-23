@@ -89,6 +89,7 @@ try {
   await page.getByRole('button', { name: 'C’est parti' }).click();
   verifier(await vu(page.getByText(/Commence le lundi 28 décembre/)), 'avant le début : date de début affichée');
   verifier(await page.getByText('Aucune séance pour l').isVisible(), 'écran de première utilisation non vide');
+  verifier(await vu(page.getByRole('button', { name: 'Séance libre' })), 'séance libre disponible avant le début du programme');
   await page.getByRole('button', { name: 'Séance d’essai' }).click();
   verifier(!(await page.getByText(/changement.* selon le matériel/).isVisible()), 'en salle, la séance n’est pas modifiée');
   await capture('01-aujourdhui');
