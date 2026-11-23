@@ -1,4 +1,4 @@
-import { PastilleSeance } from '../couleurs';
+import { PastilleSeance, couleurSeance } from '../couleurs';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
@@ -251,15 +251,16 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       )}
 
       {(enCours || (plan && (!avantDebut || essai))) && (
-      <section className="carte" aria-label="Séance du jour">
-        <span className="doux petit gras">
+      <section className="carte vedette" aria-label="Séance du jour" style={{ '--teinte': couleurSeance((enCours?.plan ?? plan)?.programme?.lettre) } as React.CSSProperties}>
+        <span className="doux petit gras ligne" style={{ gap: 8 }}>
+          <PastilleSeance lettre={(enCours?.plan ?? plan)?.programme?.lettre} />
           {enCours
             ? 'Séance en cours'
             : essai || avantDebut
               ? 'Séance d’essai (avant le début du programme)'
               : `Semaine ${index + 1} · ${NOMS_PHASES[info.phase]}${info.allegee || semaineAllegee ? ' · allégée' : ''}${plan?.programme?.lettre && plan.programme.lettre.length === 1 && plan.programme.lettre !== 'L' && plan.programme.lettre !== 'M' ? ` · séance ${plan.programme.lettre}` : ''}`}
         </span>
-        <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.01em' }}>{enCours ? enCours.nom : plan?.nom}</span>
+        <span className="nom-seance">{enCours ? enCours.nom : plan?.nom}</span>
         {enCours ? (
           <button className="bouton principal plein" onClick={() => { preparerSon(); ouvrirSeance(enCours.id); }}>
             Reprendre la séance · {minSec((maintenant - enCours.debut) / 1000)}
@@ -405,7 +406,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       )}
 
       {sauvegardeEnRetard && (
-        <button className="carte compacte" style={{ border: 'none', textAlign: 'left' }} onClick={() => allerA('profil')}>
+        <button className="carte compacte discrete" style={{ textAlign: 'left' }} onClick={() => allerA('profil')}>
           <span className="gras">Pensez à sauvegarder vos données</span>
           <span className="doux petit">
             {derniereSauvegarde ? `Dernière sauvegarde ${ilYA(derniereSauvegarde, maintenant)}.` : 'Aucune sauvegarde pour l’instant.'} Touchez pour exporter.

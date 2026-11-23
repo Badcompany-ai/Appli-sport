@@ -73,6 +73,16 @@ button:disabled { opacity: 0.4; cursor: default; }
 
 .carte { background: var(--carte); border-radius: var(--rayon); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
 .carte.compacte { padding: 14px 16px; }
+/* Carte principale (séance du jour) : légère teinte de la couleur de la séance. */
+.carte.vedette {
+  --teinte: var(--seance-autre);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--teinte) 14%, var(--carte)) 0%, var(--carte) 140px);
+  border: 1px solid color-mix(in srgb, var(--teinte) 28%, transparent);
+  padding: 20px 18px;
+}
+.nom-seance { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; text-wrap: balance; }
+/* Rappels secondaires : sans fond, pour ne pas concurrencer la séance. */
+.carte.discrete { background: transparent; border: 1px solid var(--trait); color: inherit; }
 
 .grand-chiffre { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
 .grand-chiffre small { font-size: 15px; font-weight: 600; color: var(--doux); }
