@@ -2,7 +2,7 @@
 
 Application d'entraînement personnelle (PWA) pour un utilisateur francophone non développeur, utilisée surtout sur iPhone pendant les séances, aussi sur Mac.
 
-**À lire en premier à chaque session : `SUIVI.md`** (état des jalons, décisions D1…D19, réponses de l'interview, questions ouvertes). Cahier des charges validé : `docs/cahier-des-charges.md` ; consigne d'origine : `docs/consigne-initiale.md` ; audit du programme : `docs/audit-programme.md`.
+**Résumé autonome pour une autre conversation : `docs/CONTEXTE-COMPLET.md`. À lire en premier à chaque session : `SUIVI.md`** (état des jalons, décisions D1…D19, réponses de l'interview, questions ouvertes). Cahier des charges validé : `docs/cahier-des-charges.md` ; consigne d'origine : `docs/consigne-initiale.md` ; audit du programme : `docs/audit-programme.md`.
 
 ## Règles de l'utilisateur (non négociables)
 
