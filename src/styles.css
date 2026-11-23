@@ -85,7 +85,9 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* Rappels secondaires : sans fond, pour ne pas concurrencer la séance. */
 .carte.discrete { background: transparent; border: 1px solid var(--trait); color: inherit; }
 
-.grand-chiffre { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
+/* Chiffres de largeur fixe : un nombre qui change ne fait pas bouger ce qui l'entoure. */
+.grand-chiffre { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.jauge-valeurs, .tableau, .choix-reps, .derniere-fois { font-variant-numeric: tabular-nums; }
 .grand-chiffre small { font-size: 15px; font-weight: 600; color: var(--doux); }
 
 /* ---------- Boutons ---------- */

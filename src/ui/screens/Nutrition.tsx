@@ -331,7 +331,7 @@ function JaugeGrande({ nom, valeur, cible, unite, texte }: { nom: string; valeur
     <div className="pile" style={{ gap: 6 }} aria-label={`${nom} : ${ent(valeur)} sur ${ent(cible)} ${unite}`}>
       <div className="ligne ecartee" style={{ alignItems: 'baseline' }}>
         <span className="gras">{nom}</span>
-        <span><span className="grand-chiffre" style={{ fontSize: 26 }}>{ent(valeur)}</span><span className="doux petit"> / {ent(cible)} {unite}</span></span>
+        <span className="jauge-valeurs"><span className="grand-chiffre" style={{ fontSize: 26 }}>{ent(valeur)}</span><span className="doux petit"> / {ent(cible)} {unite}</span></span>
       </div>
       <div className="jauge"><div style={{ width: `${Math.min(100, (valeur / Math.max(1, cible)) * 100)}%` }} /></div>
       <span className="doux petit">{texte}</span>
