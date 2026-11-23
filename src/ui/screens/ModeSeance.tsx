@@ -1,3 +1,4 @@
+import { AFFICHER_CHRONO_VIDEO } from '../fonctionsCachees';
 import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
@@ -406,7 +407,7 @@ function SaisieReps({
         <span className="etiquette">Distance</span>
         <span className="valeur-geante">{ex.distanceM} m</span>
         <button className="bouton principal geant" onClick={() => onValider({ reps: 1 })}>Sprint fait</button>
-        <button className="bouton discret" onClick={() => setChronoSprint(true)}>Chronométrer sur une vidéo (facultatif)</button>
+        {AFFICHER_CHRONO_VIDEO && <button className="bouton discret" onClick={() => setChronoSprint(true)}>Chronométrer sur une vidéo (facultatif)</button>}
         {chronoSprint && <ChronoVideo onFermer={() => setChronoSprint(false)} onTemps={(s) => { setChronoSprint(false); onValider({ reps: 1, valeur: s }); }} />}
       </div>
     );
@@ -749,7 +750,7 @@ function SaisieTest({ ex, onValider }: { ex: ExercicePrevu; onValider: (v: numbe
         />
         <span className="doux gras">{e ? NOMS_UNITES[e.unite] : ''}</span>
       </label>
-      {e?.unite === 's' && (
+      {AFFICHER_CHRONO_VIDEO && e?.unite === 's' && (
         <button className="bouton plein" onClick={() => setChrono(true)}>Chronométrer sur une vidéo</button>
       )}
       <button className="bouton principal geant" disabled={!ok} onClick={() => onValider(Math.round(v * 100) / 100)}>
