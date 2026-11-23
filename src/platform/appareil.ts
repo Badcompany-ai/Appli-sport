@@ -114,8 +114,8 @@ export function estInstallee(): boolean {
 // ---------- Partage de fichier ----------
 
 /** Envoie un fichier via le menu de partage (AirDrop, Fichiers, iCloud Drive), sinon le télécharge. */
-export async function partagerFichier(nom: string, texte: string): Promise<'partage' | 'telecharge' | 'annule'> {
-  const fichier = new File([texte], nom, { type: 'application/json' });
+export async function partagerFichier(nom: string, texte: string, type = 'application/json'): Promise<'partage' | 'telecharge' | 'annule'> {
+  const fichier = new File([texte], nom, { type });
   const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean };
   if (nav.share && nav.canShare?.({ files: [fichier] })) {
     try {
@@ -134,4 +134,12 @@ export async function partagerFichier(nom: string, texte: string): Promise<'part
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
   return 'telecharge';
+}
+
+/** Ouvre un fichier de calendrier : sur iPhone, Safari propose « Ajouter tout » au Calendrier. */
+export function ouvrirCalendrier(texte: string) {
+  const url = URL.createObjectURL(new Blob([texte], { type: 'text/calendar;charset=utf-8' }));
+  const fenetre = window.open(url, '_blank');
+  if (!fenetre) window.location.assign(url);
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }

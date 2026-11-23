@@ -4,6 +4,7 @@ import { ecrireReglage } from '../data/operations';
 import type { Profil } from '../domain/profil';
 import type { Objectif } from '../domain/niveau';
 import type { Zone } from '../domain/adaptation';
+import { RAPPELS_DEFAUT, type ReglageRappels } from '../domain/calendrier';
 
 export interface ReglageRaccourci {
   actif: boolean;
@@ -25,7 +26,13 @@ export const DEFAUTS = {
   /** Réponse à la proposition de semaine allégée. */
   allegement: null as { semaine: number; accepte: boolean } | null,
   /** Rappel du tour de taille repoussé (« plus tard »). */
-  tailleIgnoreeLe: 0
+  tailleIgnoreeLe: 0,
+  /** Lundi du dernier bilan hebdomadaire ouvert. */
+  bilanVu: 0,
+  /** Ajustement automatique : date de la dernière décision (0 = depuis la première pesée). */
+  ajustementDepuis: 0,
+  /** Rappels au Calendrier. */
+  rappels: RAPPELS_DEFAUT as ReglageRappels
 };
 
 type Cles = keyof typeof DEFAUTS;

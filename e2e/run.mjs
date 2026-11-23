@@ -223,7 +223,7 @@ try {
   verifier(await vu(page.getByRole('button', { name: /Supprimer la séance/ })), 'la séance apparaît dans l’historique');
 
   console.log('Onglet Progrès : graphiques et historique modifiable');
-  await page.getByRole('button', { name: 'Progrès' }).click();
+  await page.getByRole('button', { name: 'Progrès', exact: true }).click();
   verifier(await vu(page.getByRole('button', { name: /Squat arrière/ }).first()), 'exercice listé dans Progrès');
   await page.getByRole('button', { name: /Squat arrière/ }).first().click();
   verifier(await vu(page.getByText('Maximum estimé (1 répétition)')), 'graphique du maximum estimé');
@@ -264,7 +264,7 @@ try {
   await page.getByRole('button', { name: 'Options de la séance' }).click();
   await page.getByRole('button', { name: 'Abandonner la séance' }).click();
   await page.getByRole('heading', { name: "Aujourd'hui" }).waitFor();
-  await page.getByRole('button', { name: 'Programme' }).click();
+  await page.getByRole('button', { name: 'Programme', exact: true }).click();
   verifier(await vu(page.getByText('Cette semaine')), 'onglet Programme : semaine en cours');
   verifier(await vu(page.getByText('Test léger de reprise')), 'test léger prévu en semaine 1');
   verifier(await vu(page.getByText(/Les objectifs seront proposés/)), 'objectifs annoncés après le premier test');
@@ -281,7 +281,7 @@ try {
   await page.getByRole('button', { name: "Aujourd'hui" }).click();
 
   console.log('Bibliothèque d’exercices');
-  await page.getByRole('button', { name: 'Programme' }).click();
+  await page.getByRole('button', { name: 'Programme', exact: true }).click();
   await page.getByLabel('Rechercher un exercice').fill('traction');
   verifier(await vu(page.getByRole('button', { name: 'Tractions lestées' })), 'recherche dans la bibliothèque');
   await capture('11-bibliotheque');
@@ -296,7 +296,7 @@ try {
   await contexte.setOffline(false);
 
   console.log('Sauvegarde : export puis import');
-  await page.getByRole('button', { name: 'Profil' }).click();
+  await page.getByRole('button', { name: 'Profil', exact: true }).click();
   await capture('12-profil');
   const [telechargement] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Exporter une sauvegarde' }).click()]);
   const chemin = `${SORTIE}/${telechargement.suggestedFilename()}`;

@@ -12,6 +12,8 @@ import {
 } from '../../domain/adaptation';
 import { FeuilleMesure, usePoids } from '../corps';
 import { peseeConseillee, tailleDue } from '../../domain/corps';
+import { FeuilleBilan } from '../Bilan';
+import { semaineActive } from '../../data/bilan';
 import { CarteEquilibre, CarteSommeil, FeuilleChoixSeance, FeuilleSeanceLibre, FeuilleSignalement } from '../Adaptation';
 import type { SeancePrevue } from '../../domain/types';
 import { dateLongue, ilYA, kg, minSec } from '../../domain/format';
@@ -62,6 +64,10 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
   const { poids, pesees, tailles } = usePoids();
   const [mesure, setMesure] = useState<'poids' | 'taille' | null>(null);
   const [tailleIgnoree, setTailleIgnoree] = useReglage('tailleIgnoreeLe');
+  const [bilanVu, setBilanVu] = useReglage('bilanVu');
+  const [bilanOuvert, setBilanOuvert] = useState(false);
+  const lundiPasse = (() => { const d = lundiDe(new Date(maintenant)); d.setDate(d.getDate() - 7); return d.getTime(); })();
+  const bilanDispo = useLiveQuery(async () => bilanVu < lundiPasse && (await semaineActive(lundiPasse)), [bilanVu, lundiPasse, historique?.length]);
   const jour = journee.jour;
   const cle = cleDuJour(maintenant);
 
@@ -178,6 +184,14 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
           </div>
         </section>
       )}
+
+      {!enCours && bilanDispo && (
+        <button className="carte compacte alerte" style={{ border: 'none', textAlign: 'left' }} onClick={() => setBilanOuvert(true)}>
+          <span className="gras">Bilan de la semaine dernière</span>
+          <span className="doux petit">Séances, poids, nutrition et sommeil, en une page. Touchez pour l’ouvrir.</span>
+        </button>
+      )}
+      {bilanOuvert && <FeuilleBilan lundi={lundiPasse} onFermer={() => { setBilanOuvert(false); void setBilanVu(lundiPasse); }} />}
 
       {!enCours && (
         <CarteSommeil

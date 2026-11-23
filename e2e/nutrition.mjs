@@ -112,7 +112,7 @@ try {
     await feuille('Pesée').getByRole('button', { name: 'Enregistrer' }).click();
     await page.getByText(/^Pesée : /).waitFor();
   }
-  await page.getByRole('button', { name: 'Progrès' }).click();
+  await page.getByRole('button', { name: 'Progrès', exact: true }).click();
   verifier(await vu(page.getByText('Tendance sur 7 jours')), 'tendance affichée en premier');
   verifier(await vu(page.getByText(/kg\/sem\./)), 'rythme réel en kg par semaine après 14 jours');
   await page.getByRole('region', { name: 'Corps' }).getByRole('button', { name: 'Mesurer' }).click();
@@ -122,7 +122,7 @@ try {
 
   console.log('Nutrition : objectifs du jour');
   await aller(25, 12);
-  await page.getByRole('button', { name: 'Nutrition' }).click();
+  await page.getByRole('button', { name: 'Nutrition', exact: true }).click();
   const avant = await lireJauge('Calories');
   verifier(avant.valeur === 0 && avant.cible > 2000 && avant.cible < 2600, `objectif d’un jour sans sport : ${avant.cible} kcal`);
   verifier((await lireJauge('Protéines')).cible === 161, 'protéines : 2 g par kg de la tendance (≈ 80,5 kg)');
@@ -155,7 +155,7 @@ try {
   await page.getByRole('button', { name: 'Modifier : Burger et frites' }).click();
   await feuille('Burger et frites').getByLabel('Calories').fill('1000');
   await feuille('Burger et frites').getByRole('button', { name: 'Enregistrer' }).click();
-  verifier(await vu(page.getByRole('button', { name: 'Modifier : Burger et frites' }).getByText('1 000 kcal')), 'aliment modifié');
+  verifier(await vu(page.getByRole('button', { name: 'Modifier : Burger et frites' }).getByText(/1\s?000 kcal/)), 'aliment modifié');
   await page.getByRole('button', { name: 'Modifier : Burger et frites' }).click();
   await feuille('Burger et frites').getByRole('button', { name: 'Supprimer' }).click();
   verifier(await absent(page.getByRole('button', { name: 'Modifier : Burger et frites' })), 'aliment supprimé');
@@ -216,7 +216,7 @@ try {
   await feuille('Enregistrer comme repas').getByLabel('Nom du repas').fill('Mon midi');
   await feuille('Enregistrer comme repas').getByRole('button', { name: 'Enregistrer' }).click();
   await aller(26, 9);
-  await page.getByRole('button', { name: 'Nutrition' }).click();
+  await page.getByRole('button', { name: 'Nutrition', exact: true }).click();
   await page.getByRole('button', { name: 'Ajouter un aliment' }).click();
   verifier(await vu(feuille('Ajouter un aliment').getByText('Récents')), 'aliments récents en tête de liste');
   await feuille('Ajouter un aliment').getByRole('button', { name: /^Mon midi/ }).click();
@@ -235,18 +235,18 @@ try {
   verifier(await vu(feuille('Séance libre').getByText(/environ 800 kcal/)), 'dépense estimée affichée avant d’enregistrer (≈ 800 kcal)');
   verifier(await vu(feuille('Séance libre').getByText(/valeur du tennis en double/)), 'source de la valeur du padel expliquée');
   await feuille('Séance libre').getByRole('button', { name: 'Enregistrer l’activité' }).click();
-  await page.getByRole('button', { name: 'Nutrition' }).click();
+  await page.getByRole('button', { name: 'Nutrition', exact: true }).click();
   verifier(await vu(page.getByText(/Padel · 120 min · 8\d\d kcal/)), 'padel dans « Sport du jour »');
   const avecSport = await lireJauge('Calories');
   verifier(avecSport.cible - sansSport.cible > 750, `objectif du jour augmenté de ${avecSport.cible - sansSport.cible} kcal`);
   await capture('j6-03-nutrition');
   await page.getByRole('button', { name: "Aujourd'hui" }).click();
   verifier(await vu(page.getByRole('region', { name: 'Séance du jour' }).getByRole('button', { name: 'Commencer', exact: true })), 'après le padel, la séance prévue reste à faire le même jour');
-  await page.getByRole('button', { name: 'Nutrition' }).click();
+  await page.getByRole('button', { name: 'Nutrition', exact: true }).click();
 
   console.log('Données conservées');
   await page.reload();
-  await page.getByRole('button', { name: 'Nutrition' }).click();
+  await page.getByRole('button', { name: 'Nutrition', exact: true }).click();
   verifier(await vu(page.getByRole('button', { name: /^Modifier : / }).nth(3)), 'le journal survit à la fermeture');
   await contexte.setOffline(true);
   reseau = false;

@@ -1,3 +1,4 @@
+import { nombre } from '../domain/format';
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { mesures, ajouterMesure, supprimerMesure, restaurerMesure } from '../data/nutrition';
@@ -16,7 +17,7 @@ export function usePoids() {
   return { poids: t ?? profil?.poidsKg ?? 82, tendance: t, pesees, tailles };
 }
 
-export const f1 = (x: number) => (Math.round(x * 10) / 10).toLocaleString('fr-CH', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+export const f1 = (x: number) => nombre(x, 1);
 
 /** Pesée en 5 secondes, ou tour de taille : valeur préremplie, + et −, puis Enregistrer. */
 export function FeuilleMesure({ type, depart, onFermer }: { type: Mesure['type']; depart: number; onFermer: () => void }) {
