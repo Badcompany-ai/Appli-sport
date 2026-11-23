@@ -113,11 +113,13 @@ export function Programme() {
               const fini = index >= debutPhase + p.semaines;
               const part = dedans ? (index - debutPhase + 1) / p.semaines : fini ? 1 : 0;
               return (
-                <div key={p.cle} className="pile" style={{ gap: 4 }}>
-                  <div style={{ height: 8, borderRadius: 4, background: 'var(--accent-piste)', overflow: 'hidden' }}>
-                    <div style={{ height: 8, width: `${part * 100}%`, background: 'var(--accent)' }} />
+                <div key={p.cle} className="pile" style={{ gap: 6 }}>
+                  <div style={{ height: 8, borderRadius: 4, background: 'var(--carte-2)', overflow: 'hidden' }}>
+                    <div style={{ height: 8, width: `${part * 100}%`, background: dedans ? 'var(--accent)' : 'var(--doux)' }} />
                   </div>
-                  <span className="doux" style={{ fontSize: 10, fontWeight: 600 }}>{p.cle === 'reprise' ? 'Rep.' : p.cle.toUpperCase()}</span>
+                  <span style={{ fontSize: 11, fontWeight: dedans ? 800 : 600, color: dedans ? 'var(--texte)' : 'var(--doux)' }}>
+                    {p.cle === 'reprise' ? 'Rep.' : p.cle.toUpperCase()}{dedans && p.cle !== 'reprise' ? ' · ici' : ''}
+                  </span>
                 </div>
               );
             })}
