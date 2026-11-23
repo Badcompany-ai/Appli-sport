@@ -218,7 +218,7 @@ export function Nutrition() {
           {COMPLEMENTS.map((c, i) => {
             const p = jour === aujourdhui ? pris?.[i] : undefined;
             return (
-              <button key={c.id} className="bouton" onClick={() => void ajouterComplement(c)} aria-label={`Ajouter 1 dose : ${c.nom}`} style={p?.aujourdhui ? { boxShadow: 'inset 0 0 0 2px var(--accent)' } : undefined}>
+              <button key={c.id} className="bouton" onClick={() => void ajouterComplement(c)} aria-label={`Ajouter 1 dose : ${c.nom}`} aria-pressed={!!p?.aujourdhui}>
                 <span>{p?.aujourdhui ? '✓ ' : ''}{c.nom.replace(' en poudre', '')}</span>
                 <span className="doux" style={{ fontSize: 11 }}>{p?.aujourdhui ? 'pris' : '+ 1 dose'}</span>
               </button>
@@ -741,7 +741,7 @@ function FeuilleEnregistrerRepas({ entrees, onFermer }: { entrees: EntreeJournal
           const on = choisis.includes(e.id);
           return (
             <button key={e.id} className="lien-liste" aria-pressed={on} onClick={() => setChoisis(on ? choisis.filter((x) => x !== e.id) : [...choisis, e.id])}>
-              <span className={`gras ${on ? 'mention-orange' : 'doux'}`}>{on ? '✓ ' : ''}{e.nom}</span>
+              <span className={`gras ${on ? '' : 'doux'}`}>{on ? '✓ ' : ''}{e.nom}</span>
               <span className="doux petit">{e.quantite} · {ent(e.nutriments.kcal)} kcal</span>
             </button>
           );

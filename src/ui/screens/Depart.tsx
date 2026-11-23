@@ -27,7 +27,7 @@ export function Depart({ initial, onTerminer, onAnnuler }: { initial: Profil | n
   const Choix = <T extends string | number>({ options, valeur, onChange, colonnes = 2 }: { options: { v: T; nom: string }[]; valeur: T; onChange: (v: T) => void; colonnes?: number }) => (
     <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colonnes}, minmax(0, 1fr))`, gap: 8 }} role="radiogroup">
       {options.map((o) => (
-        <button key={String(o.v)} role="radio" aria-checked={o.v === valeur} className={`bouton ${o.v === valeur ? 'principal' : ''}`} style={{ minHeight: 52, fontSize: 15 }} onClick={() => onChange(o.v)}>
+        <button key={String(o.v)} role="radio" aria-checked={o.v === valeur} className={`bouton ${o.v === valeur ? 'choisi' : ''}`} style={{ minHeight: 52, fontSize: 15 }} onClick={() => onChange(o.v)}>
           {o.nom}
         </button>
       ))}
@@ -93,7 +93,7 @@ export function Depart({ initial, onTerminer, onAnnuler }: { initial: Profil | n
             {NOMS_JOURS_COURTS.map((n, i) => {
               const on = p.jours.includes(i as Jour);
               return (
-                <button key={n} aria-pressed={on} className={`bouton ${on ? 'principal' : ''}`} style={{ minHeight: 48, padding: 0, fontSize: 13 }} onClick={() => maj({ jours: on ? p.jours.filter((j) => j !== i) : [...p.jours, i as Jour] })}>
+                <button key={n} aria-pressed={on} className={`bouton ${on ? 'choisi' : ''}`} style={{ minHeight: 48, padding: 0, fontSize: 13 }} onClick={() => maj({ jours: on ? p.jours.filter((j) => j !== i) : [...p.jours, i as Jour] })}>
                   {n}
                 </button>
               );

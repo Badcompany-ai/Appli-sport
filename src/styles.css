@@ -103,6 +103,9 @@ button:disabled { opacity: 0.4; cursor: default; }
 .bouton.plein { width: 100%; }
 /* Accepter une proposition : bien visible, sans voler la vedette au bouton orange de l'écran. */
 .bouton.clair { background: var(--texte); color: #000; }
+/* « Choisi » : toujours fond blanc, texte noir, partout dans l'app. */
+.bouton[aria-pressed='true'], .bouton[aria-checked='true'], .bouton.choisi, .bouton.choisi-ressenti { background: var(--texte); color: #000; }
+.bouton[aria-pressed='true'] .doux, .bouton.choisi .doux { color: #3a3a3c; }
 .bouton.discret { background: transparent; color: var(--doux); }
 .bouton.danger { color: var(--danger); }
 .bouton.rond { width: 44px; min-height: 44px; padding: 0; border-radius: 22px; }
@@ -141,7 +144,6 @@ button:disabled { opacity: 0.4; cursor: default; }
 .etiquette { font-size: 12px; font-weight: 700; color: var(--doux); letter-spacing: 0.06em; text-transform: uppercase; }
 .choix-reps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
 .choix-reps .bouton { min-height: 48px; padding: 0; font-size: 18px; }
-.choix-reps .bouton.choisi { background: var(--texte); color: #000; }
 
 /* ---------- Repos ---------- */
 .repos {
@@ -206,14 +208,12 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 .changement .titre-ch { font-weight: 700; }
 .changement .titre-ch b { color: var(--accent); }
 .lieux { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.lieux .bouton[aria-pressed='true'] { background: var(--accent); color: var(--accent-encre); }
 .champ-texte { width: 100%; min-height: 48px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 0 14px; font: inherit; font-size: 16px; }
 .lien-liste { background: none; border: none; text-align: left; width: 100%; padding: 12px 0; border-bottom: 1px solid #222224; display: flex; flex-direction: column; gap: 2px; }
 .mention-orange { color: var(--accent); }
 .pastille-seance { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
 /* ---------- Ressenti et records ---------- */
-.bouton.choisi-ressenti { background: var(--texte); color: #000; }
 .repos.fini .bouton.choisi-ressenti { background: #000; color: var(--accent); }
 .record-celebration { animation: record 700ms cubic-bezier(.2,1.4,.4,1); border: 1px solid var(--accent); }
 @keyframes record { 0% { transform: scale(.9); opacity: 0; } 60% { transform: scale(1.03); opacity: 1; } 100% { transform: none; } }
@@ -221,7 +221,6 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 /* ---------- Adaptation du jour (J5) ---------- */
 .pilules { display: flex; flex-wrap: wrap; gap: 8px; }
 .pilules .bouton { min-height: 44px; padding: 0 14px; font-size: 15px; }
-.pilules .bouton[aria-pressed='true'] { background: var(--accent); color: var(--accent-encre); }
 .grise { opacity: 0.45; }
 .grise .gras { text-decoration: line-through; }
 input[type='range'].curseur { width: 100%; accent-color: var(--accent); height: 32px; }

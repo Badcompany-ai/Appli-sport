@@ -25,7 +25,7 @@ export function FeuilleSignalement(props: {
       <div className="pile" style={{ gap: 8 }}>
         <span className="gras">Fatigue</span>
         <span className="doux petit">30 % de séries en moins, charges − 5 %, pas d’effort maximal en sprint ni en saut.</span>
-        <button className="bouton plein" aria-pressed={fatigue} onClick={() => props.onFatigue(!fatigue)} style={fatigue ? { background: 'var(--accent)', color: 'var(--accent-encre)' } : undefined}>
+        <button className="bouton plein" aria-pressed={fatigue} onClick={() => props.onFatigue(!fatigue)}>
           {fatigue ? 'Fatigue signalée' : enSeance ? 'Je suis fatigué : alléger la suite' : 'Je suis fatigué aujourd’hui'}
         </button>
       </div>
@@ -141,14 +141,14 @@ export function FeuilleSeanceLibre(props: {
       {onglet === 'exercices' ? (
         <>
           <input className="champ-texte" type="search" placeholder="Chercher un exercice" aria-label="Chercher un exercice" value={recherche} onChange={(e) => setRecherche(e.target.value)} />
-          {choisis.length > 0 && <span className="petit gras mention-orange">{choisis.length} exercice{choisis.length > 1 ? 's' : ''} choisi{choisis.length > 1 ? 's' : ''}</span>}
+          {choisis.length > 0 && <span className="petit gras">{choisis.length} exercice{choisis.length > 1 ? 's' : ''} choisi{choisis.length > 1 ? 's' : ''}</span>}
           <div className="carte" style={{ gap: 0, paddingTop: 0, paddingBottom: 0, maxHeight: '38dvh', overflowY: 'auto' }}>
             {liste.map((e) => {
               const on = choisis.includes(e.id);
               const dispo = estDisponible(e, props.dispo);
               return (
                 <button key={e.id} className="lien-liste" aria-pressed={on} onClick={() => setChoisis(on ? choisis.filter((x) => x !== e.id) : [...choisis, e.id])}>
-                  <span className={`gras ${on ? 'mention-orange' : ''}`}>{on ? '✓ ' : ''}{e.nom}</span>
+                  <span className="gras">{on ? '✓ ' : ''}{e.nom}</span>
                   <span className="doux petit">{NOMS_MOUVEMENTS[e.mouvement]}{dispo ? '' : ' · matériel absent ici'}</span>
                 </button>
               );
