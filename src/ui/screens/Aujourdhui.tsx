@@ -1,3 +1,4 @@
+import { PastilleSeance } from '../couleurs';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
@@ -424,7 +425,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
             {historique.slice(0, 20).map((s) => (
               <div key={s.id} className="element-liste">
                 <div className="pile" style={{ gap: 2 }}>
-                  <span className="gras">{s.nom}</span>
+                  <span className="gras ligne" style={{ gap: 8 }}><PastilleSeance lettre={s.plan.programme?.lettre} />{s.nom}</span>
                   <span className="doux petit">
                     {dateLongue(s.debut)} · {Math.max(1, Math.round(((s.fin ?? s.debut) - s.debut) / 60000))} min
                     {s.lieu ? ` · ${LIEUX.find((l) => l.id === s.lieu)?.nom}` : ''}

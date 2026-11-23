@@ -1,3 +1,4 @@
+import { PastilleSeance } from './couleurs';
 import { useMemo, useState } from 'react';
 import { EXERCICES, NOMS_MOUVEMENTS } from '../domain/exercices';
 import { estDisponible } from '../domain/remplacement';
@@ -85,7 +86,7 @@ export function FeuilleChoixSeance({ seances, actuelle, onChoisir, onFermer }: {
       <div className="carte" style={{ gap: 0, paddingTop: 0, paddingBottom: 0 }}>
         {seances.map((s) => (
           <button key={s.id} className="lien-liste" onClick={() => onChoisir(s.programme?.lettre ?? '')} aria-pressed={s.programme?.lettre === actuelle}>
-            <span className={`gras ${s.programme?.lettre === actuelle ? 'mention-orange' : ''}`}>{s.nom}</span>
+            <span className="gras ligne" style={{ gap: 8 }}><PastilleSeance lettre={s.programme?.lettre} />{s.nom}</span>
             <span className="doux petit">{s.exercices.length} exercices{s.programme?.lettre === actuelle ? ' · prévue aujourd’hui' : ''}</span>
           </button>
         ))}

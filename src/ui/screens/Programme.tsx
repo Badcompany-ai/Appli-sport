@@ -1,3 +1,4 @@
+import { PastilleSeance } from '../couleurs';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
@@ -149,12 +150,12 @@ export function Programme() {
               return (
                 <button key={s.id} className="element-liste" style={{ background: 'none', border: 'none', borderBottom: '1px solid #222224', width: '100%', textAlign: 'left' }} onClick={() => setSeanceVue(s)} aria-label={`Voir la séance : ${s.nom}`}>
                   <div className="pile" style={{ gap: 2 }}>
-                    <span className={`gras ${prochaine ? 'mention-orange' : ''}`}>{s.nom}</span>
+                    <span className="gras ligne" style={{ gap: 8 }}><PastilleSeance lettre={s.programme?.lettre} />{s.nom}</span>
                     <span className="doux petit">
                       {jours[i] !== undefined ? `${NOMS_JOURS[jours[i]]} (suggéré)` : ''} · {s.exercices.length} {s.programme?.type === 'test' ? 'épreuves ou exercices' : 'exercices'}
                     </span>
                   </div>
-                  <span className={`petit gras ${fait ? '' : 'doux'}`}>{fait ? 'Faite' : passee ? 'Non faite' : manquee ? (prochaine ? 'Manquée · à faire' : 'Manquée') : prochaine ? 'Prochaine' : 'À venir'} ›</span>
+                  <span className={`petit gras ${fait || prochaine ? '' : 'doux'}`} style={prochaine ? { color: 'var(--accent)' } : undefined}>{fait ? 'Faite' : passee ? 'Non faite' : manquee ? (prochaine ? 'Manquée · à faire' : 'Manquée') : prochaine ? 'Prochaine' : 'À venir'} ›</span>
                 </button>
               );
             })}

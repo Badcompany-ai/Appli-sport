@@ -1,3 +1,4 @@
+import { PastilleSeance } from '../couleurs';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
@@ -185,7 +186,7 @@ export function Progres() {
             <div className="carte" style={{ gap: 0, paddingTop: 0, paddingBottom: 0 }}>
               {terminees.slice(0, 50).map((s) => (
                 <button key={s.id} className="lien-liste" onClick={() => setSeanceVue(s.id)} aria-label={`Séance du ${dateLongue(s.debut)} : ${s.nom}`}>
-                  <span className="gras">{s.nom}</span>
+                  <span className="gras ligne" style={{ gap: 8 }}><PastilleSeance lettre={s.plan.programme?.lettre} />{s.nom}</span>
                   <span className="doux petit">
                     {dateLongue(s.debut)} · {series.filter((x) => x.seanceId === s.id).length} séries · {Math.max(1, Math.round(((s.fin ?? s.debut) - s.debut) / 60000))} min
                   </span>

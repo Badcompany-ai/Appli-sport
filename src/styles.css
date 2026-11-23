@@ -12,6 +12,14 @@
   --accent-piste: #3a1a0e;
   --bleu: #7cc4ff;
   --danger: #ff6b6b;
+  /* Couleurs des séances : A explosivité, B haut du corps et boxe, C vitesse, D cardio, E haut du corps et corde. */
+  --seance-a: #ffb224;
+  --seance-b: #7cc4ff;
+  --seance-c: #4fe0a0;
+  --seance-d: #c49bff;
+  --seance-e: #ff8fbf;
+  --seance-mobilite: #9fd8d2;
+  --seance-autre: #98989f;
   --rayon: 22px;
   --haut: env(safe-area-inset-top, 0px);
   --bas: env(safe-area-inset-bottom, 0px);
@@ -191,6 +199,7 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 .champ-texte { width: 100%; min-height: 48px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 0 14px; font: inherit; font-size: 16px; }
 .lien-liste { background: none; border: none; text-align: left; width: 100%; padding: 12px 0; border-bottom: 1px solid #222224; display: flex; flex-direction: column; gap: 2px; }
 .mention-orange { color: var(--accent); }
+.pastille-seance { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
 /* ---------- Ressenti et records ---------- */
 .bouton.choisi-ressenti { background: var(--texte); color: #000; }
