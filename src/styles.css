@@ -94,7 +94,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 }
 .onglet {
   background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px;
-  color: var(--faible); font-size: 10px; font-weight: 600; min-height: 48px;
+  color: var(--doux); font-size: 11px; font-weight: 600; min-height: 48px; letter-spacing: 0.01em;
 }
 .onglet[aria-current='page'] { color: var(--accent); }
 .onglet svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
