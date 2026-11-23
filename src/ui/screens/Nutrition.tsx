@@ -174,7 +174,7 @@ export function Nutrition() {
             <div className="grille-2">
               <button className="bouton" onClick={async () => { const avant = ajDepuis; await setAjDepuis(Date.now()); afficherBandeau('Ancien objectif gardé', () => setAjDepuis(avant)); }}>Garder l’ancien</button>
               <button
-                className="bouton principal"
+                className="bouton clair"
                 onClick={async () => {
                   const avant = { reglage, ajDepuis };
                   await ecrireReglage('nutrition', { ...reglage, correctionKcal: reglage.correctionKcal + proposition.delta });

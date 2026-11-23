@@ -79,6 +79,8 @@ button:disabled { opacity: 0.4; cursor: default; }
 .bouton.principal { background: var(--accent); color: var(--accent-encre); min-height: 56px; font-size: 18px; }
 .bouton.geant { min-height: 64px; border-radius: 20px; font-size: 20px; font-weight: 800; width: 100%; }
 .bouton.plein { width: 100%; }
+/* Accepter une proposition : bien visible, sans voler la vedette au bouton orange de l'écran. */
+.bouton.clair { background: var(--texte); color: #000; }
 .bouton.discret { background: transparent; color: var(--doux); }
 .bouton.danger { color: var(--danger); }
 .bouton.rond { width: 44px; min-height: 44px; padding: 0; border-radius: 22px; }

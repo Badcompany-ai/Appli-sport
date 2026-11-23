@@ -212,7 +212,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
           <span className="doux petit">Alléger les sauts et les sprints d’un tiers aujourd’hui ? Les charges ne changent pas.</span>
           <div className="grille-2">
             <button className="bouton" onClick={() => void journee.maj({ allegerSommeil: false })}>Garder</button>
-            <button className="bouton principal" onClick={() => void journee.maj({ allegerSommeil: true })}>Alléger</button>
+            <button className="bouton clair" onClick={() => void journee.maj({ allegerSommeil: true })}>Alléger</button>
           </div>
         </section>
       )}
@@ -223,7 +223,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
           <span className="doux petit">{raison} Proposition : environ moitié moins de séries jusqu’à dimanche, mêmes charges, pas de sprint ni de saut au maximum.</span>
           <div className="grille-2">
             <button className="bouton" onClick={async () => { await setAllegement({ semaine: index, accepte: false }); afficherBandeau('Semaine normale conservée', () => setAllegement(allegement)); }}>Non merci</button>
-            <button className="bouton principal" onClick={async () => { await setAllegement({ semaine: index, accepte: true }); afficherBandeau('Semaine allégée', () => setAllegement(allegement)); }}>Alléger la semaine</button>
+            <button className="bouton clair" onClick={async () => { await setAllegement({ semaine: index, accepte: true }); afficherBandeau('Semaine allégée', () => setAllegement(allegement)); }}>Alléger la semaine</button>
           </div>
         </section>
       )}
@@ -373,12 +373,13 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       </section>
       )}
 
-      {!enCours && !avantDebut && profil?.seanceMobilite && !mobilite && (
-        <button className="bouton plein" onClick={() => setMobilite(true)}>Séance de mobilité (15 min)</button>
-      )}
-
       {!enCours && (
-        <button className="bouton plein" onClick={() => setFeuille('libre')}>Séance libre</button>
+        <div className={!avantDebut && profil?.seanceMobilite && !mobilite ? 'grille-2' : 'pile'}>
+          {!avantDebut && profil?.seanceMobilite && !mobilite && (
+            <button className="bouton" onClick={() => setMobilite(true)}>Mobilité · 15 min</button>
+          )}
+          <button className="bouton" onClick={() => setFeuille('libre')}>Séance libre</button>
+        </div>
       )}
 
       {!enCours && equilibre && <CarteEquilibre alertes={equilibre} onAjouter={plan && deProgramme ? (id) => void journee.maj({ ajouts: [...(jour.ajouts ?? []), id] }) : undefined} />}
@@ -386,7 +387,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       {!enCours && profil?.modules?.corps !== false && pesees && tailles && (peseeConseillee(pesees, maintenant) || (tailleDue(tailles, maintenant) && maintenant - tailleIgnoree > 7 * 86400000)) && (
         <section className="carte compacte" aria-label="Mesures du jour">
           <div className="grille-2">
-            {peseeConseillee(pesees, maintenant) ? <button className="bouton principal" onClick={() => setMesure('poids')}>Peser</button> : <span />}
+            {peseeConseillee(pesees, maintenant) ? <button className="bouton" onClick={() => setMesure('poids')}>Peser</button> : <span />}
             {tailleDue(tailles, maintenant) && maintenant - tailleIgnoree > 7 * 86400000 ? <button className="bouton" onClick={() => setMesure('taille')}>Tour de taille</button> : <span />}
           </div>
           {tailleDue(tailles, maintenant) && maintenant - tailleIgnoree > 7 * 86400000 && (
