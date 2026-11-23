@@ -158,8 +158,8 @@ export function Nutrition() {
           <JaugePetite nom="Glucides" valeur={total.glucides} cible={obj.glucides} />
           <JaugePetite nom="Fibres" valeur={total.fibres} cible={obj.fibres} />
         </div>
-        <button className="bouton discret petit" style={{ alignSelf: 'flex-start', padding: 0, minHeight: 32, textAlign: 'left', fontWeight: 500, color: 'var(--doux)' }} onClick={() => setFeuille('info')}>
-          Objectif {ent(obj.kcal)} kcal = dépense {ent(obj.depense)} {ecart ? `${ecart < 0 ? '−' : '+'} ${ent(Math.abs(ecart))}` : ''} <span className="mention-orange" style={{ display: 'block' }}>D’où vient ce chiffre ?</span>
+        <button className="bouton discret petit" style={{ alignSelf: 'flex-start', padding: 0, minHeight: 44, color: 'var(--accent)', fontWeight: 600 }} onClick={() => setFeuille('info')}>
+          D’où vient l’objectif ?
         </button>
       </section>
 
