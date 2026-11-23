@@ -22,6 +22,7 @@ Il est mis à jour à chaque étape importante.
   - Modules Corps et Nutrition activables dans Profil (rien n'est effacé).
   - Base de données version 2 (tables mesures, journal, aliments, repas) et sauvegarde au format 2 ; les sauvegardes au format 1 restent lisibles.
   - Tests : 135 tests unitaires ; 62 + 37 + 35 vérifications de bout en bout (`e2e/nutrition.mjs`, Open Food Facts simulé).
+  - Retour du 23/11 : scan = écran noir sur iPhone ; séance libre introuvable avant le début du programme. Corrigé : la caméra n'est ouverte qu'une fois (elle se relançait à chaque rafraîchissement de l'écran), flux géré directement, message après 5 s, solution de secours « Photographier le code » (appareil photo de l'iPhone, lecture de la photo), saisie manuelle ; « Séance libre » toujours visible. Test ajouté avec un vrai code EAN-13 en image (`e2e/code-test.png`).
   - À faire en J7 : ajustement automatique toutes les 2 semaines (9.3), bilan hebdomadaire, rappels Calendrier.
   - Logique pure dans `src/domain/adaptation.ts` (23 tests) ; données dans `src/data/programme.ts` (`seancesDepuis`, `seriesDepuis`, `donneesAllegement`) ; écrans dans `src/ui/Adaptation.tsx`.
   - Temps disponible (curseur 20-90 min, par jour) : priorité 3 retirée → 1 série de moins en priorité 2 (min 2) → priorité 2 retirée → 1 série de moins en priorité 1 → échauffement raccourci à 5 min ; éléments retirés grisés avec la raison.
