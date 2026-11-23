@@ -72,6 +72,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 .grille-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 
 .carte { background: var(--carte); border-radius: var(--rayon); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+:where(button.carte) { border: none; font: inherit; color: inherit; text-align: left; }
 .carte.compacte { padding: 14px 16px; }
 /* Carte principale (séance du jour) : légère teinte de la couleur de la séance. */
 .carte.vedette {
@@ -226,7 +227,10 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 input[type='range'].curseur { width: 100%; accent-color: var(--accent); height: 32px; }
 /* Petits boutons secondaires de la séance du jour (changer, fatigue, matériel). */
 .actions-seance .bouton { font-size: 14px; padding: 0 8px; line-height: 1.2; }
-.alerte { border-left: 3px solid var(--accent); }
+/* Alerte ou proposition : contour complet, sans couleur d'action. */
+.alerte { border: 1px solid rgba(255, 255, 255, 0.16); }
+.consigne { align-self: flex-start; font-size: 14px; font-weight: 600; line-height: 1.35; padding: 6px 10px; border-radius: 10px; background: var(--carte-2); color: var(--texte); }
+.etiquette-remplace { font-size: 11px; font-weight: 700; letter-spacing: 0.02em; padding: 2px 7px; border-radius: 8px; background: var(--carte-2); color: var(--doux); }
 .barre-volume { height: 6px; border-radius: 3px; background: var(--carte-2); overflow: hidden; }
 .barre-volume > div { height: 6px; background: var(--accent); }
 

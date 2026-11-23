@@ -187,7 +187,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       )}
 
       {!enCours && bilanDispo && (
-        <button className="carte compacte alerte" style={{ border: 'none', textAlign: 'left' }} onClick={() => setBilanOuvert(true)}>
+        <button className="carte compacte alerte" style={{ textAlign: 'left', color: 'inherit' }} onClick={() => setBilanOuvert(true)}>
           <span className="gras">Bilan de la semaine dernière</span>
           <span className="doux petit">Séances, poids, nutrition et sommeil, en une page. Touchez pour l’ouvrir.</span>
         </button>
@@ -230,7 +230,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       )}
 
       {!enCours && douleurs.length > 0 && (
-        <button className="carte compacte alerte" style={{ border: 'none', textAlign: 'left' }} onClick={() => setFeuille('signalement')}>
+        <button className="carte compacte alerte" style={{ textAlign: 'left', color: 'inherit' }} onClick={() => setFeuille('signalement')}>
           <span className="gras">Douleur signalée : {douleurs.map((z) => ZONES.find((x) => x.id === z)?.nom.toLowerCase()).join(', ')}</span>
           <span className="doux petit">Les exercices qui sollicitent cette zone sont retirés ou remplacés. Touchez pour modifier.</span>
         </button>
@@ -294,7 +294,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
               <div className="pile" style={{ gap: 2 }}>
                 <label className="ligne ecartee petit" htmlFor="temps-dispo">
                   <span className="gras">Temps disponible</span>
-                  <span className={jour.tempsMin ? 'mention-orange gras' : 'doux'}>{jour.tempsMin ? `${jour.tempsMin} min` : 'toute la séance'}</span>
+                  <span className={jour.tempsMin ? 'gras' : 'doux'}>{jour.tempsMin ? `${jour.tempsMin} min` : 'toute la séance'}</span>
                 </label>
                 <input
                   id="temps-dispo"
@@ -313,7 +313,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
               </div>
             )}
             {alertesRecup.length > 0 && (
-              <div className="pile alerte" style={{ gap: 6, paddingLeft: 10 }}>
+              <div className="pile alerte" style={{ gap: 6, padding: 12, borderRadius: 16 }}>
                 {alertesRecup.map((a) => <span key={a} className="petit gras">{a}</span>)}
                 <span className="doux petit">Conseil : faites une autre séance aujourd’hui, ou la version allégée.</span>
                 <div className="grille-2">
@@ -325,14 +325,14 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
             {autresAjustements.length > 0 && (
               <div className="pile" style={{ gap: 4 }} aria-label="Ajustements du jour">
                 {autresAjustements.map((a, i) => (
-                  <span key={i} className="petit"><span className="gras mention-orange">{a.nom} : </span>{a.raison}</span>
+                  <span key={i} className="petit doux"><span className="gras" style={{ color: 'var(--texte)' }}>{a.nom} : </span>{a.raison}</span>
                 ))}
               </div>
             )}
-            {journee.dispo.materiel.length === 0 && <span className="mention-orange gras petit">Aucun matériel coché : séance au poids du corps.</span>}
+            {journee.dispo.materiel.length === 0 && <span className="gras petit">Aucun matériel coché : séance au poids du corps.</span>}
             {changements.length > 0 && (
               <button className="bouton plein" style={{ justifyContent: 'space-between' }} onClick={() => setFeuille('changements')}>
-                <span className="mention-orange">
+                <span className="gras">
                   {changements.length} changement{changements.length > 1 ? 's' : ''} selon le matériel
                 </span>
                 <span style={{ whiteSpace: 'nowrap' }}>Voir pourquoi</span>
@@ -341,7 +341,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
             <div className="pile" style={{ gap: 0 }}>
               {plan.exercices.map((e) => (
                 <button key={e.exerciceId} className="lien-liste" onClick={() => setFiche(e.exerciceId)} aria-label={`Fiche : ${e.nom}`}>
-                  <span className={`gras ${e.origineId ? 'mention-orange' : ''}`}>{e.nom}</span>
+                  <span className="gras ligne" style={{ gap: 8 }}>{e.nom}{e.origineId && <span className="etiquette-remplace">remplacé</span>}</span>
                   <span className="doux petit">{detailPrevu(e)}</span>
                 </button>
               ))}

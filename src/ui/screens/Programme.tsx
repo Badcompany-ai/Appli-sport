@@ -284,7 +284,7 @@ export function Programme() {
               <button key={e.exerciceId} className="lien-liste" onClick={() => !e.testId && setFiche(e.exerciceId)} aria-label={e.testId ? e.nom : `Fiche : ${e.nom}`}>
                 <span className="gras">{e.nom}</span>
                 <span className="doux petit">{detailPrevu(e)} · repos {e.reposSec >= 60 ? `${Math.floor(e.reposSec / 60)} min${e.reposSec % 60 ? ` ${e.reposSec % 60} s` : ''}` : `${e.reposSec} s`}</span>
-                {e.consigne && <span className="mention-orange petit">{e.consigne}</span>}
+                {e.consigne && <span className="consigne">{e.consigne}</span>}
               </button>
             ))}
           </div>

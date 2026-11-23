@@ -145,7 +145,7 @@ export function Progres() {
                   return (
                     <div key={m} className="pile" style={{ gap: 4 }}>
                       <div className="ligne ecartee petit">
-                        <span className={`gras ${bas ? 'mention-orange' : ''}`}>{NOMS_MUSCLES[m]}</span>
+                        <span className={bas ? 'gras' : 'doux'}>{NOMS_MUSCLES[m]}{bas ? ' · peu travaillé' : ''}</span>
                         <span className="doux">{String(v).replace('.', ',')} / {REPERES[m]} séries</span>
                       </div>
                       <div className="barre-volume"><div style={{ width: `${Math.min(100, (v / REPERES[m]) * 100)}%` }} /></div>

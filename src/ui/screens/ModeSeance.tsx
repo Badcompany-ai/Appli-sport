@@ -157,7 +157,7 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
       <div className="pile" style={{ gap: 8 }}>
         <h1 className="titre" style={{ fontSize: 30 }}>{ex.nom}</h1>
         {partenaires.length > 0 && <span className="petit gras">Enchaîné avec : {partenaires.join(', ')}</span>}
-        {ex.consigne && <span className="mention-orange gras petit">{ex.consigne}</span>}
+        {ex.consigne && <span className="consigne">{ex.consigne}</span>}
         {ex.raisonCharge && numero === 0 && <span className="doux petit">{ex.raisonCharge}</span>}
         {ex.mesure !== 'test' && <div className="points" >
           <span className="doux gras petit" style={{ marginRight: 4 }}>{numero < ex.series ? `Série ${numero + 1} sur ${ex.series}` : 'Série supplémentaire'}</span>
@@ -411,7 +411,7 @@ function SaisieReps({
   // Saisie en deux gestes au plus : choisir une valeur (si besoin), puis « Valider ».
   return (
     <div className="carte" style={{ gap: 16 }}>
-      {ex.tempoLent && <span className="mention-orange gras petit" style={{ textAlign: 'center' }}>Descente lente : 3 secondes à chaque répétition</span>}
+      {ex.tempoLent && <span className="consigne" style={{ alignSelf: 'center' }}>Descente lente : 3 secondes à chaque répétition</span>}
       {echauffement.length > 0 && (
         <div className="pile" style={{ gap: 6 }}>
           <span className="etiquette">Échauffement proposé (ne compte pas dans les records)</span>
