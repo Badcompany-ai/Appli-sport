@@ -27,6 +27,7 @@ import { useReglage } from '../reglages';
 import { cleDuJour, useJournee } from '../journee';
 import { FeuilleChangements, FeuilleMateriel } from '../Materiel';
 import { Fiche } from '../Fiche';
+import { Anneaux } from '../Anneaux';
 
 const SEPT_JOURS = 7 * 86400000;
 
@@ -46,7 +47,7 @@ export function detailPrevu(e: ExercicePrevu): string {
   return (e.tempoLent ? `${base} · descente lente` : base) + enchaine;
 }
 
-export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string) => void; allerA: (onglet: 'profil' | 'progres') => void }) {
+export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string) => void; allerA: (onglet: 'profil' | 'progres' | 'programme' | 'nutrition') => void }) {
   const enCours = useLiveQuery(() => seanceEnCours());
   const historique = useLiveQuery(() => seancesTerminees());
   const nbSeries = useLiveQuery(() => db.series.count());
@@ -151,6 +152,14 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
         <h1 className="titre">Aujourd'hui</h1>
         <span className="doux">{dateLongue(maintenant).toLowerCase()}</span>
       </header>
+
+      {profil && !enCours && (
+        <Anneaux
+          profil={profil}
+          seances={!avantDebut && faites ? { faites: semaine.filter((x) => faites.has(x.programme?.lettre ?? '')).length, total: semaine.length } : undefined}
+          allerA={allerA}
+        />
+      )}
 
       {!enCours && (
         <div className="lieux" role="group" aria-label="Lieu d'entraînement">
