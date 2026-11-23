@@ -11,7 +11,8 @@ import {
 import { lireSauvegarde, nomFichier, type ContenuSauvegarde, type ResumeSauvegarde } from '../../domain/sauvegarde';
 import { lienRaccourci } from '../../domain/repos';
 import { dateLongue, ilYA } from '../../domain/format';
-import { bip, estInstallee, partagerFichier, preparerSon, stockagePersistant } from '../../platform/appareil';
+import { bip, estInstallee, ouvrirCalendrier, partagerFichier, preparerSon, stockagePersistant } from '../../platform/appareil';
+import { evenementsRappels, genererICS } from '../../domain/calendrier';
 import { afficherBandeau } from '../bandeau';
 import { useReglage } from '../reglages';
 import { Feuille } from '../Feuille';
@@ -24,6 +25,8 @@ export function Profil({ majDisponible, installerMaj, modifierProfil }: { majDis
   const [son, setSon] = useReglage('sonApplication');
   const [derniereSauvegarde] = useReglage('derniereSauvegarde');
   const [profil, setProfil] = useReglage('profil');
+  const [rappels, setRappels] = useReglage('rappels');
+  const [aPropos, setAPropos] = useState(false);
   const copies = useLiveQuery(() => listeCopies());
   const poubelle = useLiveQuery(() => corbeille());
   const [persistant, setPersistant] = useState<boolean | undefined>();
@@ -123,6 +126,49 @@ export function Profil({ majDisponible, installerMaj, modifierProfil }: { majDis
               <input type="checkbox" role="switch" className="interrupteur" checked={profil.modules.nutrition} onChange={(e) => void setProfil({ ...profil, modules: { ...profil.modules, nutrition: e.target.checked } })} />
             </label>
             <span className="doux petit">Désactiver un module le cache sans rien effacer.</span>
+          </div>
+        </section>
+      )}
+
+      {profil && (
+        <section className="pile" aria-label="Rappels">
+          <h2 className="titre-2">Rappels (Calendrier)</h2>
+          <div className="carte">
+            {([
+              ['seances', 'Séances', `Les jours choisis, 30 minutes avant`],
+              ['pesees', 'Pesées', 'Lundi, jeudi et samedi à 7 h 30'],
+              ['taille', 'Tour de taille', 'Un dimanche sur quatre, 8 h (facultatif)'],
+              ['sauvegarde', 'Sauvegarde', 'Le dimanche à 20 h']
+            ] as const).map(([cle, nom, detail]) => (
+              <label key={cle} className="reglage">
+                <span className="pile" style={{ gap: 2 }}>
+                  <span className="gras">{nom}</span>
+                  <span className="doux petit">{detail}</span>
+                </span>
+                <input type="checkbox" role="switch" className="interrupteur" checked={rappels[cle]} onChange={(e) => void setRappels({ ...rappels, [cle]: e.target.checked })} />
+              </label>
+            ))}
+            {rappels.seances && (
+              <label className="reglage">
+                <span className="gras">Heure des séances</span>
+                <input type="time" className="champ-texte" style={{ width: 120 }} aria-label="Heure des séances" value={rappels.heureSeance} onChange={(e) => e.target.value && void setRappels({ ...rappels, heureSeance: e.target.value })} />
+              </label>
+            )}
+            <button
+              className="bouton principal plein"
+              onClick={() => ouvrirCalendrier(genererICS(evenementsRappels(profil, rappels, new Date()), new Date()))}
+            >
+              Ajouter au Calendrier
+            </button>
+            <button
+              className="bouton plein"
+              onClick={() => void partagerFichier('rappels-sport.ics', genererICS(evenementsRappels(profil, rappels, new Date()), new Date()), 'text/calendar')}
+            >
+              Enregistrer le fichier de rappels
+            </button>
+            <span className="doux petit">
+              Le Calendrier de l’iPhone se charge des notifications, même sans réseau. Si « Ajouter au Calendrier » n’ouvre rien : « Enregistrer le fichier », puis ouvrez-le depuis l’app Fichiers. Après un changement de jours ou d’heure, supprimez l’ancien calendrier « Sport » et ajoutez le nouveau.
+            </span>
           </div>
         </section>
       )}
@@ -243,6 +289,26 @@ export function Profil({ majDisponible, installerMaj, modifierProfil }: { majDis
             <li>Revenez ici, activez « Notification hors de l'application », puis touchez <b>Tester</b>.</li>
           </ol>
           <button className="bouton principal plein" onClick={() => setGuide(false)}>Compris</button>
+        </Feuille>
+      )}
+
+      <button className="bouton plein discret" onClick={() => setAPropos(true)}>À propos et sources</button>
+      {aPropos && (
+        <Feuille titre="À propos" onFermer={() => setAPropos(false)}>
+          <span className="gras">Estimations, pas des prescriptions médicales.</span>
+          <span className="petit">L’application ne donne pas de conseil médical. Si une douleur persiste ou est vive, consultez un professionnel de santé.</span>
+          <span className="petit">Vos données restent sur cet appareil. Rien n’est envoyé, sauf la recherche d’un code-barres ou d’un nom de produit dans Open Food Facts, que vous déclenchez vous-même.</span>
+          <span className="gras">Sources principales</span>
+          <ul className="petit" style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <li>Programme : périodisation par blocs, double progression, réserve de répétitions (Helms et collègues, 2016 et 2018), entraînement en contraste, nordic curl, intervalles 4 × 4 min.</li>
+            <li>Maximum estimé : formule d’Epley.</li>
+            <li>Semaine allégée : Bell et collègues, 2023. Récupération de 48 h : ACSM, 2009.</li>
+            <li>Besoins : Mifflin-St Jeor, 1990 ; niveaux d’activité FAO/OMS, 2004 ; protéines : Morton et collègues, 2018, et Helms et collègues, 2014 ; rythme de perte : Garthe et collègues, 2011.</li>
+            <li>Dépense du sport : Compendium des activités physiques 2024 (pacompendium.com).</li>
+            <li>Aliments : Base de données suisse des valeurs nutritives, version 7.1 (OSAV, naehrwertdaten.ch) ; Open Food Facts (licence ODbL).</li>
+            <li>Vidéos : démonstrations publiques vérifiées (PureGym et autres), lues sans le son depuis YouTube.</li>
+          </ul>
+          <button className="bouton principal plein" onClick={() => setAPropos(false)}>OK</button>
         </Feuille>
       )}
     </main>

@@ -29,6 +29,7 @@ import { PRESETS } from '../../domain/materiel';
 import { dureeNavette, epreuve, vo2DepuisPalier } from '../../domain/niveau';
 import { detailPrevu } from './Aujourdhui';
 import { usePoids } from '../corps';
+import { ChronoVideo } from '../ChronoVideo';
 import { kcalSeance } from '../../domain/depense';
 import { alleger, eviterZones, sollicite, type Adapte } from '../../domain/adaptation';
 import { FeuilleSignalement } from '../Adaptation';
@@ -372,7 +373,7 @@ function SaisieReps({
   ex: ExercicePrevu;
   faites: Serie[];
   seanceId: string;
-  onValider: (v: { chargeKg?: number; reps: number }) => void;
+  onValider: (v: { chargeKg?: number; reps: number; valeur?: number }) => void;
 }) {
   const derniere = useLiveQuery(() => dernierePerformance(ex.exerciceId, seanceId), [ex.exerciceId, seanceId]);
   const precedenteIci = faites[faites.length - 1]?.chargeKg;
@@ -393,6 +394,7 @@ function SaisieReps({
       ? seriesEchauffement(valeurCharge, { pas: ex.pasKg ?? 2.5, barre: lib?.charge === 'barre' ? 20 : 0 })
       : [];
   const [faitsEch, setFaitsEch] = useState<Set<number>>(new Set());
+  const [chronoSprint, setChronoSprint] = useState(false);
 
   if (ex.distanceM) {
     return (
@@ -400,6 +402,8 @@ function SaisieReps({
         <span className="etiquette">Distance</span>
         <span className="valeur-geante">{ex.distanceM} m</span>
         <button className="bouton principal geant" onClick={() => onValider({ reps: 1 })}>Sprint fait</button>
+        <button className="bouton discret" onClick={() => setChronoSprint(true)}>Chronométrer sur une vidéo (facultatif)</button>
+        {chronoSprint && <ChronoVideo onFermer={() => setChronoSprint(false)} onTemps={(s) => { setChronoSprint(false); onValider({ reps: 1, valeur: s }); }} />}
       </div>
     );
   }
@@ -719,6 +723,7 @@ export const NOMS_UNITES: Record<string, string> = { cm: 'cm', s: 's', m: 'm', p
 function SaisieTest({ ex, onValider }: { ex: ExercicePrevu; onValider: (v: number) => void }) {
   const e = epreuve(ex.exerciceId);
   const [texte, setTexte] = useState('');
+  const [chrono, setChrono] = useState(false);
   const v = Number(texte.replace(',', '.'));
   const ok = texte.trim() !== '' && Number.isFinite(v) && v > 0;
   return (
@@ -736,9 +741,13 @@ function SaisieTest({ ex, onValider }: { ex: ExercicePrevu; onValider: (v: numbe
         />
         <span className="doux gras">{e ? NOMS_UNITES[e.unite] : ''}</span>
       </label>
+      {e?.unite === 's' && (
+        <button className="bouton plein" onClick={() => setChrono(true)}>Chronométrer sur une vidéo</button>
+      )}
       <button className="bouton principal geant" disabled={!ok} onClick={() => onValider(Math.round(v * 100) / 100)}>
         Enregistrer le résultat
       </button>
+      {chrono && <ChronoVideo onFermer={() => setChrono(false)} onTemps={(s) => { setTexte(String(s).replace('.', ',')); setChrono(false); }} />}
     </div>
   );
 }

@@ -35,3 +35,12 @@ export function ilYA(t: number, maintenant: number): string {
   if (n === 1) return 'hier';
   return `il y a ${n} jours`;
 }
+
+/** Nombre à la française, identique sur tous les appareils : 2650.4 → « 2 650 », (80.84, 1) → « 80,8 ». */
+export function nombre(x: number, decimales = 0): string {
+  const negatif = x < 0;
+  const fixe = Math.abs(x).toFixed(decimales);
+  const [entier, dec] = fixe.split('.');
+  const groupe = entier.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return `${negatif && Number(fixe) !== 0 ? '-' : ''}${groupe}${dec ? `,${dec}` : ''}`;
+}

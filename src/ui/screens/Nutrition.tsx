@@ -1,3 +1,4 @@
+import { nombre } from '../../domain/format';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
@@ -21,9 +22,11 @@ import { cleDuJour } from '../journee';
 import { Feuille } from '../Feuille';
 import { Scanner } from '../Scanner';
 import { afficherBandeau } from '../bandeau';
+import { proposerAjustement } from '../../domain/ajustement';
+import { joursDAffilee, performances } from '../../data/bilan';
 
-const ent = (x: number) => Math.round(x).toLocaleString('fr-CH');
-const g1 = (x: number) => (Math.round(x * 10) / 10).toLocaleString('fr-CH');
+const ent = (x: number) => nombre(x);
+const g1 = (x: number) => String(Math.round(x * 10) / 10).replace('.', ',');
 
 function decaler(jour: string, n: number): string {
   const [a, m, j] = jour.split('-').map(Number);
@@ -43,7 +46,12 @@ export function Nutrition() {
   const [profil, setProfil] = useReglage('profil');
   const aujourdhui = cleDuJour();
   const [jour, setJour] = useState(aujourdhui);
-  const { poids } = usePoids();
+  const { poids, pesees, tailles } = usePoids();
+  const [ajDepuis, setAjDepuis] = useReglage('ajustementDepuis');
+  const perfs = useLiveQuery(() => performances());
+  const connus = useLiveQuery(() => alimentsConnus());
+  const jours60 = useMemo(() => Array.from({ length: 60 }, (_, i) => decaler(aujourdhui, -i)), [aujourdhui]);
+  const pris = useLiveQuery(async () => Promise.all(COMPLEMENTS.map((c) => joursDAffilee(c.id, jours60))), [jours60]);
   const reglage = useLiveQuery(() => lireReglage<ReglageNutrition>('nutrition', NUTRITION_DEFAUT));
   const entrees = useLiveQuery(() => journalDuJour(jour), [jour]);
   const sport = useLiveQuery(() => sportDuJour(jour, poids), [jour, poids]);
@@ -78,6 +86,36 @@ export function Nutrition() {
   const obj = objectifsDuJour(profil, poids, reglage, kcalSport);
   const total = additionner(entrees.map((e) => e.nutriments));
   const ecart = Math.round(ecartJournalier(reglage, poids) + reglage.correctionKcal);
+
+  // Ajustement automatique toutes les 2 semaines (9.3), avec la règle I2.
+  const proposition =
+    pesees && tailles && pesees.length
+      ? proposerAjustement({ pesees, tailles, reglage, poidsKg: poids, depuis: ajDepuis || pesees[0].date, maintenant: Date.now(), performancesEnHausse: perfs === 'hausse' })
+      : undefined;
+
+  // Idée I5 : finir ses protéines avec ses propres aliments, riches en protéines.
+  const resteProt = obj.proteines - total.proteines;
+  const idees = (() => {
+    if (jour !== aujourdhui || resteProt < 10 || !connus) return [];
+    const candidats = [...connus.filter((a) => a.favori), ...connus.filter((a) => !a.favori && a.dernierUsage), COMPLEMENTS[0]];
+    const vus = new Set<string>();
+    const res: { a: Aliment; g: number; texte: string }[] = [];
+    for (const a of candidats) {
+      if (vus.has(a.id) || res.length >= 2) continue;
+      vus.add(a.id);
+      const p = a.pour100.proteines;
+      if (p < 8 || a.pour100.kcal / p > 12) continue;
+      const portion = a.portions[0];
+      if (portion) {
+        const nb = Math.min(2, Math.max(0.5, Math.round(((resteProt / ((p * portion.g) / 100)) * 2)) / 2));
+        res.push({ a, g: nb * portion.g, texte: `${String(nb).replace('.', ',')} × ${portion.nom} de ${a.nom}` });
+      } else {
+        const g = Math.min(500, Math.max(10, Math.round((resteProt / p) * 10) * 10));
+        res.push({ a, g, texte: `${g} ${a.ml ? 'ml' : 'g'} de ${a.nom}` });
+      }
+    }
+    return res;
+  })();
 
   async function ajouterComplement(c: Aliment) {
     const connu = (await alimentsConnus()).find((a) => a.id === c.id) ?? c;
@@ -124,9 +162,55 @@ export function Nutrition() {
           <JaugePetite nom="Fibres" valeur={total.fibres} cible={obj.fibres} />
         </div>
         <button className="bouton discret petit" style={{ alignSelf: 'flex-start', padding: 0, minHeight: 32, textAlign: 'left', fontWeight: 500, color: 'var(--doux)' }} onClick={() => setFeuille('info')}>
-          Objectif {ent(obj.kcal)} kcal = dépense {ent(obj.depense)} {ecart ? `${ecart < 0 ? '−' : '+'} ${ent(Math.abs(ecart))}` : ''} · <span className="mention-orange">D’où vient ce chiffre ?</span>
+          Objectif {ent(obj.kcal)} kcal = dépense {ent(obj.depense)} {ecart ? `${ecart < 0 ? '−' : '+'} ${ent(Math.abs(ecart))}` : ''} <span className="mention-orange" style={{ display: 'block' }}>D’où vient ce chiffre ?</span>
         </button>
       </section>
+
+      {jour === aujourdhui && proposition && (proposition.etat === 'proposition' || proposition.etat === 'aucun') && (
+        <section className="carte compacte alerte" aria-label="Ajustement de l’objectif">
+          <span className="gras">Ajustement de l’objectif (toutes les 2 semaines)</span>
+          <span className="petit">{proposition.texte}</span>
+          {proposition.etat === 'proposition' ? (
+            <div className="grille-2">
+              <button className="bouton" onClick={async () => { const avant = ajDepuis; await setAjDepuis(Date.now()); afficherBandeau('Ancien objectif gardé', () => setAjDepuis(avant)); }}>Garder l’ancien</button>
+              <button
+                className="bouton principal"
+                onClick={async () => {
+                  const avant = { reglage, ajDepuis };
+                  await ecrireReglage('nutrition', { ...reglage, correctionKcal: reglage.correctionKcal + proposition.delta });
+                  await setAjDepuis(Date.now());
+                  afficherBandeau('Objectif ajusté', async () => { await ecrireReglage('nutrition', avant.reglage); await setAjDepuis(avant.ajDepuis); });
+                }}
+              >
+                Accepter
+              </button>
+            </div>
+          ) : (
+            <button className="bouton" onClick={() => void setAjDepuis(Date.now())}>OK</button>
+          )}
+        </section>
+      )}
+
+      {idees.length > 0 && (
+        <section className="carte compacte" aria-label="Idées pour finir ses protéines">
+          <span className="petit">Il vous reste {ent(resteProt)} g de protéines. Par exemple :</span>
+          {idees.map((i) => (
+            <button
+              key={i.a.id}
+              className="bouton discret"
+              style={{ alignSelf: 'flex-start', paddingLeft: 0, textAlign: 'left' }}
+              onClick={async () => {
+                const portion = i.a.portions[0];
+                const nb = portion ? i.g / portion.g : 1;
+                const e = await ajouterAuJournal(i.a, entreeDepuisAliment(i.a, i.g, texteQuantite(i.g, portion, nb, i.a.ml)), jour);
+                afficherBandeau(`${i.a.nom} ajouté`, () => supprimerEntree(e.id));
+              }}
+            >
+              + {i.texte}
+            </button>
+          ))}
+        </section>
+      )}
 
       <section className="pile" aria-label="Ajouter">
         <div className="grille-2">
@@ -134,13 +218,21 @@ export function Nutrition() {
           <button className="bouton" onClick={() => setFeuille('scanner')}>Scanner</button>
         </div>
         <div className="raccourcis" role="group" aria-label="Compléments en un geste">
-          {COMPLEMENTS.map((c) => (
-            <button key={c.id} className="bouton" onClick={() => void ajouterComplement(c)} aria-label={`Ajouter 1 dose : ${c.nom}`}>
-              <span>{c.nom.replace(' en poudre', '')}</span>
-              <span className="doux" style={{ fontSize: 11 }}>+ 1 dose</span>
-            </button>
-          ))}
+          {COMPLEMENTS.map((c, i) => {
+            const p = jour === aujourdhui ? pris?.[i] : undefined;
+            return (
+              <button key={c.id} className="bouton" onClick={() => void ajouterComplement(c)} aria-label={`Ajouter 1 dose : ${c.nom}`} style={p?.aujourdhui ? { boxShadow: 'inset 0 0 0 2px var(--accent)' } : undefined}>
+                <span>{p?.aujourdhui ? '✓ ' : ''}{c.nom.replace(' en poudre', '')}</span>
+                <span className="doux" style={{ fontSize: 11 }}>{p?.aujourdhui ? 'pris' : '+ 1 dose'}</span>
+              </button>
+            );
+          })}
         </div>
+        {pris && jour === aujourdhui && pris[1].serie > 0 && (
+          <span className="doux petit">
+            Créatine : {pris[1].serie} jour{pris[1].serie > 1 ? 's' : ''} d’affilée{pris[1].aujourdhui ? '' : ' (pas encore aujourd’hui)'}. Elle agit si elle est prise chaque jour.
+          </span>
+        )}
       </section>
 
       <section className="pile" aria-label="Journal">
@@ -222,6 +314,10 @@ export function Nutrition() {
             <span className="petit">Écart visé ({NOMS_MODES[reglage.mode].toLowerCase()}{reglage.mode !== 'maintien' ? ` ${NOMS_RYTHMES[reglage.rythme]}` : ''}) : {ecart < 0 ? '−' : '+'} {ent(Math.abs(ecart))} kcal</span>
             <span className="petit gras">Objectif : {ent(obj.kcal)} kcal ({obj.typeKcal}){obj.plancher ? ' — plancher de sécurité appliqué' : ''}</span>
             <span className="doux petit">Poids utilisé : {g1(poids)} kg (tendance de vos pesées, sinon le poids du profil).</span>
+            <span className="doux petit">
+              Ajustement automatique : {proposition ? proposition.texte : 'commence avec les pesées (au moins 4 sur 2 semaines).'}
+              {reglage.correctionKcal ? ` Correction en cours : ${reglage.correctionKcal > 0 ? '+' : '−'} ${ent(Math.abs(reglage.correctionKcal))} kcal.` : ''}
+            </span>
           </div>
           {(Object.keys(EXPLICATIONS) as (keyof typeof EXPLICATIONS)[]).map((k) => (
             <span key={k} className="petit"><span className="gras">{k === 'kcal' ? 'Calories' : k[0].toUpperCase() + k.slice(1)} : </span>{EXPLICATIONS[k]}</span>

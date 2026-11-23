@@ -14,6 +14,8 @@ import { Courbe } from '../Courbe';
 import { Fiche } from '../Fiche';
 import { afficherBandeau } from '../bandeau';
 import { SectionCorps, usePoids } from '../corps';
+import { FeuilleBilan, titreSemaine, useSemainesPassees } from '../Bilan';
+import { TableauxAnalyse, useEcranLarge } from '../Analyse';
 
 const f1 = (x: number) => String(Math.round(x * 10) / 10).replace('.', ',');
 
@@ -39,6 +41,9 @@ export function Progres() {
   const [exerciceVu, setExerciceVu] = useState<string | null>(null);
   const [seanceVue, setSeanceVue] = useState<string | null>(null);
   const [fiche, setFiche] = useState<string | null>(null);
+  const [bilan, setBilan] = useState<number | null>(null);
+  const semaines = useSemainesPassees();
+  const large = useEcranLarge();
 
   const terminees = useMemo(() => (seances ?? []).filter((s) => s.statut === 'terminee' && !s.supprimeeLe).sort((a, b) => b.debut - a.debut), [seances]);
 
@@ -82,10 +87,30 @@ export function Progres() {
   const vu = exerciceVu ? exercices.find((e) => e.id === exerciceVu) : undefined;
 
   return (
-    <main className="ecran">
+    <main className="ecran large">
       <h1 className="titre">Progrès</h1>
+      {large && terminees.length > 0 && (
+        <TableauxAnalyse
+          exercices={exercices.map((e) => ({ id: e.id, nom: exercice(e.id)?.nom ?? e.id, pts: e.pts, record: e.record }))}
+          format={(id, v) => formatIndicateur(indicateur(id))(v)}
+        />
+      )}
 
       {profil?.modules?.corps !== false && <SectionCorps />}
+
+      {semaines && semaines.length > 0 && (
+        <section className="pile" aria-label="Bilans">
+          <h2 className="titre-2">Bilans des semaines</h2>
+          <div className="carte" style={{ gap: 0, paddingTop: 0, paddingBottom: 0 }}>
+            {semaines.map((l) => (
+              <button key={l} className="lien-liste" onClick={() => setBilan(l)}>
+                <span className="gras">{titreSemaine(l)}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+      {bilan !== null && <FeuilleBilan lundi={bilan} onFermer={() => setBilan(null)} />}
 
       {terminees.length === 0 ? (
         <div className="carte">

@@ -149,7 +149,7 @@ try {
 
   console.log('Vendredi : séance C manquée');
   await aller(15);
-  await page.getByRole('button', { name: 'Programme' }).click();
+  await page.getByRole('button', { name: 'Programme', exact: true }).click();
   verifier(await vu(page.getByText('Manquée · à faire')), 'séance C du jeudi : manquée, toujours à faire');
   verifier(await vu(page.getByText(/^Faite/).nth(1)), 'séances A et B (basket) faites');
   await capture('j5-06-programme');
@@ -171,7 +171,7 @@ try {
   await ajout.click();
   verifier(await vu(carte().getByRole('button', { name: `Fiche : ${nomAjout}` })), `« ${nomAjout} » ajouté à la séance du jour`);
   await capture('j5-07-equilibre');
-  await page.getByRole('button', { name: 'Progrès' }).click();
+  await page.getByRole('button', { name: 'Progrès', exact: true }).click();
   verifier(await vu(page.getByText('Volume des 7 derniers jours')), 'volume par groupe musculaire dans Progrès');
   await page.getByRole('button', { name: "Aujourd'hui" }).click();
 
