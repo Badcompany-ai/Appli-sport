@@ -115,8 +115,8 @@ export function Progres() {
 
       {terminees.length === 0 ? (
         <div className="carte">
-          <span className="gras">Rien à afficher pour l’instant</span>
-          <span className="doux">Vos graphiques, records et l’historique apparaîtront ici dès votre première séance enregistrée.</span>
+          <span className="gras">Pas encore de séance enregistrée</span>
+          <span className="doux">Les graphiques par exercice, les records et l’historique des séances apparaîtront ici après la première.</span>
         </div>
       ) : (
         <>
