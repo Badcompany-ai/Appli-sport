@@ -43,10 +43,18 @@ export function Fiche({ id, onFermer }: { id: string; onFermer: () => void }) {
         </a>
       )}
 
-      <div className="ligne" style={{ flexWrap: 'wrap', gap: 6 }}>
-        <span className="pastille-info">{NOMS_MOUVEMENTS[ex.mouvement]}</span>
-        {ex.primaires.map((m) => <span key={m} className="pastille-info forte">{NOMS_MUSCLES[m]}</span>)}
-        {ex.secondaires.map((m) => <span key={m} className="pastille-info">{NOMS_MUSCLES[m]}</span>)}
+      <div className="pile" style={{ gap: 6 }}>
+        <span className="etiquette">Mouvement : {NOMS_MOUVEMENTS[ex.mouvement].toLowerCase()}</span>
+        <div className="ligne" style={{ flexWrap: 'wrap', gap: 6, alignItems: 'baseline' }}>
+          <span className="doux petit gras" style={{ minWidth: 92 }}>Muscles principaux</span>
+          {ex.primaires.map((m) => <span key={m} className="pastille-info forte">{NOMS_MUSCLES[m]}</span>)}
+        </div>
+        {ex.secondaires.length > 0 && (
+          <div className="ligne" style={{ flexWrap: 'wrap', gap: 6, alignItems: 'baseline' }}>
+            <span className="doux petit gras" style={{ minWidth: 92 }}>Secondaires</span>
+            {ex.secondaires.map((m) => <span key={m} className="pastille-info">{NOMS_MUSCLES[m]}</span>)}
+          </div>
+        )}
       </div>
 
       <div className="pile" style={{ gap: 6 }}>
