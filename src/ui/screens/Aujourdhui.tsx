@@ -146,10 +146,10 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
 
   return (
     <main className="ecran">
-      <div className="pile" style={{ gap: 2 }}>
-        <span className="surtitre">{dateLongue(maintenant)}</span>
+      <header className="entete">
         <h1 className="titre">Aujourd'hui</h1>
-      </div>
+        <span className="doux">{dateLongue(maintenant).toLowerCase()}</span>
+      </header>
 
       {!enCours && (
         <div className="lieux" role="group" aria-label="Lieu d'entraînement">

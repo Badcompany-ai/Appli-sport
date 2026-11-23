@@ -128,10 +128,7 @@ export function Nutrition() {
     <main className="ecran">
       <div className="ligne ecartee">
         <button className="bouton rond" aria-label="Jour précédent" onClick={() => setJour(decaler(jour, -1))}>‹</button>
-        <div className="pile" style={{ gap: 0, alignItems: 'center' }}>
-          <span className="surtitre">Nutrition</span>
-          <h1 className="titre-2" style={{ textTransform: 'none' }}>{nomDuJour(jour, aujourdhui)}</h1>
-        </div>
+        <h1 className="titre-2">{nomDuJour(jour, aujourdhui)}</h1>
         <button className="bouton rond" aria-label="Jour suivant" disabled={jour >= aujourdhui} onClick={() => setJour(decaler(jour, 1))}>›</button>
       </div>
 
