@@ -647,10 +647,11 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
     const ss = await db.series.toArray();
     return recordsBattus(seance.id, toutes.map((x) => (x.id === seance.id ? { ...x, statut: 'terminee' as const } : x)), ss, poids);
   }, [seance.id, series.length, poids]);
+  // Le ressenti n'est redemandé que pour les exercices où il manque (souvent déjà donné pendant le repos).
+  const [aDemander, setADemander] = useState(() => new Set(seance.plan.exercices.filter((ex) => !seance.ressentis?.[ex.exerciceId]).map((ex) => ex.exerciceId)));
   return (
     <div className="seance" role="dialog" aria-label="Fin de séance">
-      <span className="surtitre">Bravo</span>
-      <h1 className="titre">Séance terminée</h1>
+      <h1 className="titre" style={{ fontSize: 34 }}>Séance terminée</h1>
       <div className="grille-3">
         <div className="carte compacte"><span className="grand-chiffre">{dureeMin}</span><span className="doux petit gras">minutes</span></div>
         <div className="carte compacte"><span className="grand-chiffre">{series.length}</span><span className="doux petit gras">séries</span></div>
@@ -680,11 +681,16 @@ function FinSeance({ seance, series, onFermer }: { seance: Seance; series: Serie
               : s.map((x) => `${x.reps}${x.chargeKg ? ` × ${kg(x.chargeKg)}` : ''}`).join(' · ');
           return (
             <div key={ex.exerciceId} className="pile" style={{ gap: 6, padding: '10px 0', borderBottom: '1px solid #222224' }}>
-              <div className="ligne ecartee">
-                <span className="gras">{ex.nom}</span>
-                <span className="doux">{detail}</span>
+              <div className="ligne ecartee" style={{ alignItems: 'baseline' }}>
+                <span className="gras" style={{ minWidth: 0 }}>{ex.nom}</span>
+                <span className="doux" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>{detail}</span>
               </div>
-              {s.length > 0 && ex.mesure !== 'test' && (
+              {s.length > 0 && ex.mesure !== 'test' && !aDemander.has(ex.exerciceId) && seance.ressentis?.[ex.exerciceId] && (
+                <button className="bouton discret petit" style={{ alignSelf: 'flex-start', padding: 0, minHeight: 32, fontWeight: 500, fontSize: 14 }} onClick={() => setADemander(new Set([...aDemander, ex.exerciceId]))}>
+                  Ressenti : {RESSENTIS.find((r) => r.v === seance.ressentis?.[ex.exerciceId])?.nom.toLowerCase()} · modifier
+                </button>
+              )}
+              {s.length > 0 && ex.mesure !== 'test' && (aDemander.has(ex.exerciceId) || !seance.ressentis?.[ex.exerciceId]) && (
                 <BoutonsRessenti
                   petit
                   valeur={seance.ressentis?.[ex.exerciceId]}
