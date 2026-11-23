@@ -177,6 +177,8 @@ try {
   await page.getByRole('button', { name: "Aujourd'hui" }).click();
   await page.getByRole('region', { name: 'Séance du jour' }).getByRole('button', { name: 'Changer de séance' }).click();
   await feuille('Changer de séance').getByRole('button', { name: /Vitesse, appuis et chaîne arrière/ }).click();
+  // Attendre que la carte affiche la séance choisie avant de la commencer.
+  await page.getByRole('region', { name: 'Séance du jour' }).getByText('Vitesse, appuis et chaîne arrière').waitFor();
   await page.getByRole('region', { name: 'Séance du jour' }).getByRole('button', { name: 'Commencer', exact: true }).click();
   await page.getByRole('button', { name: 'Échauffement fait' }).click();
   verifier(await vu(page.getByRole('button', { name: 'Sprint fait' })), 'sprint : validation en un geste');
