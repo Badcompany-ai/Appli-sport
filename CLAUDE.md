@@ -102,7 +102,6 @@ L'app a **5 onglets** : Aujourd'hui, Programme, Progrès, Nutrition, Profil.
 ### Profil
 - Mise à jour, guide du raccourci « Repos », son.
 - Modules Corps et Nutrition activables.
-- Rappels Calendrier.
 - **Sauvegarde** : export vers le Mac par AirDrop ou iCloud Drive, import, copies automatiques quotidiennes, corbeille.
 - « À propos et sources ».
 
@@ -112,9 +111,9 @@ L'app a **5 onglets** : Aujourd'hui, Programme, Progrès, Nutrition, Profil.
 |---|---|
 | **Application web installable** (PWA) plutôt qu'une appli de l'App Store | Gratuite, sans abonnement développeur Apple, utilisable hors ligne, et le même code marche sur Mac. |
 | **Données dans le téléphone** (base IndexedDB via Dexie) | Vie privée : rien ne part sur un serveur. Le passage vers le Mac se fait par fichier de sauvegarde. |
-| **Thème sombre uniquement**, direction visuelle « Anneaux » inspirée d'Apple Forme et Nike Training Club | Choisie par l'utilisateur parmi deux maquettes : sobre, haut de gamme, lisible en salle. |
-| **Couleurs :** noir pur `#000` en fond, cartes `#141416` et `#1c1c1e`, texte `#f5f5f7`, texte secondaire `#98989f`, **accent orange `#FF5A1F`** avec du texte noir sur les boutons orange, bleu clair `#7CC4FF` secondaire | Il préférait la direction A, mais avec l'orange de la direction B. |
-| **Police Inter**, gros chiffres, cartes très arrondies (22 px) | Lisible d'un coup d'œil pendant l'effort. |
+| **Thème sombre uniquement**, direction visuelle « Anneaux » inspirée d'Apple Forme et Nike Training Club | Choisie parmi deux maquettes : sobre, lisible en salle. **Le style n'est pas figé** : l'utilisateur tient aux fonctionnalités, pas aux couleurs, et laisse Claude améliorer le design (D20 dans `SUIVI.md`). |
+| **Couleurs :** noir pur `#000` en fond, cartes `#141416` et `#1c1c1e`, texte `#f5f5f7`, texte secondaire `#98989f`, **accent orange `#FF5A1F`** avec du texte noir. **Orange = actions, progression, records seulement** (un seul bouton orange par écran). **« Choisi » = fond blanc.** Une couleur par séance (`--seance-a` à `--seance-e`, `src/ui/couleurs.tsx`) | Hiérarchie claire : l'œil trouve tout de suite l'action principale. |
+| **Police Inter** pour les textes, **Barlow Condensed** pour les gros chiffres, échelle de tailles `--t-1` à `--t-7` et `--d-1` à `--d-3`, cartes très arrondies (22 px) | Lisible d'un coup d'œil pendant l'effort. |
 | **Tous les tokens dans `src/styles.css`** (`:root`) | Un seul endroit pour changer le style. |
 | **Saisie en 2 gestes au plus**, gros boutons | On l'utilise en salle, les mains occupées. |
 | **Ton neutre** pour le poids : pas de rouge ni de vert, pas de jugement | Demande de l'utilisateur : le chiffre lui importe peu, il vise la silhouette. |
@@ -132,7 +131,7 @@ L'app a **5 onglets** : Aujourd'hui, Programme, Progrès, Nutrition, Profil.
 - React 18, TypeScript, Vite 6 ;
 - vite-plugin-pwa (appli installable et hors ligne) ;
 - Dexie 4 (base en version 2) ;
-- Vitest (150 tests unitaires) et Playwright (4 parcours au format iPhone dans `e2e/`) ;
+- Vitest (150 tests unitaires) et Playwright (4 parcours au format iPhone dans `e2e/`, 165 vérifications) ;
 - @zxing (lecture des codes-barres).
 
 ```bash
@@ -151,17 +150,12 @@ npm run e2e         # parcours complets au format iPhone (après build)
 
 ## 5. Ce qui reste à faire et problèmes connus
 
-**Prochaine étape :** l'utilisateur veut **améliorer le design (UI/UX)**. Les skills de design sont installées dans `.claude/skills/` : frontend-design, web-design-guidelines, emil-design-eng, improve-animations et impeccable. Leur origine est notée dans `.claude/skills/PROVENANCE.md`.
-- impeccable est installée **sans ses hooks ni son moteur**. Ses commandes `critique` et `audit` marchent en mode réduit, sans le détecteur automatique ; `live` et `generate` ne marchent pas.
-- Garder l'identité validée (sombre, orange `#FF5A1F`, Inter) sauf si l'utilisateur demande autre chose.
-- Avant de modifier le design : faire valider la direction, et garder les tests verts.
-- Le commit « Version finale avant amélioration du design » (`5fc5735`) sert de point de retour.
+**Dernière étape :** amélioration du design (UI/UX), 25 points appliqués le 23/11/2026 (détail : D20 dans `SUIVI.md`). **En attente du retour de l'utilisateur.** Étape suivante prévue : proposer les animations (skills emil-design-eng et improve-animations), **faire approuver la liste avant de les faire**.
+- Skills de design dans `.claude/skills/` (origine : `PROVENANCE.md`). impeccable est installée **sans ses hooks ni son moteur** : `critique` et `audit` marchent en mode réduit ; `live` et `generate` ne marchent pas.
+- Point de retour avant le design : commit `5fc5735`.
 
 **Problèmes connus :**
-- **Chrono vidéo de sprint** : ne fonctionne pas chez l'utilisateur.
-- **Rappels Calendrier** (fichier .ics) : ne semblent pas fonctionner sur son iPhone ; il n'y tient pas.
-
-  Il faut **proposer de retirer ou cacher** ces deux fonctions.
+- **Chrono vidéo de sprint** et **rappels Calendrier** : ne marchaient pas sur son iPhone → **cachés** (code conservé, réactivables dans `src/ui/fonctionsCachees.ts`).
 - **Limites des applis web sur iPhone** : pas de vibration ; l'app est mise en pause quand elle n'est pas à l'écran ; le mode silencieux coupe ses sons.
 
 **Questions ouvertes :**
