@@ -20,6 +20,17 @@
   --seance-e: #ff8fbf;
   --seance-mobilite: #9fd8d2;
   --seance-autre: #98989f;
+  /* Échelle des tailles de texte : 7 tailles pour l'interface, 3 pour les très gros chiffres. */
+  --t-1: 12px;
+  --t-2: 14px;
+  --t-3: 16px;
+  --t-4: 18px;
+  --t-5: 22px;
+  --t-6: 28px;
+  --t-7: 34px;
+  --d-1: 44px;
+  --d-2: 64px;
+  --d-3: 88px;
   --rayon: 22px;
   --haut: env(safe-area-inset-top, 0px);
   --bas: env(safe-area-inset-bottom, 0px);
@@ -31,7 +42,7 @@
 html, body { margin: 0; background: var(--fond); color: var(--texte); }
 body {
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
-  font-size: 16px;
+  font-size: var(--t-3);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
   -webkit-user-select: none;
@@ -56,14 +67,14 @@ button:disabled { opacity: 0.4; cursor: default; }
   max-width: 560px;
   margin: 0 auto;
 }
-.surtitre { font-size: 13px; font-weight: 600; color: var(--doux); text-transform: uppercase; letter-spacing: 0.04em; }
-.titre { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; text-wrap: balance; }
+.surtitre { font-size: var(--t-2); font-weight: 600; color: var(--doux); text-transform: uppercase; letter-spacing: 0.04em; }
+.titre { margin: 0; font-size: var(--t-6); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; text-wrap: balance; }
 /* En-tête compact : titre à gauche, date à droite, sur une seule ligne. */
 .entete { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.entete .doux { font-size: 15px; font-weight: 500; }
-.titre-2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.entete .doux { font-size: var(--t-3); font-weight: 500; }
+.titre-2 { margin: 0; font-size: var(--t-5); font-weight: 700; letter-spacing: -0.01em; }
 .doux { color: var(--doux); }
-.petit { font-size: 13px; }
+.petit { font-size: var(--t-2); }
 .gras { font-weight: 700; }
 .pile { display: flex; flex-direction: column; gap: 12px; }
 .ligne { display: flex; align-items: center; gap: 12px; }
@@ -81,27 +92,27 @@ button:disabled { opacity: 0.4; cursor: default; }
   border: 1px solid color-mix(in srgb, var(--teinte) 28%, transparent);
   padding: 20px 18px;
 }
-.nom-seance { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; text-wrap: balance; }
+.nom-seance { font-size: var(--t-6); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; text-wrap: balance; }
 /* Rappels secondaires : sans fond, pour ne pas concurrencer la séance. */
 .carte.discrete { background: transparent; border: 1px solid var(--trait); color: inherit; }
 
 /* Chiffres de largeur fixe : un nombre qui change ne fait pas bouger ce qui l'entoure. */
-.grand-chiffre { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.grand-chiffre { font-size: var(--t-7); font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .jauge-valeurs, .tableau, .choix-reps, .derniere-fois { font-variant-numeric: tabular-nums; }
-.grand-chiffre small { font-size: 15px; font-weight: 600; color: var(--doux); }
+.grand-chiffre small { font-size: var(--t-3); font-weight: 600; color: var(--doux); }
 
 /* ---------- Boutons ---------- */
 .bouton {
   border: none; border-radius: 16px; min-height: 48px; padding: 0 18px;
   background: var(--carte-2); color: var(--texte);
-  font-size: 16px; font-weight: 700;
+  font-size: var(--t-3); font-weight: 700;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   transition: transform 120ms ease, background 200ms ease;
   text-align: center; text-decoration: none;
 }
 .bouton:active { transform: scale(0.97); }
-.bouton.principal { background: var(--accent); color: var(--accent-encre); min-height: 56px; font-size: 18px; }
-.bouton.geant { min-height: 64px; border-radius: 20px; font-size: 20px; font-weight: 800; width: 100%; }
+.bouton.principal { background: var(--accent); color: var(--accent-encre); min-height: 56px; font-size: var(--t-4); }
+.bouton.geant { min-height: 64px; border-radius: 20px; font-size: var(--t-5); font-weight: 800; width: 100%; }
 .bouton.plein { width: 100%; }
 /* Accepter une proposition : bien visible, sans voler la vedette au bouton orange de l'écran. */
 .bouton.clair { background: var(--texte); color: #000; }
@@ -123,7 +134,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 }
 .onglet {
   background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px;
-  color: var(--doux); font-size: 11px; font-weight: 600; min-height: 48px; letter-spacing: 0.01em;
+  color: var(--doux); font-size: var(--t-1); font-weight: 600; min-height: 48px; letter-spacing: 0.01em;
 }
 .onglet[aria-current='page'] { color: var(--accent); }
 .onglet svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
@@ -143,15 +154,15 @@ button:disabled { opacity: 0.4; cursor: default; }
 .point.fait { background: var(--accent); }
 .point.actuel { background: var(--texte); }
 /* Rappel de la dernière performance, juste sous le nom de l'exercice. */
-.derniere-fois { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 15px; padding: 10px 12px; border-radius: 14px; background: var(--carte); }
-.valeur-geante { font-size: 64px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
-.etiquette { font-size: 12px; font-weight: 700; color: var(--doux); letter-spacing: 0.06em; text-transform: uppercase; }
+.derniere-fois { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: var(--t-3); padding: 10px 12px; border-radius: 14px; background: var(--carte); }
+.valeur-geante { font-size: var(--d-2); font-weight: 800; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.etiquette { font-size: var(--t-1); font-weight: 700; color: var(--doux); letter-spacing: 0.06em; text-transform: uppercase; }
 .choix-reps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-.choix-reps .bouton { min-height: 52px; padding: 0; font-size: 20px; }
+.choix-reps .bouton { min-height: 52px; padding: 0; font-size: var(--t-5); }
 .reglage-charge { display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; gap: 8px; width: 100%; text-align: center; }
-.reglage-charge .valeur-geante small { font-size: 20px; font-weight: 700; color: var(--doux); letter-spacing: 0; }
-.bouton.rond-grand { width: 56px; min-height: 56px; padding: 0; border-radius: 28px; font-size: 24px; }
-.bouton.petit-rond { width: 44px; min-height: 44px; padding: 0; border-radius: 22px; font-size: 20px; }
+.reglage-charge .valeur-geante small { font-size: var(--t-5); font-weight: 700; color: var(--doux); letter-spacing: 0; }
+.bouton.rond-grand { width: 56px; min-height: 56px; padding: 0; border-radius: 28px; font-size: var(--t-5); }
+.bouton.petit-rond { width: 44px; min-height: 44px; padding: 0; border-radius: 22px; font-size: var(--t-5); }
 
 /* ---------- Repos ---------- */
 .repos {
@@ -163,8 +174,8 @@ button:disabled { opacity: 0.4; cursor: default; }
 .repos.fini { background: var(--accent); color: var(--accent-encre); }
 .repos .anneau { position: relative; width: min(280px, 72vw); aspect-ratio: 1; }
 .repos .anneau svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.repos .anneau .temps { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 84px; font-weight: 800; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
-.repos .pastille { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 20px; background: var(--carte-2); }
+.repos .anneau .temps { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: var(--d-3); font-weight: 800; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.repos .pastille { display: flex; align-items: center; gap: 8px; font-size: var(--t-2); font-weight: 600; padding: 8px 14px; border-radius: 20px; background: var(--carte-2); }
 .repos.fini .pastille, .repos.fini .bouton:not(.principal), .repos.fini .carte { background: rgba(0, 0, 0, 0.12); color: var(--accent-encre); }
 .repos.fini .bouton.principal { background: #000; color: var(--accent); }
 
@@ -174,7 +185,7 @@ button:disabled { opacity: 0.4; cursor: default; }
   top: calc(var(--haut) + 8px);
   background: #2c2c2e; color: var(--texte); border-radius: 16px; padding: 10px 10px 10px 16px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); font-size: 15px; font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); font-size: var(--t-3); font-weight: 600;
   animation: descendre 200ms ease-out; max-width: 536px; margin: 0 auto;
   touch-action: none; transition: transform 160ms ease-out, opacity 160ms ease-out;
 }
@@ -192,7 +203,7 @@ html.fige, html.fige body { overflow: hidden; }
   padding: 20px 16px calc(var(--bas) + 20px); display: flex; flex-direction: column; gap: 14px;
   animation: monter 220ms ease-out; max-height: 90dvh; overflow-y: auto; overscroll-behavior: contain;
 }
-textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 12px; font: inherit; font-size: 16px; resize: vertical; }
+textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 12px; font: inherit; font-size: var(--t-3); resize: vertical; }
 
 /* ---------- Réglages ---------- */
 .reglage { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
@@ -200,15 +211,15 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 .interrupteur::after { content: ''; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; transition: transform 200ms; }
 .interrupteur:checked { background: var(--accent); }
 .interrupteur:checked::after { transform: translateX(20px); }
-.liste-etapes { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; color: var(--texte); font-size: 15px; line-height: 1.4; }
-.citation { background: var(--carte-2); border-radius: 12px; padding: 12px; font-size: 15px; line-height: 1.4; -webkit-user-select: text; user-select: text; }
+.liste-etapes { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; color: var(--texte); font-size: var(--t-3); line-height: 1.4; }
+.citation { background: var(--carte-2); border-radius: 12px; padding: 12px; font-size: var(--t-3); line-height: 1.4; -webkit-user-select: text; user-select: text; }
 .element-liste { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #222224; }
 .element-liste:last-child { border-bottom: none; }
 
 /* ---------- Fiche et matériel ---------- */
-.pastille-info { font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 12px; background: var(--carte-2); color: var(--doux); }
+.pastille-info { font-size: var(--t-1); font-weight: 600; padding: 6px 10px; border-radius: 12px; background: var(--carte-2); color: var(--doux); }
 .pastille-info.forte { color: var(--texte); background: #2c2c2e; }
-.case { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 0; border-bottom: 1px solid #222224; font-size: 16px; }
+.case { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 0; border-bottom: 1px solid #222224; font-size: var(--t-3); }
 .case:last-child { border-bottom: none; }
 .case input { width: 24px; height: 24px; accent-color: var(--accent); flex-shrink: 0; }
 .changement { display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: 1px solid #222224; }
@@ -216,7 +227,7 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 .changement .titre-ch { font-weight: 700; }
 .changement .titre-ch b { color: var(--accent); }
 .lieux { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.champ-texte { width: 100%; min-height: 48px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 0 14px; font: inherit; font-size: 16px; }
+.champ-texte { width: 100%; min-height: 48px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 0 14px; font: inherit; font-size: var(--t-3); }
 .lien-liste { background: none; border: none; text-align: left; width: 100%; padding: 12px 0; border-bottom: 1px solid #222224; display: flex; flex-direction: column; gap: 2px; }
 .mention-orange { color: var(--accent); }
 .pastille-seance { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
@@ -228,16 +239,16 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 
 /* ---------- Adaptation du jour (J5) ---------- */
 .pilules { display: flex; flex-wrap: wrap; gap: 8px; }
-.pilules .bouton { min-height: 44px; padding: 0 14px; font-size: 15px; }
+.pilules .bouton { min-height: 44px; padding: 0 14px; font-size: var(--t-3); }
 .grise { opacity: 0.45; }
 .grise .gras { text-decoration: line-through; }
 input[type='range'].curseur { width: 100%; accent-color: var(--accent); height: 32px; }
 /* Petits boutons secondaires de la séance du jour (changer, fatigue, matériel). */
-.actions-seance .bouton { font-size: 14px; padding: 0 8px; line-height: 1.2; }
+.actions-seance .bouton { font-size: var(--t-2); padding: 0 8px; line-height: 1.2; }
 /* Alerte ou proposition : contour complet, sans couleur d'action. */
 .alerte { border: 1px solid rgba(255, 255, 255, 0.16); }
-.consigne { align-self: flex-start; font-size: 14px; font-weight: 600; line-height: 1.35; padding: 6px 10px; border-radius: 10px; background: var(--carte-2); color: var(--texte); }
-.etiquette-remplace { font-size: 11px; font-weight: 700; letter-spacing: 0.02em; padding: 2px 7px; border-radius: 8px; background: var(--carte-2); color: var(--doux); }
+.consigne { align-self: flex-start; font-size: var(--t-2); font-weight: 600; line-height: 1.35; padding: 6px 10px; border-radius: 10px; background: var(--carte-2); color: var(--texte); }
+.etiquette-remplace { font-size: var(--t-1); font-weight: 700; letter-spacing: 0.02em; padding: 2px 7px; border-radius: 8px; background: var(--carte-2); color: var(--doux); }
 .barre-volume { height: 6px; border-radius: 3px; background: var(--carte-2); overflow: hidden; }
 .barre-volume > div { height: 6px; background: var(--accent); }
 
@@ -246,14 +257,14 @@ input[type='range'].curseur { width: 100%; accent-color: var(--accent); height: 
 .jauge > div { height: 100%; background: var(--accent); border-radius: 5px; transition: width 300ms ease-out; }
 .jauge.petite { height: 6px; }
 .raccourcis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.raccourcis .bouton { min-height: 48px; padding: 0 4px; font-size: 13px; flex-direction: column; gap: 0; line-height: 1.15; }
+.raccourcis .bouton { min-height: 48px; padding: 0 4px; font-size: var(--t-2); flex-direction: column; gap: 0; line-height: 1.15; }
 .valeurs-100 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; text-align: center; }
-.champ-nombre { width: 100%; min-height: 48px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 0 12px; font: inherit; font-size: 20px; font-weight: 700; }
+.champ-nombre { width: 100%; min-height: 48px; background: var(--carte-2); color: var(--texte); border: 1px solid var(--trait); border-radius: 14px; padding: 0 12px; font: inherit; font-size: var(--t-5); font-weight: 700; }
 
 /* ---------- Mode analyse sur grand écran (idée I9 : Mac) ---------- */
-.tableau { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.tableau { width: 100%; border-collapse: collapse; font-size: var(--t-2); font-variant-numeric: tabular-nums; }
 .tableau th, .tableau td { text-align: right; padding: 8px 10px; border-bottom: 1px solid #222224; white-space: nowrap; }
-.tableau th { color: var(--doux); font-weight: 600; font-size: 12px; }
+.tableau th { color: var(--doux); font-weight: 600; font-size: var(--t-1); }
 .tableau th:first-child, .tableau td:first-child { text-align: left; white-space: normal; }
 .defile-x { overflow-x: auto; }
 @media (min-width: 900px) {

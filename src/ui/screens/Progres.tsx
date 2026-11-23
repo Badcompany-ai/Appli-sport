@@ -203,12 +203,12 @@ export function Progres() {
           <span className="etiquette">{NOMS_INDICATEURS[indicateur(vu.id)]}</span>
           <Courbe points={vu.pts} format={formatIndicateur(indicateur(vu.id))} />
           <div className="grille-3">
-            <div className="carte compacte"><span className="doux petit gras">Record</span><span className="gras" style={{ fontSize: 18 }}>{formatIndicateur(indicateur(vu.id))(vu.record)}</span></div>
-            <div className="carte compacte"><span className="doux petit gras">Séances</span><span className="gras" style={{ fontSize: 18 }}>{vu.pts.length}</span></div>
+            <div className="carte compacte"><span className="doux petit gras">Record</span><span className="gras" style={{ fontSize: 'var(--t-4)' }}>{formatIndicateur(indicateur(vu.id))(vu.record)}</span></div>
+            <div className="carte compacte"><span className="doux petit gras">Séances</span><span className="gras" style={{ fontSize: 'var(--t-4)' }}>{vu.pts.length}</span></div>
             {indicateur(vu.id) === 'max' ? (
-              <div className="carte compacte"><span className="doux petit gras">Force relative</span><span className="gras" style={{ fontSize: 18 }}>{f1(forceRelative(vu.record, poids))} ×</span></div>
+              <div className="carte compacte"><span className="doux petit gras">Force relative</span><span className="gras" style={{ fontSize: 'var(--t-4)' }}>{f1(forceRelative(vu.record, poids))} ×</span></div>
             ) : (
-              <div className="carte compacte"><span className="doux petit gras">Dernière</span><span className="gras" style={{ fontSize: 18 }}>{formatIndicateur(indicateur(vu.id))(vu.dernier!.valeur)}</span></div>
+              <div className="carte compacte"><span className="doux petit gras">Dernière</span><span className="gras" style={{ fontSize: 'var(--t-4)' }}>{formatIndicateur(indicateur(vu.id))(vu.dernier!.valeur)}</span></div>
             )}
           </div>
           {indicateur(vu.id) === 'max' && (

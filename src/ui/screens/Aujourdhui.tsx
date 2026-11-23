@@ -165,7 +165,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       {!enCours && profil && avantDebut && !essai && (
         <section className="carte" aria-label="Début du programme">
           <span className="doux petit gras">Votre programme</span>
-          <span style={{ fontSize: 22, fontWeight: 700 }}>Commence le {dateLongue(depuisCle(profil.debut).getTime()).toLowerCase()}</span>
+          <span style={{ fontSize: 'var(--t-5)', fontWeight: 700 }}>Commence le {dateLongue(depuisCle(profil.debut).getTime()).toLowerCase()}</span>
           <span className="doux">Dans {-Math.floor(joursEntre(depuisCle(profil.debut), new Date(maintenant)))} jours. En attendant, vous pouvez faire une séance d’essai.</span>
           <div className="grille-2">
             <button className="bouton" onClick={() => setEssai(true)}>Séance d’essai</button>
@@ -245,7 +245,7 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
       {!enCours && !avantDebut && !prochaine && !mobilite && faites && (
         <section className="carte" aria-label="Semaine terminée">
           <span className="doux petit gras">Semaine {index + 1} · {NOMS_PHASES[info.phase]}</span>
-          <span style={{ fontSize: 22, fontWeight: 700 }}>Semaine terminée</span>
+          <span style={{ fontSize: 'var(--t-5)', fontWeight: 700 }}>Semaine terminée</span>
           <span className="doux">{laissees.length ? 'Les séances possibles sont faites.' : `Les ${semaine.length} séances sont faites.`} Repos, ou une séance de mobilité.</span>
         </section>
       )}

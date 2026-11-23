@@ -16,7 +16,7 @@ export function Depart({ initial, onTerminer, onAnnuler }: { initial: Profil | n
       <span className="gras">{label}</span>
       <div className="ligne" style={{ gap: 8 }}>
         <button className="bouton" style={{ width: 48 }} aria-label={`${label} : moins`} onClick={() => onChange(Math.max(min, valeur - pas))}>−</button>
-        <span className="grand-chiffre" style={{ minWidth: 92, textAlign: 'center', fontSize: 26 }}>
+        <span className="grand-chiffre" style={{ minWidth: 92, textAlign: 'center', fontSize: 'var(--t-6)' }}>
           {String(valeur).replace('.', ',')}<small> {unite}</small>
         </span>
         <button className="bouton" style={{ width: 48 }} aria-label={`${label} : plus`} onClick={() => onChange(Math.min(max, valeur + pas))}>+</button>
@@ -27,7 +27,7 @@ export function Depart({ initial, onTerminer, onAnnuler }: { initial: Profil | n
   const Choix = <T extends string | number>({ options, valeur, onChange, colonnes = 2 }: { options: { v: T; nom: string }[]; valeur: T; onChange: (v: T) => void; colonnes?: number }) => (
     <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colonnes}, minmax(0, 1fr))`, gap: 8 }} role="radiogroup">
       {options.map((o) => (
-        <button key={String(o.v)} role="radio" aria-checked={o.v === valeur} className={`bouton ${o.v === valeur ? 'choisi' : ''}`} style={{ minHeight: 52, fontSize: 15 }} onClick={() => onChange(o.v)}>
+        <button key={String(o.v)} role="radio" aria-checked={o.v === valeur} className={`bouton ${o.v === valeur ? 'choisi' : ''}`} style={{ minHeight: 52, fontSize: 'var(--t-3)' }} onClick={() => onChange(o.v)}>
           {o.nom}
         </button>
       ))}
@@ -47,7 +47,7 @@ export function Depart({ initial, onTerminer, onAnnuler }: { initial: Profil | n
       {etape === 0 && (
         <div className="pile" style={{ gap: 16, flexGrow: 1, justifyContent: 'center' }}>
           <h1 className="titre">Bienvenue</h1>
-          <p style={{ fontSize: 18, lineHeight: 1.45, margin: 0 }}>
+          <p style={{ fontSize: 'var(--t-4)', lineHeight: 1.45, margin: 0 }}>
             Votre programme sur 6 mois pour devenir plus explosif, plus fort et plus affûté, préparé à partir de vos réponses.
           </p>
           <p className="doux" style={{ margin: 0 }}>Tout est déjà prérempli : vérifiez, corrigez si besoin. Vos données restent sur ce téléphone.</p>
@@ -93,7 +93,7 @@ export function Depart({ initial, onTerminer, onAnnuler }: { initial: Profil | n
             {NOMS_JOURS_COURTS.map((n, i) => {
               const on = p.jours.includes(i as Jour);
               return (
-                <button key={n} aria-pressed={on} className={`bouton ${on ? 'choisi' : ''}`} style={{ minHeight: 48, padding: 0, fontSize: 13 }} onClick={() => maj({ jours: on ? p.jours.filter((j) => j !== i) : [...p.jours, i as Jour] })}>
+                <button key={n} aria-pressed={on} className={`bouton ${on ? 'choisi' : ''}`} style={{ minHeight: 48, padding: 0, fontSize: 'var(--t-2)' }} onClick={() => maj({ jours: on ? p.jours.filter((j) => j !== i) : [...p.jours, i as Jour] })}>
                   {n}
                 </button>
               );

@@ -44,7 +44,7 @@ export function Courbe({ points, format, brut = [], lectureDiscrete = false }: {
         )}
         {!lectureDiscrete && p && (
           <>
-            <span className="grand-chiffre" style={{ fontSize: 28 }}>{format(p.valeur)}</span>
+            <span className="grand-chiffre" style={{ fontSize: 'var(--t-6)' }}>{format(p.valeur)}</span>
             <span className="doux petit gras">{new Date(p.date).toLocaleDateString('fr-CH', { weekday: 'short', day: 'numeric', month: 'long' })}</span>
           </>
         )}
@@ -69,9 +69,9 @@ export function Courbe({ points, format, brut = [], lectureDiscrete = false }: {
             />
           </g>
         ))}
-        <text x={marge.g} y={H - 6} style={{ fill: 'var(--doux)', fontSize: 11 }}>{JOURS_COURTS(t0)}</text>
+        <text x={marge.g} y={H - 6} style={{ fill: 'var(--doux)', fontSize: 'var(--t-1)' }}>{JOURS_COURTS(t0)}</text>
         {points.length > 1 && (
-          <text x={L - marge.d} y={H - 6} textAnchor="end" style={{ fill: 'var(--doux)', fontSize: 11 }}>{JOURS_COURTS(t1)}</text>
+          <text x={L - marge.d} y={H - 6} textAnchor="end" style={{ fill: 'var(--doux)', fontSize: 'var(--t-1)' }}>{JOURS_COURTS(t1)}</text>
         )}
       </svg>
     </div>

@@ -70,7 +70,7 @@ export function CarteSommeil({ heures, onChoisir }: { heures?: number; onChoisir
       <span className="gras">Sommeil cette nuit</span>
       <div className="choix-reps" style={{ gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' }}>
         {HEURES.map((h) => (
-          <button key={h} className="bouton" style={{ fontSize: 16 }} onClick={() => onChoisir(h)} aria-label={`${h} heures de sommeil`}>
+          <button key={h} className="bouton" style={{ fontSize: 'var(--t-3)' }} onClick={() => onChoisir(h)} aria-label={`${h} heures de sommeil`}>
             {h === 4 ? '≤4' : h === 9 ? '9+' : h}
           </button>
         ))}

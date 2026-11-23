@@ -92,7 +92,7 @@ export function Programme() {
           <span className="doux petit gras">
             {index < 0 ? `Commence le ${dateLongue(depuisCle(profil.debut).getTime()).toLowerCase()}` : info.apresProgramme ? 'Programme de 6 mois terminé : maintien en attendant le suivant' : `Semaine ${index + 1} sur ${NB_SEMAINES}`}
           </span>
-          <span style={{ fontSize: 22, fontWeight: 700 }}>{NOMS_PHASES[info.phase]}{info.allegee ? ' · semaine allégée et tests' : ''}</span>
+          <span style={{ fontSize: 'var(--t-5)', fontWeight: 700 }}>{NOMS_PHASES[info.phase]}{info.allegee ? ' · semaine allégée et tests' : ''}</span>
           {profil.debut !== PROFIL_INTERVIEW.debut && (
             <button
               className="bouton plein"
@@ -106,7 +106,7 @@ export function Programme() {
               Remettre le début au lundi 28 décembre
             </button>
           )}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 6fr 6fr 6fr 6fr', gap: 4 }} aria-hidden="true">
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(34px, 2fr) 6fr 6fr 6fr 6fr', gap: 6 }} aria-hidden="true">
             {PHASES.map((p, i) => {
               const debutPhase = PHASES.slice(0, i).reduce((n, x) => n + x.semaines, 0);
               const dedans = index >= debutPhase && index < debutPhase + p.semaines;
@@ -117,7 +117,7 @@ export function Programme() {
                   <div style={{ height: 8, borderRadius: 4, background: 'var(--carte-2)', overflow: 'hidden' }}>
                     <div style={{ height: 8, width: `${part * 100}%`, background: dedans ? 'var(--accent)' : 'var(--doux)' }} />
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: dedans ? 800 : 600, color: dedans ? 'var(--texte)' : 'var(--doux)' }}>
+                  <span style={{ fontSize: 'var(--t-1)', fontWeight: dedans ? 800 : 600, color: dedans ? 'var(--texte)' : 'var(--doux)' }}>
                     {p.cle === 'reprise' ? 'Rep.' : p.cle.toUpperCase()}{dedans && p.cle !== 'reprise' ? ' · ici' : ''}
                   </span>
                 </div>
@@ -157,7 +157,7 @@ export function Programme() {
                       {jours[i] !== undefined ? `${NOMS_JOURS[jours[i]]} (suggéré)` : ''} · {s.exercices.length} {s.programme?.type === 'test' ? 'épreuves ou exercices' : 'exercices'}
                     </span>
                   </div>
-                  <span className={`petit gras ${fait || prochaine ? '' : 'doux'}`} style={prochaine ? { color: 'var(--accent)' } : undefined}>{fait ? 'Faite' : passee ? 'Non faite' : manquee ? (prochaine ? 'Manquée · à faire' : 'Manquée') : prochaine ? 'Prochaine' : 'À venir'} ›</span>
+                  <span className={`petit gras ${fait || prochaine ? '' : 'doux'}`} style={{ whiteSpace: 'nowrap', ...(prochaine ? { color: 'var(--accent)' } : {}) }}>{fait ? 'Faite' : passee ? 'Non faite' : manquee ? (prochaine ? 'Manquée · à faire' : 'Manquée') : prochaine ? 'Prochaine' : 'À venir'} ›</span>
                 </button>
               );
             })}
@@ -277,7 +277,7 @@ export function Programme() {
           {seanceVue.echauffement && (
             <div className="pile" style={{ gap: 6 }}>
               <span className="etiquette">Échauffement</span>
-              <ul className="liste-etapes" style={{ fontSize: 14 }}>{seanceVue.echauffement.map((e) => <li key={e}>{e}</li>)}</ul>
+              <ul className="liste-etapes" style={{ fontSize: 'var(--t-2)' }}>{seanceVue.echauffement.map((e) => <li key={e}>{e}</li>)}</ul>
             </div>
           )}
           <span className="etiquette">Exercices</span>

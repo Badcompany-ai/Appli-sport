@@ -220,7 +220,7 @@ export function Nutrition() {
             return (
               <button key={c.id} className="bouton" onClick={() => void ajouterComplement(c)} aria-label={`Ajouter 1 dose : ${c.nom}`} aria-pressed={!!p?.aujourdhui}>
                 <span>{p?.aujourdhui ? '✓ ' : ''}{c.nom.replace(' en poudre', '')}</span>
-                <span className="doux" style={{ fontSize: 11 }}>{p?.aujourdhui ? 'pris' : '+ 1 dose'}</span>
+                <span className="doux" style={{ fontSize: 'var(--t-1)' }}>{p?.aujourdhui ? 'pris' : '+ 1 dose'}</span>
               </button>
             );
           })}
@@ -331,7 +331,7 @@ function JaugeGrande({ nom, valeur, cible, unite, texte }: { nom: string; valeur
     <div className="pile" style={{ gap: 6 }} aria-label={`${nom} : ${ent(valeur)} sur ${ent(cible)} ${unite}`}>
       <div className="ligne ecartee" style={{ alignItems: 'baseline' }}>
         <span className="gras">{nom}</span>
-        <span className="jauge-valeurs"><span className="grand-chiffre" style={{ fontSize: 26 }}>{ent(valeur)}</span><span className="doux petit"> / {ent(cible)} {unite}</span></span>
+        <span className="jauge-valeurs"><span className="grand-chiffre" style={{ fontSize: 'var(--t-6)' }}>{ent(valeur)}</span><span className="doux petit"> / {ent(cible)} {unite}</span></span>
       </div>
       <div className="jauge"><div style={{ width: `${Math.min(100, (valeur / Math.max(1, cible)) * 100)}%` }} /></div>
       <span className="doux petit">{texte}</span>
@@ -527,7 +527,7 @@ function FeuilleQuantite({ aliment, jour, onRetour, onFermer }: { aliment: Alime
       {portion ? (
         <div className="ligne ecartee">
           <button className="bouton rond" aria-label="Une portion de moins" onClick={() => setNb((x) => Math.max(0.5, x - 0.5))}>−</button>
-          <span className="grand-chiffre" style={{ fontSize: 32 }}>{String(nb).replace('.', ',')} × <small>{portion.nom}</small></span>
+          <span className="grand-chiffre" style={{ fontSize: 'var(--t-7)' }}>{String(nb).replace('.', ',')} × <small>{portion.nom}</small></span>
           <button className="bouton rond" aria-label="Une portion de plus" onClick={() => setNb((x) => x + 0.5)}>+</button>
         </div>
       ) : (
