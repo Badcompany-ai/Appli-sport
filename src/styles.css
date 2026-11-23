@@ -18,7 +18,8 @@
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* touch-action : empêche le zoom quand on touche deux fois vite un bouton (+, −, +30 s). */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 html, body { margin: 0; background: var(--fond); color: var(--texte); }
 body {
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
