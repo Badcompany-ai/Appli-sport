@@ -10,9 +10,10 @@ export interface PointCourbe {
 
 const JOURS_COURTS = (t: number) => new Date(t).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' });
 
-/** « brut » : valeurs brutes affichées en petits points pâles derrière la courbe (pesées autour de la tendance). */
-export function Courbe({ points, format, brut = [] }: { points: PointCourbe[]; format: (v: number) => string; brut?: PointCourbe[] }) {
-  const [choisi, setChoisi] = useState<number | null>(points.length ? points.length - 1 : null);
+/** « brut » : valeurs brutes affichées en petits points pâles derrière la courbe (pesées autour de la tendance).
+ *  « lectureDiscrete » : la valeur du point touché s'affiche en petit (le grand chiffre est déjà au-dessus de la courbe). */
+export function Courbe({ points, format, brut = [], lectureDiscrete = false }: { points: PointCourbe[]; format: (v: number) => string; brut?: PointCourbe[]; lectureDiscrete?: boolean }) {
+  const [choisi, setChoisi] = useState<number | null>(points.length && !lectureDiscrete ? points.length - 1 : null);
   if (points.length === 0) return null;
   const L = 320;
   const H = 150;
@@ -36,8 +37,12 @@ export function Courbe({ points, format, brut = [] }: { points: PointCourbe[]; f
 
   return (
     <div className="pile" style={{ gap: 6 }}>
-      <div className="ligne ecartee" style={{ minHeight: 40 }} aria-live="polite">
-        {p && (
+      <div className="ligne ecartee" style={{ minHeight: lectureDiscrete ? 20 : 40 }} aria-live="polite">
+        {lectureDiscrete && !p && <span className="doux petit">Touchez un point pour voir sa valeur.</span>}
+        {lectureDiscrete && p && (
+          <span className="petit"><span className="gras">{format(p.valeur)}</span> <span className="doux">· tendance au {new Date(p.date).toLocaleDateString('fr-CH', { weekday: 'short', day: 'numeric', month: 'long' })}</span></span>
+        )}
+        {!lectureDiscrete && p && (
           <>
             <span className="grand-chiffre" style={{ fontSize: 28 }}>{format(p.valeur)}</span>
             <span className="doux petit gras">{new Date(p.date).toLocaleDateString('fr-CH', { weekday: 'short', day: 'numeric', month: 'long' })}</span>

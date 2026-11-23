@@ -80,6 +80,7 @@ export function SectionCorps() {
               <div className="pile" style={{ gap: 0 }}>
                 <span className="doux petit gras">Tendance sur 7 jours</span>
                 <span className="grand-chiffre">{f1(t ?? poids)}<small> kg</small></span>
+                <span className="doux petit">Dernière pesée : {f1(pesees[pesees.length - 1].valeur)} kg</span>
               </div>
               {r ? (
                 <span className="gras" style={{ textAlign: 'right' }}>
@@ -91,7 +92,7 @@ export function SectionCorps() {
                 <span className="doux petit" style={{ textAlign: 'right', maxWidth: 150 }}>Rythme dès 4 pesées sur 14 jours</span>
               )}
             </div>
-            <Courbe points={courbeTendance(pesees)} brut={pesees.map((p) => ({ date: p.date, valeur: p.valeur }))} format={(v) => `${f1(v)} kg`} />
+            <Courbe points={courbeTendance(pesees)} brut={pesees.map((p) => ({ date: p.date, valeur: p.valeur }))} format={(v) => `${f1(v)} kg`} lectureDiscrete />
             <span className="doux petit">Ligne : tendance. Points pâles : pesées du jour (elles varient de 1 à 2 kg avec l’eau, le sel et les repas).</span>
           </>
         )}
