@@ -165,6 +165,7 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
             <span key={i} className={`point ${i < numero ? 'fait' : i === numero ? 'actuel' : ''}`} />
           ))}
         </div>}
+        <DernierePerf ex={ex} seanceId={seance.id} />
       </div>
 
       {ex.mesure === 'test' ? (
@@ -190,8 +191,6 @@ export function ModeSeance({ seanceId, onFermer }: { seanceId: string; onFermer:
           <button className="bouton" onClick={() => setNote(true)}>Note</button>
         </div>
       )}
-
-      <DernierePerf ex={ex} seanceId={seance.id} />
 
       {seance.notes[ex.exerciceId] && (
         <button className="carte compacte" style={{ border: 'none', textAlign: 'left' }} onClick={() => setNote(true)}>
@@ -383,12 +382,17 @@ function SaisieReps({
   const pas = ex.pasKg ?? 2.5;
   const vise = ex.reps ?? 8;
   const [reps, setReps] = useState(vise);
-  const choix = Array.from({ length: 5 }, (_, i) => Math.max(1, vise - 2) + i);
+  // 5 choix autour de l'objectif ; si le nombre choisi en sort (avec − ou +), ils se recentrent dessus.
+  const premierChoix = Math.max(1, vise - 2);
+  const centre = reps < premierChoix || reps > premierChoix + 4 ? reps : vise;
+  const choix = Array.from({ length: 5 }, (_, i) => Math.max(1, centre - 2) + i);
   const lest = ex.mesure === 'poids_du_corps_reps';
   const lib = exercice(ex.exerciceId);
   // Sauts : lest facultatif (haltères dans chaque main), noté s'il est utilisé.
   const lestOptionnel = ex.mesure === 'reps' && !!lib && ['saut_v', 'saut_h', 'bonds'].includes(lib.mouvement);
   const sansCharge = ex.mesure === 'reps' && !lestOptionnel;
+  // Lest facultatif : replié tant qu'il n'est pas utilisé.
+  const [lestOuvert, setLestOuvert] = useState(!lestOptionnel || (precedenteIci ?? 0) > 0);
   const echauffement =
     faites.length === 0 && ex.mesure === 'charge_reps'
       ? seriesEchauffement(valeurCharge, { pas: ex.pasKg ?? 2.5, barre: lib?.charge === 'barre' ? 20 : 0 })
@@ -430,28 +434,26 @@ function SaisieReps({
           </div>
         </div>
       )}
-      <div className={sansCharge ? '' : 'grille-2'}>
-        {!sansCharge && <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
+      {!sansCharge && (lestOuvert ? (
+        <div className="pile" style={{ alignItems: 'center', gap: 4 }}>
           <span className="etiquette">{lestOptionnel ? 'Lest (haltères)' : lest ? 'Lest' : 'Charge'}</span>
-          <span className="valeur-geante" aria-live="polite">{kg(valeurCharge)}</span>
-          <span className="doux petit gras">kg</span>
-          <div className="ligne" style={{ gap: 8 }}>
-            <button className="bouton" style={{ width: 52 }} aria-label={`Moins ${kg(pas)} kg`} onClick={() => setCharge(Math.max(0, valeurCharge - pas))}>−</button>
-            <button className="bouton" style={{ width: 52 }} aria-label={`Plus ${kg(pas)} kg`} onClick={() => setCharge(valeurCharge + pas)}>+</button>
-          </div>
-        </div>}
-        <div className="pile" style={{ alignItems: 'center', gap: 6 }}>
-          <span className="etiquette">Répétitions</span>
-          <span className="valeur-geante" aria-live="polite" style={{ color: reps !== vise ? 'var(--accent)' : undefined }}>{reps}</span>
-          <span className="doux petit gras">objectif {vise}</span>
-          <div className="ligne" style={{ gap: 8 }}>
-            <button className="bouton" style={{ width: 52 }} aria-label="Une répétition de moins" onClick={() => setReps(Math.max(0, reps - 1))}>−</button>
-            <button className="bouton" style={{ width: 52 }} aria-label="Une répétition de plus" onClick={() => setReps(reps + 1)}>+</button>
+          <div className="reglage-charge">
+            <button className="bouton rond-grand" aria-label={`Moins ${kg(pas)} kg`} onClick={() => setCharge(Math.max(0, valeurCharge - pas))}>−</button>
+            <span className="valeur-geante" aria-live="polite">{kg(valeurCharge)}<small> kg</small></span>
+            <button className="bouton rond-grand" aria-label={`Plus ${kg(pas)} kg`} onClick={() => setCharge(valeurCharge + pas)}>+</button>
           </div>
         </div>
-      </div>
+      ) : (
+        <button className="bouton discret" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={() => setLestOuvert(true)}>+ Ajouter du lest</button>
+      ))}
       <div className="pile" style={{ gap: 8 }}>
-        <span className="doux petit gras">Répétitions faites</span>
+        <div className="ligne ecartee">
+          <span className="doux petit gras">Répétitions faites · objectif {vise}</span>
+          <div className="ligne" style={{ gap: 6 }}>
+            <button className="bouton petit-rond" aria-label="Une répétition de moins" onClick={() => setReps(Math.max(0, reps - 1))}>−</button>
+            <button className="bouton petit-rond" aria-label="Une répétition de plus" onClick={() => setReps(reps + 1)}>+</button>
+          </div>
+        </div>
         <div className="choix-reps" role="radiogroup" aria-label="Répétitions faites">
           {choix.map((r) => (
             <button
@@ -519,8 +521,8 @@ function DernierePerf({ ex, seanceId }: { ex: ExercicePrevu; seanceId: string })
   const d = useLiveQuery(() => dernierePerformance(ex.exerciceId, seanceId), [ex.exerciceId, seanceId]);
   if (d === undefined) {
     return (
-      <div className="carte compacte">
-        <span className="doux petit gras">Dernière fois</span>
+      <div className="derniere-fois">
+        <span className="doux">Dernière fois</span>
         <span className="gras">Première fois sur cet exercice</span>
       </div>
     );
@@ -540,9 +542,9 @@ function DernierePerf({ ex, seanceId }: { ex: ExercicePrevu; seanceId: string })
         : `${kg(c)} kg × ${reps}`;
   }
   return (
-    <div className="carte compacte">
-      <span className="doux petit gras">Dernière fois · {ilYA(d.seance.debut, Date.now())}</span>
-      <span className="gras" style={{ fontSize: 17 }}>{texte}</span>
+    <div className="derniere-fois">
+      <span className="doux">Dernière fois · {ilYA(d.seance.debut, Date.now())}</span>
+      <span className="gras">{texte}</span>
     </div>
   );
 }
