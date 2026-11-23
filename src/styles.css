@@ -200,6 +200,8 @@ textarea.champ { width: 100%; min-height: 120px; background: var(--carte-2); col
 .grise { opacity: 0.45; }
 .grise .gras { text-decoration: line-through; }
 input[type='range'].curseur { width: 100%; accent-color: var(--accent); height: 32px; }
+/* Petits boutons secondaires de la séance du jour (changer, fatigue, matériel). */
+.actions-seance .bouton { font-size: 14px; padding: 0 8px; line-height: 1.2; }
 .alerte { border-left: 3px solid var(--accent); }
 .barre-volume { height: 6px; border-radius: 3px; background: var(--carte-2); overflow: hidden; }
 .barre-volume > div { height: 6px; background: var(--accent); }

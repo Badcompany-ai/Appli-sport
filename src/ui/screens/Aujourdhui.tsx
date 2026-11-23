@@ -270,6 +270,24 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
               <span className="grand-chiffre">{plan.exercices.length}<small> exercices</small></span>
               {contactsAuSol(plan) > 0 && <span className="grand-chiffre">{contactsAuSol(plan)}<small> sauts</small></span>}
             </div>
+            <button
+              className="bouton principal geant"
+              onClick={async () => {
+                preparerSon();
+                void demanderStockagePersistant();
+                const s = await demarrerSeance(plan, Date.now(), { lieu: journee.lieu, dispo: journee.dispo });
+                setEssai(false);
+                setMobilite(false);
+                ouvrirSeance(s.id);
+              }}
+            >
+              Commencer
+            </button>
+            <div className={deProgramme && aFaire.length > 1 ? 'grille-3 actions-seance' : 'grille-2 actions-seance'}>
+              {deProgramme && aFaire.length > 1 && <button className="bouton" onClick={() => setFeuille('choix')}>Changer de séance</button>}
+              <button className="bouton" onClick={() => setFeuille('signalement')}>{jour.fatigue ? 'Fatigue signalée' : 'Fatigue ou douleur'}</button>
+              <button className="bouton" onClick={() => setFeuille('materiel')}>Matériel</button>
+            </div>
             {adapte && (
               <div className="pile" style={{ gap: 2 }}>
                 <label className="ligne ecartee petit" htmlFor="temps-dispo">
@@ -345,26 +363,6 @@ export function Aujourdhui({ ouvrirSeance, allerA }: { ouvrirSeance: (id: string
                 Revenir à la séance complète
               </button>
             )}
-            <div className="grille-2">
-              {deProgramme && aFaire.length > 1 ? <button className="bouton" onClick={() => setFeuille('choix')}>Changer de séance</button> : <span />}
-              <button className="bouton" onClick={() => setFeuille('signalement')}>{jour.fatigue ? 'Fatigue signalée' : 'Fatigue ou douleur'}</button>
-            </div>
-            <div className="grille-2">
-              <button className="bouton" onClick={() => setFeuille('materiel')}>Matériel</button>
-              <button
-                className="bouton principal"
-                onClick={async () => {
-                  preparerSon();
-                  void demanderStockagePersistant();
-                  const s = await demarrerSeance(plan, Date.now(), { lieu: journee.lieu, dispo: journee.dispo });
-                  setEssai(false);
-                  setMobilite(false);
-                  ouvrirSeance(s.id);
-                }}
-              >
-                Commencer
-              </button>
-            </div>
             {(essai || mobilite) && (
               <button className="bouton plein discret" onClick={() => { setEssai(false); setMobilite(false); }}>
                 Revenir à la séance prévue
