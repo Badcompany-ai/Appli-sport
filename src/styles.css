@@ -29,8 +29,9 @@
   --t-6: 28px;
   --t-7: 34px;
   --d-1: 44px;
-  --d-2: 64px;
+  --d-2: 72px;
   --d-3: 88px;
+  --police-chiffres: 'Barlow Condensed', 'Inter', -apple-system, system-ui, sans-serif;
   --rayon: 22px;
   --haut: env(safe-area-inset-top, 0px);
   --bas: env(safe-area-inset-bottom, 0px);
@@ -272,3 +273,9 @@ input[type='range'].curseur { width: 100%; accent-color: var(--accent); height: 
   .grille-analyse { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
   .seance { padding-left: max(16px, calc(50% - 280px)); padding-right: max(16px, calc(50% - 280px)); }
 }
+
+/* ---------- Gros chiffres : police étroite « sport » (Barlow Condensed) ---------- */
+/* Placé en fin de fichier pour passer devant les réglages de taille et de graisse plus haut. */
+.grand-chiffre, .valeur-geante, .repos .anneau .temps { font-family: var(--police-chiffres); font-weight: 700; letter-spacing: 0; }
+.grand-chiffre { font-size: var(--d-1); line-height: 1; }
+.grand-chiffre small, .valeur-geante small { font-family: 'Inter', -apple-system, system-ui, sans-serif; letter-spacing: 0; }

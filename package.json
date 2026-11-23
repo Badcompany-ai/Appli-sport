@@ -11,6 +11,7 @@
     "e2e": "node e2e/run.mjs && node e2e/semaine.mjs && node e2e/nutrition.mjs && node e2e/j7.mjs"
   },
   "dependencies": {
+    "@fontsource/barlow-condensed": "5.2.6",
     "@fontsource/inter": "5.1.0",
     "@zxing/browser": "0.1.5",
     "@zxing/library": "0.21.3",
