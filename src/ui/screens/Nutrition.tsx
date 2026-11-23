@@ -405,7 +405,6 @@ function FeuilleAjout({ jour, scanner, onFermer }: { jour: string; scanner?: boo
       <input
         className="champ-texte"
         type="search"
-        autoFocus
         placeholder="Chercher : œuf, poulet, pizza…"
         aria-label="Chercher un aliment"
         value={recherche}
